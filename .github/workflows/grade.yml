@@ -19,4 +19,4 @@ jobs:
         java-version: 17
 
     - name: Build Everything
-      run: ./gradlew build
+      run: chmod +x ./gradlew build
