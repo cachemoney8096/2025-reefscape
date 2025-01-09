@@ -14,6 +14,42 @@ package frc.robot;
  */
 public final class Constants {
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+    public static final int DRIVER_CONTROLLER_PORT = 0;
+    public static final int OPERATOR_CONTROLLER_PORT = 1;
+  }
+
+  /* Placeholders */
+  public static final int PLACEHOLDER_INT = 0;
+  public static final double PLACEHOLDER_DOUBLE = 0;
+
+  public static enum limelightLedMode {
+    PIPELINE_MODE,
+    OFF,
+    BLINK,
+    ON
+  }
+
+  /*
+   * 0 - limelight
+   * 1 - driver
+   */
+  public static enum limelightCamMode {
+    VISION_PROCESSING,
+    DRIVER_CAMERA
+  }
+
+  public static enum limelightPipeline {
+    /** Pipeline 0 in LL */
+    TAG_PIPELINE,
+    /** Pipeline 1 in LL */
+    NOTE_PIPELINE,
+    PIPELINE2,
+    PIPELINE3,
+    PIPELINE4,
+    PIPELINE5,
+    PIPELINE6,
+    PIPELINE7,
+    PIPELINE8,
+    PIPELINE9
   }
 }
