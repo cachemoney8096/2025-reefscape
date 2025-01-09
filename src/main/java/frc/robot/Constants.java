@@ -20,7 +20,7 @@ public final class Constants {
 
   /* Placeholders */
   public static final int PLACEHOLDER_INT = 0;
-  public static final double PLACEHOLDER_DOUBLE = 0;
+  public static final double PLACEHOLDER_DOUBLE = 0.0;
 
   public static enum limelightLedMode {
     PIPELINE_MODE,
@@ -42,7 +42,7 @@ public final class Constants {
     /** Pipeline 0 in LL */
     TAG_PIPELINE,
     /** Pipeline 1 in LL */
-    NOTE_PIPELINE,
+    VISION_PIPELINE,
     PIPELINE2,
     PIPELINE3,
     PIPELINE4,
