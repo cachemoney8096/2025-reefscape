@@ -16,7 +16,9 @@ import frc.robot.RobotMap;
 public class Claw extends SubsystemBase {
     public TalonFX rollerMotor = new TalonFX(ClawConstants.ROLLER_MOTOR_CAN_ID);
 
-    public DigitalInput beamBreak = new DigitalInput(ClawConstants.BEAM_BREAK_DIO);
+    public DigitalInput beamBreak1 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_1);
+    public DigitalInput beamBreak2 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_2);
+
 
     public Claw(){
         initTalons();
@@ -37,8 +39,16 @@ public class Claw extends SubsystemBase {
         cfg.apply(toApply);
     }
 
+    public boolean beamBreak1(){
+        return !beamBreak1.get();
+    }
+    
+    public boolean beamBreak2(){
+        return !beamBreak2.get();
+    }
+
     public boolean beamBreakSeesObject(){
-        return !beamBreak.get();
+        return beamBreak1() || beamBreak2();
     }
 
     public void runMotorsIntaking(){
@@ -57,6 +67,8 @@ public class Claw extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         builder.addBooleanProperty(
-            "Beam Break Status", this::beamBreakSeesObject, null);
+            "Beam Break 1 Status", this::beamBreak1, null);
+        builder.addBooleanProperty(
+            "Beam Break 2 Status", this::beamBreak2, null);
     }
 }
