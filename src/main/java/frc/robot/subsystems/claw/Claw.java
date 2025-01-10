@@ -6,6 +6,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -14,7 +15,9 @@ import frc.robot.RobotMap;
 public class Claw extends SubsystemBase {
     public TalonFX rollerMotor = new TalonFX(ClawConstants.ROLLER_MOTOR_CAN_ID);
 
-    public DigitalInput beamBreak = new DigitalInput(ClawConstants.BEAM_BREAK_DIO);
+    public DigitalInput beamBreak1 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO);
+    public DigitalInput beamBreak2 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO);
+
 
     public Claw(){
         initTalons();
@@ -35,8 +38,16 @@ public class Claw extends SubsystemBase {
         cfg.apply(toApply);
     }
 
+    public boolean beamBreak1(){
+        return !beamBreak1.get();
+    }
+    
+    public boolean beamBreak2(){
+        return !beamBreak2.get();
+    }
+
     public boolean beamBreakSeesObject(){
-        return !beamBreak.get();
+        return beamBreak1() || beamBreak2();
     }
 
     public void runMotorsIntaking(){
@@ -49,5 +60,14 @@ public class Claw extends SubsystemBase {
 
     public void stopMotors(){
         rollerMotor.set(0.0);
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        builder.addBooleanProperty(
+            "Beam Break 1 Status", this::beamBreak1, null);
+        builder.addBooleanProperty(
+            "Beam Break 2 Status", this::beamBreak2, null);
     }
 }
