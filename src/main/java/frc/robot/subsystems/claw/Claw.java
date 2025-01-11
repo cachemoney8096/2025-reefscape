@@ -18,7 +18,6 @@ public class Claw extends SubsystemBase {
 
     public DigitalInput beamBreak1 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_1);
     public DigitalInput beamBreak2 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_2);
-    public DigitalInput beamBreak3 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_3);
 
 
     public Claw(){
@@ -48,17 +47,9 @@ public class Claw extends SubsystemBase {
         return !beamBreak2.get();
     }
 
-    public boolean beamBreak3(){
-        return !beamBreak3.get();
-    }
-
     public boolean beamBreakSeesObject(){
         return beamBreak1() || beamBreak2();
     }
-    public boolean beamBreakNotSeesObject(){
-        return !(beamBreak1() || beamBreak2());
-    }
-
 
     public void runMotorsIntaking(){
         rollerMotor.set(ClawCal.CLAW_ROLLERS_INTAKING_SPEED_PERCENT);
