@@ -10,8 +10,8 @@ public class ClawScoringSequence extends SequentialCommandGroup  {
         addRequirements(claw);
         addCommands(
             new InstantCommand(() -> claw.runMotorsIntaking()),
-            new WaitUntilCommand(!claw::beamBreakSeesObject),
+            new WaitUntilCommand(claw::beamBreakNotSeesObject),
             new InstantCommand(() -> claw.stopMotors())
         );
     }
-}   
+}
