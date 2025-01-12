@@ -105,7 +105,7 @@ public class Elevator extends SubsystemBase {
         final double nextVelocityInPerSec =
             currentPIDController.getSetpoint().velocity; // calculate the next velocity we want to be at
         if (prevTimestamp.isPresent()) {
-            currentFeedforward.calculate(nextVelocityInPerSec)
+            currentFeedforward.calculate(nextVelocityInPerSec);
       // based on how velocity has changed, calculate a feedforward factor.
         // for example, if it didn't change as much as we expect, we could be
         // working against gravity.
