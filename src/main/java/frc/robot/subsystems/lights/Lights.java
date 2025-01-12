@@ -20,15 +20,13 @@ public class Lights {
   private LightCode currentLightStatus = LightCode.OFF;
 
   public enum LightCode {
-    DISABLED,
-    OFF, // nothing, used for prepState = OFF and UnclimbSequence
-    INTAKING, // purple
-    HAS_NOTE, // green
-    SPEAKER_PREP, // blue
-    FEED, // red
-    AMP_PREP, // red, both feed are amp prep are red
-    CLIMB_PREP, // yellow
-    READY_TO_SCORE // rainbow
+    READY_TO_INTAKE, //ORANGE
+    HAS_CORAL, //GREEN
+    SCORE_PREP, //BLUE
+    READY_TO_SCORE, //YELLOW
+    CLIMB_PREP, //BLACK
+    READY_TO_CLIMB, //PURPLE
+    OFF, //RED
   }
 
   public Lights() {
@@ -37,14 +35,13 @@ public class Lights {
     candle.configAllSettings(config);
 
     lightOptionsMap = new TreeMap<LightCode, Integer[]>();
-    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 45, 0});
-    lightOptionsMap.put(LightCode.OFF, new Integer[] {0, 0, 0});
-    lightOptionsMap.put(LightCode.INTAKING, new Integer[] {255, 0, 255});
-    lightOptionsMap.put(LightCode.HAS_NOTE, new Integer[] {0, 255, 0});
-    lightOptionsMap.put(LightCode.SPEAKER_PREP, new Integer[] {0, 0, 255});
-    lightOptionsMap.put(LightCode.FEED, new Integer[] {255, 0, 0});
-    lightOptionsMap.put(LightCode.AMP_PREP, new Integer[] {255, 0, 0});
-    lightOptionsMap.put(LightCode.CLIMB_PREP, new Integer[] {255, 255, 0});
+    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 128, 0});
+    lightOptionsMap.put(LightCode.OFF, new Integer[] {255, 0, 0});
+    lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {128, 255, 0});
+    lightOptionsMap.put(LightCode.SCORE_PREP, new Integer[] {0, 0, 255});
+    lightOptionsMap.put(LightCode.READY_TO_SCORE, new Integer[] {255, 255, 0});
+    lightOptionsMap.put(LightCode.CLIMB_PREP, new Integer[] {0, 0, 0});
+    lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {127, 0, 255});
   }
 
   public void setLEDColor(LightCode light) {
