@@ -1,4 +1,5 @@
 package frc.robot.subsystems.elevator;
+
 import java.util.Optional;
 import java.util.TreeMap;
 
@@ -19,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class Elevator extends SubsystemBase {
-    public enum ElevatorHeight{
+    public enum ElevatorHeight {
         HOME,
         SCORE_L4,
         SCORE_L3,
@@ -29,13 +30,12 @@ public class Elevator extends SubsystemBase {
         SCORE_SHALLOWCLIMB;
     }
 
-    
     public TalonFX leftElevatorMotor = new TalonFX(ElevatorConstants.LEFT_ELEVATOR_MOTOR);
     public TalonFX rightElevatorMotor = new TalonFX(ElevatorConstants.RIGHT_ELEVATOR_MOTOR);
     private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();;
 
     public Elevator() {
-        
+
         elevatorPositions.put(ElevatorHeight.HOME, ElevatorCal.POSITION_HOME_INCHES);
         elevatorPositions.put(ElevatorHeight.SCORE_L4, ElevatorCal.POSITION_SCORE_L4_INCHES);
         elevatorPositions.put(ElevatorHeight.SCORE_L3, ElevatorCal.POSITION_SCORE_L3_INCHES);
@@ -46,13 +46,15 @@ public class Elevator extends SubsystemBase {
         initTalons();
     }
 
-     private void initTalons() {
+    private void initTalons() {
         TalonFXConfigurator cfgLeft = leftElevatorMotor.getConfigurator();
         TalonFXConfigurator cfgRight = rightElevatorMotor.getConfigurator();
 
         TalonFXConfiguration toApply = new TalonFXConfiguration();
-        toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; //TODO change this to make run intake methods work
-        toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast; //TODO change this based on how tight the compression is
+        toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO change this to make run intake methods
+                                                                         // work
+        toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast; // TODO change this based on how tight the compression
+                                                                  // is
         toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -66,18 +68,16 @@ public class Elevator extends SubsystemBase {
         rightElevatorMotor.setControl(master);
     }
 
-    private ProfiledPIDController ElevatorController =
-      new ProfiledPIDController(
-          ElevatorCal.ELEVATOR_P,
-          ElevatorCal.ELEVATOR_I,
-          ElevatorCal.ELEVATOR_D,
-          new TrapezoidProfile.Constraints(
-              ElevatorCal.MAX_VELOCITY_IN_PER_SECOND,
-              ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED));
+    private ProfiledPIDController ElevatorController = new ProfiledPIDController(
+            ElevatorCal.ELEVATOR_P,
+            ElevatorCal.ELEVATOR_I,
+            ElevatorCal.ELEVATOR_D,
+            new TrapezoidProfile.Constraints(
+                    ElevatorCal.MAX_VELOCITY_IN_PER_SECOND,
+                    ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED));
 
     private ProfiledPIDController currentPIDController = ElevatorController;
     private double elevatorDemandVoltsA = 0.0;
-    private double elevatorDemandVoltsB = 0.0;
     private double elevatorDemandVoltsC = 0.0;
     private double desiredSetpointPosition = 0.0;
     private double desiredSetpointVelocity = 0.0;
@@ -90,9 +90,9 @@ public class Elevator extends SubsystemBase {
     public TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_CAN_ID);
 
     private boolean nearHome() {
-        return leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.GEAR_RATIO_CIRCUM < (elevatorPositions.get(ElevatorHeight.HOME) + 1.0);
-      }
-      
+        return leftMotor.getPosition().getValueAsDouble()
+                * ElevatorConstants.GEAR_RATIO_CIRCUM < (elevatorPositions.get(ElevatorHeight.HOME) + 1.0);
+    }
 
     private void controlPosition(double inputPositionInch) {
         currentPIDController.setGoal(inputPositionInch); // set the pid controller's goal
@@ -106,15 +106,9 @@ public class Elevator extends SubsystemBase {
             currentPIDController.getSetpoint().velocity; // calculate the next velocity we want to be at
         if (prevTimestamp.isPresent()) {
             currentFeedforward.calculate(nextVelocityInPerSec)
-            elevatorDemandVoltsB = currentFeedforward.calculateWithVelocities(prevVelocityInPerSec, nextVelocityInPerSec);
       // based on how velocity has changed, calculate a feedforward factor.
         // for example, if it didn't change as much as we expect, we could be
         // working against gravity.
-        } else {
-        elevatorDemandVoltsB =
-            currentFeedforward.calculate(
-                nextVelocityInPerSec); // if we don't have a past velocity, we can't calculate a
-        // feedforward factor using acceleration
         }
         elevatorDemandVoltsC =
            ElevatorCal.ELEVATOR_KS; // make sure we are applying enough voltage to move at all
@@ -124,7 +118,7 @@ public class Elevator extends SubsystemBase {
         desiredSetpointVelocity = currentPIDController.getSetpoint().velocity;
 
         double voltageToSet =
-            elevatorDemandVoltsA + elevatorDemandVoltsB + elevatorDemandVoltsC; // add it all up
+            elevatorDemandVoltsA + elevatorDemandVoltsC; // add it all up
         if (desiredPosition == ElevatorHeight.HOME && nearHome()) {
         voltageToSet =
             ElevatorCal
@@ -140,5 +134,5 @@ public class Elevator extends SubsystemBase {
             nextVelocityInPerSec; // set our now previous velocity and timestamp for future calculations
         prevTimestamp = Optional.of(timestamp);
    }
-   
+
 }
