@@ -15,6 +15,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotMap;
 
 public class Arm extends SubsystemBase {
@@ -104,8 +105,11 @@ public class Arm extends SubsystemBase {
 
         return Math.abs(checkPositionDeg - currentPositionDeg) < ArmCal.ARM_MARGIN_DEGREES;
     }
-    /** TODO: Add interference zone checks w/ Deep Climb */
-
+    /** TODO: Implement interference zone checking functionality */
+    public boolean isArmInInterferenceZone() {
+        return Constants.PLACEHOLDER_BOOLEAN;
+    }
+    
 
     public void stopArmMovement() {
         // left motor follows right motor, so armMotorLeft is not necessary here
@@ -114,11 +118,11 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
+        setAllowArmMovement(isArmInInterferenceZone());
         // control arm position
         if (isArmMoveable()) {
             controlPosition(armPositions.get(this.armDesiredPosition));
         }
-        /** TODO: Set arm movement to be allowed/disallowed based on interference */
     }
     @Override
     public void initSendable(SendableBuilder builder) {

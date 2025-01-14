@@ -21,6 +21,7 @@ public final class Constants {
   /* Placeholders */
   public static final int PLACEHOLDER_INT = 0;
   public static final double PLACEHOLDER_DOUBLE = 0.0;
+  public static final boolean PLACEHOLDER_BOOLEAN = false;
 
   public static enum limelightLedMode {
     PIPELINE_MODE,
