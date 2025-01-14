@@ -11,9 +11,6 @@ public class ArmCal {
     public static final double ARM_SUPPLY_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE,
             ARM_STATOR_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE;
 
-    public static final double ARM_MAX_VELOCITY_MPS = Constants.PLACEHOLDER_DOUBLE,
-            ARM_MAX_ACCELERATION_MPS_SQUARED = Constants.PLACEHOLDER_DOUBLE;
-
     public static final double ARM_MARGIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
 
     public static final double ARM_MOTOR_P = Constants.PLACEHOLDER_DOUBLE,

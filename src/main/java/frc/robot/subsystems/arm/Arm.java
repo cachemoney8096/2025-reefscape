@@ -5,6 +5,7 @@ import java.util.TreeMap;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -17,9 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class Arm extends SubsystemBase {
-    public final TalonFX armMotorLeft = new TalonFX(RobotMap.ARM_MOTOR_A_CAN_ID);
-    public final TalonFX armMotorRight = new TalonFX(RobotMap.ARM_MOTOR_B_CAN_ID);
-    private final Follower follower = new Follower(armMotorRight.getDeviceID(), true);
+    public final TalonFX armMotorLeft = new TalonFX(RobotMap.ARM_MOTOR_LEFT_CAN_ID);
+    public final TalonFX armMotorRight = new TalonFX(RobotMap.ARM_MOTOR_RIGHT_CAN_ID);
 
     private final CANcoder armRightEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
     public enum ArmPosition {
@@ -41,11 +41,6 @@ public class Arm extends SubsystemBase {
     public final TreeMap<ArmPosition, Double> armPositions = new TreeMap<ArmPosition, Double>();
 
     private ArmPosition armDesiredPosition = ArmPosition.HOME;
-
-    private final ProfiledPIDController armPIDController = new ProfiledPIDController(
-            ArmCal.ARM_MOTOR_P, ArmCal.ARM_MOTOR_I, ArmCal.ARM_MOTOR_D,
-            new TrapezoidProfile.Constraints(ArmCal.ARM_MAX_VELOCITY_MPS, ArmCal.ARM_MAX_ACCELERATION_MPS_SQUARED));
-
     public Arm() {
         armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
         armPositions.put(ArmPosition.INTAKE, ArmCal.ARM_POSITION_L2_DEGREES);
@@ -57,7 +52,6 @@ public class Arm extends SubsystemBase {
     }
     
     private void initArmTalons() {
-        TalonFXConfigurator cfgMotorRight = armMotorRight.getConfigurator();
         TalonFXConfiguration toApply = new TalonFXConfiguration();
 
         toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -70,13 +64,24 @@ public class Arm extends SubsystemBase {
         toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
         toApply.Slot0.kV = ArmCal.ARM_MOTOR_FF;
 
-        cfgMotorRight.apply(toApply);
-        armMotorLeft.setControl(follower);
+        armMotorRight.getConfigurator().apply(toApply);
+        armMotorLeft.setControl(new Follower(armMotorRight.getDeviceID(), true));
     }
 
     public void setDesiredPosition(ArmPosition armPosition) {
-        this.armDesiredPosition = armPosition;
-        this.allowArmMovement = true;
+        /**
+         * If arm is within interference zone, don't set desired position
+         */
+        if (isArmMoveable()) {
+            this.armDesiredPosition = armPosition;
+        }
+    }
+
+    public void setAllowArmMovement(boolean armMovement) {
+        this.allowArmMovement = armMovement;
+    }
+    public boolean isArmMoveable() {
+        return this.allowArmMovement;
     }
 
     public void rezeroArm() {
@@ -85,17 +90,17 @@ public class Arm extends SubsystemBase {
 
     // Account for PID when setting position of our arm
     public void controlPosition(double inputPositionDegrees) {
-        armPIDController.setGoal(inputPositionDegrees);
-        armDemandVolts = armPIDController.calculate(armMotorRight.getPosition().getValueAsDouble());
-
-        this.desiredSetpointPosition = armPIDController.getSetpoint().position;
-        this.desiredSetpointVelocity = armPIDController.getSetpoint().velocity;
-
-        armMotorRight.setVoltage(armDemandVolts);
+        PositionVoltage desiredVoltage = new PositionVoltage(inputPositionDegrees).withSlot(0);
+        armMotorRight.setControl(desiredVoltage);
+        // desired pos = requested pos
+        this.desiredSetpointPosition = inputPositionDegrees;
+        // convert velocity in rotations/sec to deg/sec
+        this.desiredSetpointVelocity = armMotorRight.getVelocity().getValueAsDouble() * 360;
     }
-    public boolean atPosition(ArmPosition pos) {
+    // TODO: determine whether the right or left motor is the one that should be matching degree position
+    public boolean atPositionDegrees(ArmPosition pos) {
         double checkPositionDeg = armPositions.get(pos);
-        double currentPositionDeg = armMotorRight.getPosition().getValueAsDouble();
+        double currentPositionDeg = armMotorRight.getPosition().getValueAsDouble() * 360;
 
         return Math.abs(checkPositionDeg - currentPositionDeg) < ArmCal.ARM_MARGIN_DEGREES;
     }
@@ -110,9 +115,10 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         // control arm position
-        if (allowArmMovement) {
+        if (isArmMoveable()) {
             controlPosition(armPositions.get(this.armDesiredPosition));
         }
+        /** TODO: Set arm movement to be allowed/disallowed based on interference */
     }
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -122,8 +128,8 @@ public class Arm extends SubsystemBase {
         builder.addDoubleProperty("Desired Setpoint Velocity (m/s)", (() -> desiredSetpointVelocity), null);
         builder.addDoubleProperty("Arm Demand Volts (calc)", (() -> armDemandVolts), null);
         builder.addBooleanProperty("Is Arm Movement Allowed", (() -> allowArmMovement), null);
-        builder.addDoubleProperty("Motor Right Angle (Relative) ", (() -> armMotorRight.getPosition().getValueAsDouble()), null);
-        builder.addDoubleProperty("Motor Left Angle (Relative) ", (() -> armMotorLeft.getPosition().getValueAsDouble()), null);
-        builder.addDoubleProperty("Motor Right Angle (Absolute) ", (() -> armRightEncoderAbs.getAbsolutePosition().getValueAsDouble()), null);
+        builder.addDoubleProperty("Motor Right Angle (Relative) ", (() -> armMotorRight.getPosition().getValueAsDouble() * 360), null);
+        builder.addDoubleProperty("Motor Left Angle (Relative) ", (() -> armMotorLeft.getPosition().getValueAsDouble() * 360), null);
+        builder.addDoubleProperty("Motor Right Angle (Absolute) ", (() -> armRightEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360), null);
     }
 }
