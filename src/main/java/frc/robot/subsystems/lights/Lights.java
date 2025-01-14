@@ -14,19 +14,21 @@ public class Lights {
    * enum
    */
   private TreeMap<LightCode, Integer[]> lightOptionsMap;
-
-  private CANdle candle = new CANdle(RobotMap.CANDLE_CAN_ID);
+  
+  private CANdle candle = new CANdle(LightsConstants.CANDLE_CAN_ID);
   private CANdleConfiguration config = new CANdleConfiguration();
   private LightCode currentLightStatus = LightCode.OFF;
-
+ 
   public enum LightCode {
-    READY_TO_INTAKE, //ORANGE
-    HAS_CORAL, //GREEN
-    SCORE_PREP, //BLUE
-    READY_TO_SCORE, //YELLOW
-    CLIMB_PREP, //BLACK
-    READY_TO_CLIMB, //PURPLE
-    OFF, //RED
+    DISABLED,
+    READY_TO_INTAKE, // ORANGE
+    HAS_CORAL, // GREEN
+    SCORE_PREP, // BLUE
+    READY_TO_SCORE, // YELLOW
+    CLIMB_PREP_SHALLOW, // WHITE
+    CLIMB_PREP_DEEP, // RED
+    READY_TO_CLIMB, // PURPLE
+    OFF, // BLACK
   }
 
   public Lights() {
@@ -36,12 +38,14 @@ public class Lights {
 
     lightOptionsMap = new TreeMap<LightCode, Integer[]>();
     lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 128, 0});
-    lightOptionsMap.put(LightCode.OFF, new Integer[] {255, 0, 0});
+    lightOptionsMap.put(LightCode.OFF, new Integer[] {0, 0, 0});
     lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {128, 255, 0});
     lightOptionsMap.put(LightCode.SCORE_PREP, new Integer[] {0, 0, 255});
     lightOptionsMap.put(LightCode.READY_TO_SCORE, new Integer[] {255, 255, 0});
-    lightOptionsMap.put(LightCode.CLIMB_PREP, new Integer[] {0, 0, 0});
+    lightOptionsMap.put(LightCode.CLIMB_PREP_SHALLOW, new Integer[] {255, 255, 255});
+    lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 0});
     lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {127, 0, 255});
+    lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {0, 128, 128});
   }
 
   public void setLEDColor(LightCode light) {
@@ -49,23 +53,21 @@ public class Lights {
     setLEDs();
   }
 
-  private void setLEDs() {
-    if (currentLightStatus == LightCode.READY_TO_SCORE) {
-      setRainbow();
-    } else {
+  private void setLEDs() 
+  {
+  
       candle.animate(null);
       candle.setLEDs(
-          lightOptionsMap.get(currentLightStatus)[0],
-          lightOptionsMap.get(currentLightStatus)[1],
-          lightOptionsMap.get(currentLightStatus)[2]);
+      lightOptionsMap.get(currentLightStatus)[0],
+      lightOptionsMap.get(currentLightStatus)[1],
+      lightOptionsMap.get(currentLightStatus)[2]);
     }
-  }
+  
 
-  public void setBlink(LightCode light) {
+  public void setBlink(LightCode light)
+  {
     currentLightStatus = light;
-    if (currentLightStatus == LightCode.READY_TO_SCORE) {
-      setRainbow();
-    } else {
+
       var twinkle =
           new StrobeAnimation(
               lightOptionsMap.get(currentLightStatus)[0],
@@ -78,7 +80,7 @@ public class Lights {
       // twinkle.setDivider(TwinklePercent.Percent42);
       candle.animate(twinkle);
     }
-  }
+  
 
   private void setRainbow() {
     RainbowAnimation rainbowAnim =
