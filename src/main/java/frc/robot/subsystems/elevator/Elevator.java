@@ -3,9 +3,11 @@ package frc.robot.subsystems.elevator;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -30,9 +32,19 @@ public class Elevator extends SubsystemBase {
         SCORE_SHALLOWCLIMB;
     }
 
-    public TalonFX leftElevatorMotor = new TalonFX(ElevatorConstants.LEFT_ELEVATOR_MOTOR);
-    public TalonFX rightElevatorMotor = new TalonFX(ElevatorConstants.RIGHT_ELEVATOR_MOTOR);
-    private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();;
+   
+    private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
+                
+    private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
+
+    public TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_CAN_ID);
+    public TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_CAN_ID);
+   
+    final TrapezoidProfile m_profile = new TrapezoidProfile(
+        new TrapezoidProfile.Constraints(ElevatorCal.MAX_VELOCITY_IN_PER_SECOND, ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED)
+    );
+    private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+    private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
 
     public Elevator() {
 
@@ -47,92 +59,50 @@ public class Elevator extends SubsystemBase {
     }
 
     private void initTalons() {
-        TalonFXConfigurator cfgLeft = leftElevatorMotor.getConfigurator();
-        TalonFXConfigurator cfgRight = rightElevatorMotor.getConfigurator();
-
+        var slot0Configs = new Slot0Configs();
+        TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
+        TalonFXConfigurator cfgRight = rightMotor.getConfigurator();
         TalonFXConfiguration toApply = new TalonFXConfiguration();
-        toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO change this to make run intake methods
-                                                                         // work
-        toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast; // TODO change this based on how tight the compression
-                                                                  // is
+
+        toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                                               
+        toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast; 
         toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-        toApply.Slot0.kP = ElevatorCal.ELEVATOR_MOTOR_P;
-        toApply.Slot0.kI = ElevatorCal.ELEVATOR_MOTOR_I;
-        toApply.Slot0.kD = ElevatorCal.ELEVATOR_MOTOR_D;
-        toApply.Slot0.kV = ElevatorCal.ELEVATOR_MOTOR_FF;
+        slot0Configs.kP = ElevatorCal.ELEVATOR_MOTOR_P;
+        slot0Configs.kI = ElevatorCal.ELEVATOR_MOTOR_I;
+        slot0Configs.kD = ElevatorCal.ELEVATOR_MOTOR_D;
+        slot0Configs.kV = ElevatorCal.ELEVATOR_MOTOR_FF;
         cfgLeft.apply(toApply);
         cfgRight.apply(toApply);
-        Follower master = new Follower(leftElevatorMotor.getDeviceID(), true);
-        rightElevatorMotor.setControl(master);
+        Follower master = new Follower(leftMotor.getDeviceID(), true); //TODO we dont know if opposite master direction is true yet
+        rightMotor.setControl(master);
+        rightMotor.getConfigurator().apply(slot0Configs);
+
     }
 
-    private ProfiledPIDController ElevatorController = new ProfiledPIDController(
-            ElevatorCal.ELEVATOR_P,
-            ElevatorCal.ELEVATOR_I,
-            ElevatorCal.ELEVATOR_D,
-            new TrapezoidProfile.Constraints(
-                    ElevatorCal.MAX_VELOCITY_IN_PER_SECOND,
-                    ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED));
+    public void setDesiredPosition(ElevatorHeight height){
+        desiredPosition = height;
 
-    private ProfiledPIDController currentPIDController = ElevatorController;
-    private double elevatorDemandVoltsA = 0.0;
-    private double elevatorDemandVoltsC = 0.0;
-    private double desiredSetpointPosition = 0.0;
-    private double desiredSetpointVelocity = 0.0;
-
-    private Optional<Double> prevTimestamp = Optional.empty();
-    private SimpleMotorFeedforward currentFeedforward = ElevatorCal.ELEVATOR_FF;
-    private double prevVelocityInPerSec = 0;
-    private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-    public TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_CAN_ID);
-    public TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_CAN_ID);
-
-    private boolean nearHome() {
-        return leftMotor.getPosition().getValueAsDouble()
-                * ElevatorConstants.GEAR_RATIO_CIRCUM < (elevatorPositions.get(ElevatorHeight.HOME) + 1.0);
     }
 
     private void controlPosition(double inputPositionInch) {
-        currentPIDController.setGoal(inputPositionInch); // set the pid controller's goal
-        elevatorDemandVoltsA =
-            currentPIDController.calculate(
-                leftMotor
-                    .getPosition().getValueAsDouble() * ElevatorConstants.GEAR_RATIO_CIRCUM); // calculate the pid output based on the goal and the current
-        // position
-        final double timestamp = Timer.getFPGATimestamp(); // get the current timestamp
-        final double nextVelocityInPerSec =
-            currentPIDController.getSetpoint().velocity; // calculate the next velocity we want to be at
-        if (prevTimestamp.isPresent()) {
-            currentFeedforward.calculate(nextVelocityInPerSec);
-      // based on how velocity has changed, calculate a feedforward factor.
-        // for example, if it didn't change as much as we expect, we could be
-        // working against gravity.
-        }
-        elevatorDemandVoltsC =
-           ElevatorCal.ELEVATOR_KS; // make sure we are applying enough voltage to move at all
+        m_goal = new TrapezoidProfile.State(inputPositionInch, 0);
+        m_setpoint = m_profile.calculate(ElevatorCal.ELEVATOR_MOTOR_D, m_setpoint, m_goal);
+        
+        final PositionVoltage m_request = new PositionVoltage(inputPositionInch).withSlot(0);
 
-        desiredSetpointPosition =
-            currentPIDController.getSetpoint().position; // these are for debug on shuffleboard
-        desiredSetpointVelocity = currentPIDController.getSetpoint().velocity;
+        m_setpoint = m_profile.calculate(ElevatorCal.ELEVATOR_MOTOR_D, m_setpoint, m_goal);
 
-        double voltageToSet =
-            elevatorDemandVoltsA + elevatorDemandVoltsC; // add it all up
-        if (desiredPosition == ElevatorHeight.HOME && nearHome()) {
-        voltageToSet =
-            ElevatorCal
-                .ELEVATOR_KS; // if we are pretty close to home, we aren't going to execute a pid
-        // curve, and are just going to "taxi in" rather than "taking off and
-        // landing"
-        }
+        m_request.Position = m_setpoint.position;
+        m_request.Velocity = m_setpoint.velocity;
 
-        leftMotor.setVoltage(voltageToSet); // apply the voltage
-        rightMotor.setVoltage(voltageToSet);
-
-        prevVelocityInPerSec =
-            nextVelocityInPerSec; // set our now previous velocity and timestamp for future calculations
-        prevTimestamp = Optional.of(timestamp);
+        leftMotor.setControl(m_request);
    }
 
+   public void periodic() {
+        controlPosition(elevatorPositions.get(desiredPosition));
+
+   }
 }
