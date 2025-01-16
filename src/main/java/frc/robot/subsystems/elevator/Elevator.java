@@ -15,11 +15,15 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
+import frc.robot.utils.SendableHelper;
+import edu.wpi.first.util.sendable.SendableBuilder;
+
 
 public class Elevator extends SubsystemBase {
     public enum ElevatorHeight {
@@ -119,6 +123,26 @@ public class Elevator extends SubsystemBase {
 
    public void periodic() {
         controlPosition(elevatorPositions.get(desiredPosition));
+
+   }
+
+   @Override
+   public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+
+        builder.addIntegerProperty(
+            "Currrent slot value", () -> currentSlotValue, null);
+        builder.addDoubleProperty(
+            "Left Motor Position", () -> leftMotor.get(), null);
+        builder.addDoubleProperty(
+            "Right Motor Position", () -> rightMotor.get(), null);
+        builder.addBooleanProperty(
+            "Boolean isClimbig", () -> isScoring, null);
+        builder.addDoubleProperty(
+            "Desired Position", () -> elevatorPositions.get(desiredPosition), null);
+        
+        
+        
 
    }
 }
