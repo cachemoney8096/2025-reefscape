@@ -9,7 +9,9 @@ public class ShallowClimbUnclimb extends SequentialCommandGroup {
     public ShallowClimbUnclimb(Elevator elevator){
         addRequirements(elevator);
         addCommands(
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.PREP_SHALLOW))
+            new InstantCommand(() -> elevator.setControlParams(false)),
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.PREP_SHALLOW)),
+            new InstantCommand(() -> elevator.setControlParams(true))
 
         );
     }

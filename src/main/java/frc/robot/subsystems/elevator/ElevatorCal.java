@@ -7,7 +7,11 @@ public class ElevatorCal {
     public static final double ELEVATOR_MOTOR_P = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_MOTOR_I = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_MOTOR_D = Constants.PLACEHOLDER_DOUBLE,
-            ELEVATOR_MOTOR_FF = Constants.PLACEHOLDER_DOUBLE;
+            ELEVATOR_MOTOR_FF = Constants.PLACEHOLDER_DOUBLE,
+            ELEVATOR_CLIMB_P = Constants.PLACEHOLDER_DOUBLE,
+            ELEVATOR_CLIMB_I = Constants.PLACEHOLDER_DOUBLE,
+            ELEVATOR_CLIMB_D = Constants.PLACEHOLDER_DOUBLE,
+            ELEVATOR_CLIMB_FF = Constants.PLACEHOLDER_DOUBLE;
 
     public static final double ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE;
@@ -31,8 +35,5 @@ public class ElevatorCal {
     public static final double ELEVATOR_KS = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_KV = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_KA = Constants.PLACEHOLDER_DOUBLE;
-
-    public static final SimpleMotorFeedforward ELEVATOR_FF =
-      new SimpleMotorFeedforward(0.0, ELEVATOR_KV, ELEVATOR_KA);
     
 }

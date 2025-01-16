@@ -5,10 +5,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 
-public class ShallowClimbScore extends SequentialCommandGroup {
-    public ShallowClimbScore(Elevator elevator) {
+public class ShallowClimb extends SequentialCommandGroup {
+    public ShallowClimb(Elevator elevator) {
         addRequirements(elevator);
         addCommands(
+            new InstantCommand(() -> elevator.setControlParams(false)),
             new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_SHALLOWCLIMB))
 
         );

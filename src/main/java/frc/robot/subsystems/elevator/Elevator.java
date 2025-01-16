@@ -45,6 +45,8 @@ public class Elevator extends SubsystemBase {
     );
     private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
     private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
+    private boolean isScoring  =  false;
+    private int currentSlotValue;
 
     public Elevator() {
 
@@ -70,30 +72,44 @@ public class Elevator extends SubsystemBase {
         toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-        slot0Configs.kP = ElevatorCal.ELEVATOR_MOTOR_P;
-        slot0Configs.kI = ElevatorCal.ELEVATOR_MOTOR_I;
-        slot0Configs.kD = ElevatorCal.ELEVATOR_MOTOR_D;
-        slot0Configs.kV = ElevatorCal.ELEVATOR_MOTOR_FF;
+        toApply.Slot0.kP = ElevatorCal.ELEVATOR_MOTOR_P;
+        toApply.Slot0.kI = ElevatorCal.ELEVATOR_MOTOR_I;
+        toApply.Slot0.kD = ElevatorCal.ELEVATOR_MOTOR_D;
+        toApply.Slot0.kV = ElevatorCal.ELEVATOR_MOTOR_FF;
+        toApply.Slot1.kP = ElevatorCal.ELEVATOR_CLIMB_P;
+        toApply.Slot1.kI = ElevatorCal.ELEVATOR_CLIMB_I;
+        toApply.Slot1.kD = ElevatorCal.ELEVATOR_CLIMB_D;
+        toApply.Slot1.kV = ElevatorCal.ELEVATOR_CLIMB_FF;
         cfgLeft.apply(toApply);
         cfgRight.apply(toApply);
-        Follower master = new Follower(leftMotor.getDeviceID(), true); //TODO we dont know if opposite master direction is true yet
-        rightMotor.setControl(master);
-        rightMotor.getConfigurator().apply(slot0Configs);
+        Follower master = new Follower(leftMotor.getDeviceID(), true);
 
     }
 
-    public void setDesiredPosition(ElevatorHeight height){
+    public void setDesiredPosition(ElevatorHeight height) {
         desiredPosition = height;
 
     }
 
-    private void controlPosition(double inputPositionInch) {
-        m_goal = new TrapezoidProfile.State(inputPositionInch, 0);
-        m_setpoint = m_profile.calculate(ElevatorCal.ELEVATOR_MOTOR_D, m_setpoint, m_goal);
+    public void setControlParams(boolean isScoring) {
+        this.isScoring = isScoring;
+        if (isScoring) {
+            currentSlotValue = 0; // Sets PID values to score
+        } else{
+            currentSlotValue = 1; // sets PID values to climb
+        }
         
-        final PositionVoltage m_request = new PositionVoltage(inputPositionInch).withSlot(0);
 
-        m_setpoint = m_profile.calculate(ElevatorCal.ELEVATOR_MOTOR_D, m_setpoint, m_goal);
+    }
+ 
+    private void controlPosition(double inputPositionInch) {
+        final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
+        double rotations = inputPositionInch / ElevatorConstants.MOTOR_CIRCUM * ElevatorConstants.GEAR_RATIO;
+        m_goal = new TrapezoidProfile.State(rotations, 0.0);
+        
+        
+
+        m_setpoint = m_profile.calculate(0.02, m_setpoint, m_goal);
 
         m_request.Position = m_setpoint.position;
         m_request.Velocity = m_setpoint.velocity;
