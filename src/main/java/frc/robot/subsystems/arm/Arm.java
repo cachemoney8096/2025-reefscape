@@ -10,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
@@ -83,12 +84,26 @@ public class Arm extends SubsystemBase {
 
     // Account for PID when setting position of our arm
     public void controlPosition(double inputPositionDegrees) {
-        PositionVoltage desiredVoltage = new PositionVoltage(inputPositionDegrees / 360).withSlot(0);
-        armMotorRight.setControl(desiredVoltage);
+        // trapezoidal motion profiling to account for large jumps in velocity which result in large error
+        final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(ArmCal.ARM_MOTOR_MAX_VELOCITY_DPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_DPS_SQUARED));
+        // goal position (rotations) w/ velocity at position (0?)
+
+        // TODO: figure out if our velocity at given position is always going to be 0 or not
+        TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360, 0);
+        TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
+
+        PositionVoltage tRequest = new PositionVoltage(0).withSlot(0);
+        // set next setpoint, where t = periodic interval (20ms)
+        tSetpoint = trapezoidProfile.calculate(0.02, tSetpoint, tGoal);
+
+        tRequest.Position = tSetpoint.position;
+        tRequest.Velocity = tSetpoint.velocity;
+
+        armMotorRight.setControl(tRequest);
         // desired pos = requested pos
-        this.desiredSetpointPosition = inputPositionDegrees;
+        this.desiredSetpointPosition = tRequest.Position;
         // convert velocity in rotations/sec to deg/sec
-        this.desiredSetpointVelocity = armMotorRight.getVelocity().getValueAsDouble() * 360;
+        this.desiredSetpointVelocity = tRequest.Velocity * 360;
     }
 
     public boolean atPositionDegrees(ArmPosition pos) {
