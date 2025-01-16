@@ -20,6 +20,7 @@ public class Arm extends SubsystemBase {
     private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID);
 
     private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
+
     public enum ArmPosition {
         // home will also be the position for when we are deep climbing
         HOME,
@@ -32,7 +33,7 @@ public class Arm extends SubsystemBase {
     }
 
     private double armDemandVolts = 0.0;
-    private double desiredSetpointPosition = 0.0;
+    private double desiredPositionDegrees = 0.0;
     private double desiredSetpointVelocity = 0.0;
 
     /**
@@ -41,6 +42,7 @@ public class Arm extends SubsystemBase {
     public final TreeMap<ArmPosition, Double> armPositions = new TreeMap<ArmPosition, Double>();
 
     private ArmPosition armDesiredPosition = ArmPosition.HOME;
+
     public Arm() {
         armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
         armPositions.put(ArmPosition.INTAKE, ArmCal.ARM_POSITION_INTAKE_DEGREES);
@@ -51,7 +53,7 @@ public class Arm extends SubsystemBase {
 
         initArmTalons();
     }
-    
+
     private void initArmTalons() {
         TalonFXConfiguration toApply = new TalonFXConfiguration();
 
@@ -59,7 +61,7 @@ public class Arm extends SubsystemBase {
         toApply.CurrentLimits.SupplyCurrentLimit = ArmCal.ARM_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimit = ArmCal.ARM_STATOR_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-        toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         toApply.Slot0.kP = ArmCal.ARM_MOTOR_P;
         toApply.Slot0.kI = ArmCal.ARM_MOTOR_I;
         toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
@@ -71,9 +73,7 @@ public class Arm extends SubsystemBase {
 
     public void setDesiredPosition(ArmPosition armPosition) {
         // If arm is within interference zone, don't set desired position
-        if (isArmMoveable()) {
-            this.armDesiredPosition = armPosition;
-        }
+        this.armDesiredPosition = armPosition;
     }
 
     public boolean isArmMoveable() {
@@ -82,16 +82,19 @@ public class Arm extends SubsystemBase {
     }
 
     public void rezeroArm() {
-        armMotorLeft.setPosition(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0);
+        armMotorLeft.setPosition(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble());
     }
 
     // Account for PID when setting position of our arm
     public void controlPosition(double inputPositionDegrees) {
-        // trapezoidal motion profiling to account for large jumps in velocity which result in large error
-        final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(ArmCal.ARM_MOTOR_MAX_VELOCITY_DPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_DPS_SQUARED));
+        // trapezoidal motion profiling to account for large jumps in velocity which
+        // result in large error
+        final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+                ArmCal.ARM_MOTOR_MAX_VELOCITY_DPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_DPS_SQUARED));
         // goal position (rotations) w/ velocity at position (0?)
 
-        // TODO: figure out if our velocity at given position is always going to be 0 or not
+        // TODO: figure out if our velocity at given position is always going to be 0 or
+        // not
         TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
         TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
@@ -104,7 +107,7 @@ public class Arm extends SubsystemBase {
 
         armMotorRight.setControl(tRequest);
         // desired pos = requested pos
-        this.desiredSetpointPosition = tRequest.Position;
+        this.desiredPositionDegrees = tRequest.Position;
         // convert velocity in rotations/sec to deg/sec
         this.desiredSetpointVelocity = tRequest.Velocity * 360.0;
     }
@@ -115,13 +118,13 @@ public class Arm extends SubsystemBase {
 
         return Math.abs(checkPositionDeg - currentPositionDeg) < ArmCal.ARM_AT_POSITION_MARGIN_DEGREES;
     }
+
     public boolean isArmInInterferenceZone() {
         double currentPosition = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
-        return currentPosition <= ArmCal.ARM_INTERFERENCE_THRESHOLD_MAX_DEGREES && 
-            currentPosition >= ArmCal.ARM_INTERFERENCE_THRESHOLD_MIN_DEGREES;
+        return currentPosition <= ArmCal.ARM_INTERFERENCE_THRESHOLD_MAX_DEGREES &&
+                currentPosition >= ArmCal.ARM_INTERFERENCE_THRESHOLD_MIN_DEGREES;
 
     }
-    
 
     public void stopArmMovement() {
         // left motor follows right motor, so armMotorLeft is not necessary here
@@ -132,15 +135,19 @@ public class Arm extends SubsystemBase {
     public void periodic() {
         controlPosition(armPositions.get(this.armDesiredPosition));
     }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("Desired Setpoint Position (Deg)", (() -> desiredSetpointPosition), null);
+        builder.addDoubleProperty("Desired Setpoint Position (Deg)", (() -> desiredPositionDegrees), null);
         builder.addDoubleProperty("Desired Setpoint Velocity (m/s)", (() -> desiredSetpointVelocity), null);
         builder.addDoubleProperty("Arm Demand Volts (calc)", (() -> armDemandVolts), null);
         builder.addBooleanProperty("Is Arm In Interference Zone", this::isArmInInterferenceZone, null);
-        builder.addDoubleProperty("Right Motor Angle (Relative) ", (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0), null);
-        builder.addDoubleProperty("Left Motor Angle (Relative) ", (() -> armMotorLeft.getPosition().getValueAsDouble() * 360.0), null);
-        builder.addDoubleProperty("Left Motor Angle (Absolute) ", (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0), null);
+        builder.addDoubleProperty("Right Motor Angle (Relative) ",
+                (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0), null);
+        builder.addDoubleProperty("Left Motor Angle (Relative) ",
+                (() -> armMotorLeft.getPosition().getValueAsDouble() * 360.0), null);
+        builder.addDoubleProperty("Left Motor Angle (Absolute) ",
+                (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0), null);
     }
 }
