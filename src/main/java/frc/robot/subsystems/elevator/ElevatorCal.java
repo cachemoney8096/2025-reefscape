@@ -15,9 +15,6 @@ public class ElevatorCal {
 
     public static final double ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE;
-    
-    public static final double ELEVATOR_ROLLERS_INTAKING_SPEED_PERCENT = Constants.PLACEHOLDER_DOUBLE, 
-            ELEVATOR_MOTOR_SCORING_SPEED_PERCENT = Constants.PLACEHOLDER_DOUBLE;
   
             public static final double POSITION_HOME_INCHES = Constants.PLACEHOLDER_DOUBLE,
             POSITION_SCORE_L4_INCHES = Constants.PLACEHOLDER_DOUBLE,
