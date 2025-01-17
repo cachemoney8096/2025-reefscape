@@ -41,9 +41,9 @@ public class Elevator extends SubsystemBase {
     private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
                 
     private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-    DigitalInput limitSwitch1 = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_1);
-    DigitalInput limitSwitch2 = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_2);
-    DigitalInput limitSwitch3 = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_3);
+    DigitalInput limitSwitchHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_1);
+    DigitalInput limitSwitchBelowHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_2);
+    DigitalInput limitSwitchTop = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_3);
     private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
     private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
    
@@ -52,20 +52,7 @@ public class Elevator extends SubsystemBase {
     );
     
     private boolean isScoring  =  false;
-    private int currentSlotValue;
-
-    public boolean getLimitSwitch1(){
-        return limitSwitch1.get();
-    }
-    
-    public boolean getLimitSwitch2(){
-        return limitSwitch2.get();
-    }
-
-    public boolean getLimitSwitch3(){
-        return limitSwitch3.get();
-    }
-
+    private int currentSlotValue = 0;
 
     public Elevator() {
 
@@ -89,7 +76,7 @@ public class Elevator extends SubsystemBase {
         toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-        // Slot 0 is for scorring PID values and Slot 1 is for Climing PID values
+        // Slot 0 is for Scoring PID values and Slot 1 is for Climbing PID values
         toApply.Slot0.kP = ElevatorCal.ELEVATOR_MOTOR_P;
         toApply.Slot0.kI = ElevatorCal.ELEVATOR_MOTOR_I;
         toApply.Slot0.kD = ElevatorCal.ELEVATOR_MOTOR_D;
@@ -123,7 +110,7 @@ public class Elevator extends SubsystemBase {
         TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
         TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
         final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
-        double rotations = inputPositionInch / ElevatorConstants.MOTOR_CIRCUM * ElevatorConstants.GEAR_RATIO;
+        double rotations = inputPositionInch / ElevatorConstants.GER_CIRCUFRINCE;      
         m_goal = new TrapezoidProfile.State(rotations, 0.0);
         
         
@@ -135,6 +122,18 @@ public class Elevator extends SubsystemBase {
 
         leftMotor.setControl(m_request);
    }
+
+   public boolean getLimitSwitchHome(){
+        return limitSwitchHome.get();
+    }
+
+    public boolean getLimitSwitchBelowHome(){
+        return limitSwitchBelowHome.get();
+    }
+
+    public boolean getLimitSwitchTop(){
+        return limitSwitchTop.get();
+    }
 
    public void periodic() {
         controlPosition(elevatorPositions.get(desiredPosition));
@@ -156,9 +155,9 @@ public class Elevator extends SubsystemBase {
         builder.addDoubleProperty(
             "Desired Position", () -> elevatorPositions.get(desiredPosition), null);
         builder.addDoubleProperty(
-            "Left Motor Position", () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.MOTOR_CIRCUM * ElevatorConstants.GEAR_RATIO), null);
+            "Left Motor Position", () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.GER_CIRCUFRINCE * ElevatorConstants.GEAR_RATIO), null);
         builder.addDoubleProperty(
-            "Right Motor Position", () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.MOTOR_CIRCUM * ElevatorConstants.GEAR_RATIO), null);
+            "Right Motor Position", () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.GER_CIRCUFRINCE * ElevatorConstants.GEAR_RATIO), null);
         
         
         
