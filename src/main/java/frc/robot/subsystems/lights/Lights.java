@@ -101,7 +101,28 @@ public class Lights {
     candle.animate(rainbowAnim);
   }
 }
-// If you can see this you will be cursed by the skibidi demons for all of eternity
-// The demons of ancient chinese lore have crucified your soul for eternity
-// LEAVE A POSITIVE PR TO UNDO THIS EFFECT!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ps. the skibidi demons are watching...
