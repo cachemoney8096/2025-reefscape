@@ -15,20 +15,22 @@ public class Lights {
    */
   private TreeMap<LightCode, Integer[]> lightOptionsMap;
   
-  private CANdle candle = new CANdle(LightsConstants.CANDLE_CAN_ID);
+  private CANdle candle = new CANdle(RobotMap.CANDLE_CAN_ID);
   private CANdleConfiguration config = new CANdleConfiguration();
   private LightCode currentLightStatus = LightCode.OFF;
  
   public enum LightCode {
-    DISABLED,
     READY_TO_INTAKE, // ORANGE
+    OFF, // BLACK
     HAS_CORAL, // GREEN
     SCORE_PREP, // BLUE
     READY_TO_SCORE, // YELLOW
     CLIMB_PREP_SHALLOW, // WHITE
     CLIMB_PREP_DEEP, // RED
     READY_TO_CLIMB, // PURPLE
-    OFF, // BLACK
+    PARTYMODE,
+    CLIMBING,
+    DISABLED,   
   }
 
   public Lights() {
@@ -45,22 +47,30 @@ public class Lights {
     lightOptionsMap.put(LightCode.CLIMB_PREP_SHALLOW, new Integer[] {255, 255, 255});
     lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 0});
     lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {127, 0, 255});
-    lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {0, 128, 128});
+    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {0, 128, 128});
+    lightOptionsMap.put(LightCode.CLIMBING, new Integer[] {128, 0, 128});
+    lightOptionsMap.put(LightCode.PARTYMODE, new Integer[] {0, 0, 0});
+    
   }
+ 
 
-  public void setLEDColor(LightCode light) {
+  public void setLEDColor(LightCode light)
+   {
     currentLightStatus = light;
     setLEDs();
   }
 
   private void setLEDs() 
   {
+    if (currentLightStatus == LightCode.PARTYMODE) {
+      setRainbow(); 
+   
   
       candle.animate(null);
       candle.setLEDs(
       lightOptionsMap.get(currentLightStatus)[0],
       lightOptionsMap.get(currentLightStatus)[1],
-      lightOptionsMap.get(currentLightStatus)[2]);
+      lightOptionsMap.get(currentLightStatus)[2]);}
     }
   
 
@@ -91,3 +101,7 @@ public class Lights {
     candle.animate(rainbowAnim);
   }
 }
+// If you can see this you will be cursed by the skibidi demons for all of eternity
+// The demons of ancient chinese lore have crucified your soul for eternity
+// LEAVE A POSITIVE PR TO UNDO THIS EFFECT!!
+// ps. the skibidi demons are watching...
