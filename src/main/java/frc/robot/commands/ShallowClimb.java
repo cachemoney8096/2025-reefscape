@@ -10,7 +10,7 @@ public class ShallowClimb extends SequentialCommandGroup {
         addRequirements(elevator);
         addCommands(
             new InstantCommand(() -> elevator.setControlParams(false)),
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_SHALLOWCLIMB))
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SHALLOW_CLIMB))
 
         );
     }

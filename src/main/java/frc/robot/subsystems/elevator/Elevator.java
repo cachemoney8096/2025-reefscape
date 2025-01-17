@@ -17,6 +17,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,17 +41,31 @@ public class Elevator extends SubsystemBase {
     private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
                 
     private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-
+    DigitalInput limitSwitch1 = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_1);
+    DigitalInput limitSwitch2 = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_2);
+    DigitalInput limitSwitch3 = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_3);
     private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
     private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
    
     private final TrapezoidProfile m_profile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(ElevatorCal.MAX_VELOCITY_IN_PER_SECOND, ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED)
+        new TrapezoidProfile.Constraints(ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE, ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE)
     );
-    private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
-    private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
+    
     private boolean isScoring  =  false;
     private int currentSlotValue;
+
+    public boolean getLimitSwitch1(){
+        return limitSwitch1.get();
+    }
+    
+    public boolean getLimitSwitch2(){
+        return limitSwitch2.get();
+    }
+
+    public boolean getLimitSwitch3(){
+        return limitSwitch3.get();
+    }
+
 
     public Elevator() {
 
@@ -74,6 +89,7 @@ public class Elevator extends SubsystemBase {
         toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimitEnable = true;
+        // Slot 0 is for scorring PID values and Slot 1 is for Climing PID values
         toApply.Slot0.kP = ElevatorCal.ELEVATOR_MOTOR_P;
         toApply.Slot0.kI = ElevatorCal.ELEVATOR_MOTOR_I;
         toApply.Slot0.kD = ElevatorCal.ELEVATOR_MOTOR_D;
@@ -104,6 +120,8 @@ public class Elevator extends SubsystemBase {
     }
  
     private void controlPosition(double inputPositionInch) {
+        TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+        TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
         final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
         double rotations = inputPositionInch / ElevatorConstants.MOTOR_CIRCUM * ElevatorConstants.GEAR_RATIO;
         m_goal = new TrapezoidProfile.State(rotations, 0.0);
@@ -130,13 +148,17 @@ public class Elevator extends SubsystemBase {
         builder.addIntegerProperty(
             "Currrent slot value", () -> currentSlotValue, null);
         builder.addDoubleProperty(
-            "Left Motor Position", () -> leftMotor.get(), null);
+            "Left Motor Speed", () -> leftMotor.get(), null);
         builder.addDoubleProperty(
-            "Right Motor Position", () -> rightMotor.get(), null);
+            "Right Motor Speed", () -> rightMotor.get(), null);
         builder.addBooleanProperty(
             "Boolean isClimbig", () -> isScoring, null);
         builder.addDoubleProperty(
             "Desired Position", () -> elevatorPositions.get(desiredPosition), null);
+        builder.addDoubleProperty(
+            "Left Motor Position", () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.MOTOR_CIRCUM * ElevatorConstants.GEAR_RATIO), null);
+        builder.addDoubleProperty(
+            "Right Motor Position", () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.MOTOR_CIRCUM * ElevatorConstants.GEAR_RATIO), null);
         
         
         

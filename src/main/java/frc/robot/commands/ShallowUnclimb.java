@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 
-public class ShallowClimbUnclimb extends SequentialCommandGroup {
-    public ShallowClimbUnclimb(Elevator elevator){
+public class ShallowUnclimb extends SequentialCommandGroup {
+    public ShallowUnclimb(Elevator elevator){
         addRequirements(elevator);
         addCommands(
             new InstantCommand(() -> elevator.setControlParams(false)),
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.PREP_SHALLOW)),
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SHALLOW_PREP)),
             new InstantCommand(() -> elevator.setControlParams(true))
 
         );
