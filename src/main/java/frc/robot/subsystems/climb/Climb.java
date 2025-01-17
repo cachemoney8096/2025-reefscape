@@ -6,13 +6,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
-import frc.robot.subsystems.elevator.ElevatorCal;
 
 import java.util.Optional;
 import java.util.TreeMap;
@@ -93,10 +91,22 @@ public class Climb extends SubsystemBase {
         this.allowClimbMovement = true;
     }
 
-    public void dontAllowClimbMovement() {
+    public void doNotAllowClimbMovement() {
         this.allowClimbMovement = false;
     }
+
+    public String getDesiredPosition() {
+        return this.desiredPosition.toString();
+    }
     
-
-
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        builder.addStringProperty(
+            "Desired Position", this::getDesiredPosition, null);
+        builder.addDoubleProperty(
+            "Left Motor Position", () -> climbTalonLeft.getPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty(
+            "Right Motor Position", () -> climbTalonRight.getPosition().getValueAsDouble(), null);
+    }
 }
