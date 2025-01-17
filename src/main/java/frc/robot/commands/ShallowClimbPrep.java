@@ -10,7 +10,7 @@ public class ShallowClimbPrep extends SequentialCommandGroup {
         addRequirements(elevator);
         addCommands(
             new InstantCommand(() -> elevator.setControlParams(false)),
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.PRE_SHALLOWCLIMB))
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SHALLOW_PREP))
 
         );
     }
