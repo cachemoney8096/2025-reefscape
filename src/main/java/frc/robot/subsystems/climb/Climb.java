@@ -6,16 +6,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
+import frc.robot.subsystems.arm.ArmCal;
 
 import java.util.Optional;
 import java.util.TreeMap;
 
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;;
 
 
@@ -33,6 +36,7 @@ public class Climb extends SubsystemBase {
 
     private TreeMap<ClimbPosition, Double> climbPositionMap;
     private ClimbPosition desiredPosition = ClimbPosition.STOWED;
+    private double desiredPositionDegrees = 0.0;
     private Optional<Double> lastControlledTime = Optional.empty();
     private boolean allowClimbMovement = false;
 
@@ -60,7 +64,6 @@ public class Climb extends SubsystemBase {
         toApply.Slot0.kV = ClimbCal.CLIMB_MOTOR_FF;
 
         cfgLeft.apply(toApply);
-        toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         cfgRight.apply(toApply);
 
         climbTalonLeft.getDutyCycle().setUpdateFrequency(ClimbCal.CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ);
@@ -86,6 +89,27 @@ public class Climb extends SubsystemBase {
         return timestampDifference;
     }
 
+    private void controlPosition(double inputPositionDegrees) {
+        // trapezoidal motion profiling to account for large jumps in velocity which
+        // result in large error
+        final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DPS, ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DPS_SQUARED));
+        // goal position (rotations) w/ velocity at position (0?)
+
+        TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
+        TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
+
+        PositionVoltage tRequest = new PositionVoltage(0).withSlot(0);
+        // set next setpoint, where t = periodic interval (20ms)
+        tSetpoint = trapezoidProfile.calculate(0.02, tSetpoint, tGoal);
+
+        tRequest.Position = tSetpoint.position;
+
+        this.desiredPositionDegrees = tRequest.Position;
+
+        climbTalonLeft.setControl(tRequest);
+    }
+
     public void setDesiredClimbPosition(ClimbPosition pos) {
         this.desiredPosition = pos;
         this.allowClimbMovement = true;
@@ -98,15 +122,20 @@ public class Climb extends SubsystemBase {
     public String getDesiredPosition() {
         return this.desiredPosition.toString();
     }
+
+    @Override
+    public void periodic() {
+        controlPosition(climbPositionMap.get(this.desiredPosition));
+    }
     
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addStringProperty(
-            "Desired Position", this::getDesiredPosition, null);
         builder.addDoubleProperty(
-            "Left Motor Position", () -> climbTalonLeft.getPosition().getValueAsDouble(), null);
+            "Desired Position (Deg)", (() -> desiredPositionDegrees) , null);
         builder.addDoubleProperty(
-            "Right Motor Position", () -> climbTalonRight.getPosition().getValueAsDouble(), null);
+            "Current Left Motor Position (Deg)", () -> climbTalonLeft.getPosition().getValueAsDouble(), null);
+        builder.addDoubleProperty(
+            "Current Right Motor Position (Deg)", () -> climbTalonRight.getPosition().getValueAsDouble(), null);
     }
 }
