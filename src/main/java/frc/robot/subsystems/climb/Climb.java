@@ -73,6 +73,10 @@ public class Climb extends SubsystemBase {
         climbTalonRight.setControl(master);
     }
 
+    public void zeroMotorEncoders() {
+        climbTalonLeft.setPosition(climbAbsoluteEncoder.getPosition().getValueAsDouble());
+    }
+
     /**
     * @return the difference between the current time and the last controlled time by the timer. If
     *     the lastControlledTime is empty (first record), then return 20 milliseconds
@@ -96,7 +100,7 @@ public class Climb extends SubsystemBase {
                 ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DPS, ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DPS_SQUARED));
         // goal position (rotations) w/ velocity at position (0?)
 
-        TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
+        TrapezoidProfile.State tGoal = new TrapezoidProfile.State();
         TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
         PositionVoltage tRequest = new PositionVoltage(0).withSlot(0);
