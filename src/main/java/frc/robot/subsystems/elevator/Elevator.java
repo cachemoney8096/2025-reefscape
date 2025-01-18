@@ -155,9 +155,9 @@ public class Elevator extends SubsystemBase {
         builder.addDoubleProperty(
             "Desired Position", () -> elevatorPositions.get(desiredPosition), null);
         builder.addDoubleProperty(
-            "Left Motor Position", () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.GEAR_CIRCUMFEREMCE * ElevatorConstants.GEAR_RATIO), null);
+            "Left Motor Position", () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.GEAR_CIRCUMFEREMCE ), null);
         builder.addDoubleProperty(
-            "Right Motor Position", () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.GEAR_CIRCUMFEREMCE * ElevatorConstants.GEAR_RATIO), null);
+            "Right Motor Position", () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.GEAR_CIRCUMFEREMCE ), null);
         
         
         
