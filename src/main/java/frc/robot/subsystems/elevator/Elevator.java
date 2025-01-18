@@ -146,10 +146,7 @@ public class Elevator extends SubsystemBase {
         builder.addStringProperty(
                 "Desired Position", () -> desiredPosition.toString(), null);
         builder.addDoubleProperty(
-                "Left Motor Position",
-                () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.DRUM_CIRCUMFEREMCE), null);
-        builder.addDoubleProperty(
-                "Right Motor Position",
-                () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.DRUM_CIRCUMFEREMCE), null);
+                "Elevator position",
+                () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.DRUM_CIRCUMFEREMCE / ElevatorConstants.MOTOR_TO_DRUM_RATIO), null);
     }
 }
