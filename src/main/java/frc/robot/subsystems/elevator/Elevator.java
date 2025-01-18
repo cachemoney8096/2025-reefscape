@@ -110,7 +110,7 @@ public class Elevator extends SubsystemBase {
         TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
         TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
         final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
-        double rotations = inputPositionInch / ElevatorConstants.GER_CIRCUFRINCE;      
+        double rotations = inputPositionInch / ElevatorConstants.GEAR_CIRCUMFEREMCE;      
         m_goal = new TrapezoidProfile.State(rotations, 0.0);
         
         
