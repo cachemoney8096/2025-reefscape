@@ -1,9 +1,7 @@
 package frc.robot.subsystems.elevator;
 
-import java.util.Optional;
 import java.util.TreeMap;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
@@ -12,19 +10,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
-import frc.robot.utils.SendableHelper;
-import edu.wpi.first.util.sendable.SendableBuilder;
-
 
 public class Elevator extends SubsystemBase {
     public enum ElevatorHeight {
@@ -37,22 +27,28 @@ public class Elevator extends SubsystemBase {
         SHALLOW_CLIMB;
     }
 
-   
     private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
-                
+
     private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-    DigitalInput limitSwitchHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_1);
-    DigitalInput limitSwitchBelowHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_2);
-    DigitalInput limitSwitchTop = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_3);
+    DigitalInput limitSwitchHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
+    DigitalInput limitSwitchBelowHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
+    DigitalInput limitSwitchTop = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
     private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
     private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
-   
-    private final TrapezoidProfile m_profile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE, ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE)
-    );
-    
-    private boolean isScoring  =  false;
-    private int currentSlotValue = 0;
+
+    private final TrapezoidProfile m_profile_scoring = new TrapezoidProfile(
+            new TrapezoidProfile.Constraints(ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE,
+                    ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE));
+
+    private final TrapezoidProfile m_profile_climbing = new TrapezoidProfile(
+        new TrapezoidProfile.Constraints(ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_CLIMB,
+                ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_CLIMB));
+
+    private boolean isScoring = true;
+    private int currentSlotValue = 0; // 0 is for scoring and 1 is for climbing
+
+    private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
+    private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
 
     public Elevator() {
 
@@ -71,8 +67,8 @@ public class Elevator extends SubsystemBase {
         TalonFXConfiguration toApply = new TalonFXConfiguration();
 
         toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-                                               
-        toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast; 
+
+        toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
         toApply.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -97,70 +93,63 @@ public class Elevator extends SubsystemBase {
 
     public void setControlParams(boolean isScoring) {
         this.isScoring = isScoring;
-        if (isScoring) {
-            currentSlotValue = 0; // Sets PID values to score
-        } else{
-            currentSlotValue = 1; // sets PID values to climb
-        }
-        
+        currentSlotValue = isScoring?0:1; // 0 for scoring, 1 for climbing
 
     }
- 
-    private void controlPosition(double inputPositionInch) {
-        TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
-        TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
-        final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
-        double rotations = inputPositionInch / ElevatorConstants.GEAR_CIRCUMFEREMCE;      
-        m_goal = new TrapezoidProfile.State(rotations, 0.0);
-        
-        
 
-        m_setpoint = m_profile.calculate(0.02, m_setpoint, m_goal);
+    private void controlPosition(double inputPositionInch) {
+        final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
+        double rotations = inputPositionInch / ElevatorConstants.DRUM_CIRCUMFEREMCE;
+        m_goal = new TrapezoidProfile.State(rotations, 0.0);
+
+        m_setpoint = (isScoring?m_profile_scoring:m_profile_climbing).calculate(0.02, m_setpoint, m_goal);
 
         m_request.Position = m_setpoint.position;
         m_request.Velocity = m_setpoint.velocity;
 
         leftMotor.setControl(m_request);
-   }
-
-   public boolean getLimitSwitchHome(){
-        return limitSwitchHome.get();
     }
 
-    public boolean getLimitSwitchBelowHome(){
-        return limitSwitchBelowHome.get();
+    /* The limit switches we are using are active low, hence the ! operator */
+    public boolean getLimitSwitchHome() {
+        return !limitSwitchHome.get();
     }
 
-    public boolean getLimitSwitchTop(){
-        return limitSwitchTop.get();
+    public boolean getLimitSwitchBelowHome() {
+        return !limitSwitchBelowHome.get();
     }
 
-   public void periodic() {
+    public boolean getLimitSwitchTop() {
+        return !limitSwitchTop.get();
+    }
+
+    public void periodic() {
         controlPosition(elevatorPositions.get(desiredPosition));
+    }
 
-   }
+    public void zeroElevatorToHome(){
+        leftMotor.setPosition(ElevatorCal.POSITION_HOME_INCHES/ElevatorConstants.DRUM_CIRCUMFEREMCE);
+    }
 
-   @Override
-   public void initSendable(SendableBuilder builder) {
+    @Override
+    public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
 
         builder.addIntegerProperty(
-            "Currrent slot value", () -> currentSlotValue, null);
+                "Currrent slot value", () -> currentSlotValue, null);
         builder.addDoubleProperty(
-            "Left Motor Speed", () -> leftMotor.get(), null);
+                "Left Motor Speed", () -> leftMotor.get(), null);
         builder.addDoubleProperty(
-            "Right Motor Speed", () -> rightMotor.get(), null);
+                "Right Motor Speed", () -> rightMotor.get(), null);
         builder.addBooleanProperty(
-            "Boolean isClimbig", () -> isScoring, null);
+                "Boolean isClimbing", () -> isScoring, null);
+        builder.addStringProperty(
+                "Desired Position", () -> desiredPosition.toString(), null);
         builder.addDoubleProperty(
-            "Desired Position", () -> elevatorPositions.get(desiredPosition), null);
+                "Left Motor Position",
+                () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.DRUM_CIRCUMFEREMCE), null);
         builder.addDoubleProperty(
-            "Left Motor Position", () -> (leftMotor.getPosition().getValueAsDouble() * ElevatorConstants.GEAR_CIRCUMFEREMCE ), null);
-        builder.addDoubleProperty(
-            "Right Motor Position", () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.GEAR_CIRCUMFEREMCE ), null);
-        
-        
-        
-
-   }
+                "Right Motor Position",
+                () -> (rightMotor.getPosition().getValueAsDouble() * ElevatorConstants.DRUM_CIRCUMFEREMCE), null);
+    }
 }

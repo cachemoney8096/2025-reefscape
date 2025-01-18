@@ -1,12 +1,11 @@
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import frc.robot.Constants;
 
 public class ElevatorCal {
-    public static final int ELEVATOR_LIMIT_SWITCH_DIO_1 = Constants.PLACEHOLDER_INT,
-        ELEVATOR_LIMIT_SWITCH_DIO_2  = Constants.PLACEHOLDER_INT,
-        ELEVATOR_LIMIT_SWITCH_DIO_3  = Constants.PLACEHOLDER_INT;
+    public static final int ELEVATOR_LIMIT_SWITCH_DIO_HOME = Constants.PLACEHOLDER_INT,
+        ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME  = Constants.PLACEHOLDER_INT,
+        ELEVATOR_LIMIT_SWITCH_DIO_TOP  = Constants.PLACEHOLDER_INT;
     public static final double ELEVATOR_MOTOR_P = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_MOTOR_I = Constants.PLACEHOLDER_DOUBLE,
             ELEVATOR_MOTOR_D = Constants.PLACEHOLDER_DOUBLE,
