@@ -99,7 +99,7 @@ public class Elevator extends SubsystemBase {
 
     private void controlPosition(double inputPositionInch) {
         final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
-        double rotations = inputPositionInch / ElevatorConstants.DRUM_CIRCUMFEREMCE;
+        double rotations = inputPositionInch / ElevatorConstants.DRUM_CIRCUMFEREMCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO;
         m_goal = new TrapezoidProfile.State(rotations, 0.0);
 
         m_setpoint = (isScoring?m_profile_scoring:m_profile_climbing).calculate(0.02, m_setpoint, m_goal);
@@ -128,7 +128,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public void zeroElevatorToHome(){
-        leftMotor.setPosition(ElevatorCal.POSITION_HOME_INCHES/ElevatorConstants.DRUM_CIRCUMFEREMCE);
+        leftMotor.setPosition(ElevatorCal.POSITION_HOME_INCHES/ElevatorConstants.DRUM_CIRCUMFEREMCE*ElevatorConstants.MOTOR_TO_DRUM_RATIO);
     }
 
     @Override
