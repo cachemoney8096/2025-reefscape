@@ -6,5 +6,5 @@ public class ElevatorConstants {
    
     public static final double MOTOR_CIRCUM = Constants.PLACEHOLDER_DOUBLE,
         GEAR_RATIO = Constants.PLACEHOLDER_DOUBLE,
-        GER_CIRCUFRINCE = Constants.PLACEHOLDER_DOUBLE;
+        GEAR_CIRCUMFEREMCE = Constants.PLACEHOLDER_DOUBLE;
 }
