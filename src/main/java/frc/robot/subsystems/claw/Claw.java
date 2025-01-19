@@ -6,18 +6,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.RobotMap;
 
 public class Claw extends SubsystemBase {
-    public TalonFX rollerMotor = new TalonFX(ClawConstants.ROLLER_MOTOR_CAN_ID);
+    public TalonFX rollerMotor = new TalonFX(RobotMap.ROLLER_MOTOR_CAN_ID);
 
-    public DigitalInput beamBreak1 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_1);
-    public DigitalInput beamBreak2 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_2);
+    public DigitalInput beamBreak1 = new DigitalInput(RobotMap.BEAM_BREAK_DIO_1);
+    public DigitalInput beamBreak2 = new DigitalInput(RobotMap.BEAM_BREAK_DIO_2);
 
 
     public Claw(){
