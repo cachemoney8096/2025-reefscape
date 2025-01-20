@@ -26,6 +26,8 @@ public class ElevatorCal {
             POSITION_PRE_SHALLOWCLIMB_INCHES = Constants.PLACEHOLDER_DOUBLE,
             POSITION_SCORE_SHALLOWCLIMB_INCHES = Constants.PLACEHOLDER_DOUBLE;
 
+    public static final double DESIRED_POSITION_MARGIN_IN = Constants.PLACEHOLDER_DOUBLE;
+
     public static final double MAX_VELOCITY_IN_PER_SECOND_SCORE = Constants.PLACEHOLDER_DOUBLE,
             MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE = Constants.PLACEHOLDER_DOUBLE;
     public static final double MAX_VELOCITY_IN_PER_SECOND_CLIMB = Constants.PLACEHOLDER_DOUBLE,

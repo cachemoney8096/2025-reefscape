@@ -110,6 +110,10 @@ public class Elevator extends SubsystemBase {
         leftMotor.setControl(m_request);
     }
 
+    public boolean atDesiredPosition(){
+        return Math.abs(leftMotor.getPosition().getValueAsDouble()-elevatorPositions.get(desiredPosition) / ElevatorConstants.DRUM_CIRCUMFEREMCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO) < ElevatorCal.DESIRED_POSITION_MARGIN_IN;
+    }
+
     /* The limit switches we are using are active low, hence the ! operator */
     public boolean getLimitSwitchHome() {
         return !limitSwitchHome.get();
