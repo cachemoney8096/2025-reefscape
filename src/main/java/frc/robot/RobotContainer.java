@@ -4,17 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.autos.Autos;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.claw.Claw;
-import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.drive.DriveSubsystem;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.lights.Lights;
-import frc.robot.utils.MatchStateUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -26,6 +15,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.utils.MatchStateUtil;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-public class RobotContainer implements Sendable{
+public class RobotContainer implements Sendable {
   private MatchStateUtil matchState;
 
   private final CommandXboxController driverController =
@@ -79,7 +76,9 @@ public class RobotContainer implements Sendable{
     operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
 
     /* Autonchooser config */
-    autonChooser.setDefaultOption("default option no autos yet", new Pair<Command, String>(new InstantCommand(), "PATH NAME"));
+    autonChooser.setDefaultOption(
+        "default option no autos yet",
+        new Pair<Command, String>(new InstantCommand(), "PATH NAME"));
     SmartDashboard.putData(autonChooser);
   }
 
@@ -92,13 +91,9 @@ public class RobotContainer implements Sendable{
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureDriverBindings() {
-    
-  }
+  private void configureDriverBindings() {}
 
-  private void configureOperatorBindings(){
-
-  }
+  private void configureOperatorBindings() {}
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -111,7 +106,5 @@ public class RobotContainer implements Sendable{
   }
 
   @Override
-  public void initSendable(SendableBuilder builder){
-    
-  }
+  public void initSendable(SendableBuilder builder) {}
 }

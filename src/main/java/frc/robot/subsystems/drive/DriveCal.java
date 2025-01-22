@@ -1,5 +1,3 @@
 package frc.robot.subsystems.drive;
 
-public class DriveCal {
-    
-}
+public class DriveCal {}
