@@ -1,6 +1,5 @@
 package frc.robot.subsystems.lights;
 
-import frc.robot.Constants;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdleConfiguration;
@@ -11,7 +10,7 @@ import java.util.TreeMap;
 
 public class Lights {
   /**
-   * Tree map of light code enums and integers that represent the R, G, B values of each light code
+   * Tree map of LightCode enums and integers that represent the R, G, B values of each light code
    * enum
    */
   private TreeMap<LightCode, Integer[]> lightOptionsMap;
@@ -21,17 +20,17 @@ public class Lights {
   private LightCode currentLightStatus = LightCode.OFF;
  
   public enum LightCode {
-    READY_TO_INTAKE, // RED
     OFF, // BLACK
+    DISABLED, // ORANGE
+    READY_TO_INTAKE, // RED
     HAS_CORAL, // GREEN
     SCORE_PREP, // BLUE
     READY_TO_SCORE, // RAINBOW
     CLIMB_PREP_SHALLOW, // PURPLE
     CLIMB_PREP_DEEP, // BLINK PURPLE
     READY_TO_CLIMB, // RAINBOW
-    PARTYMODE, // RAINBOW ANIMATION
     CLIMBING, // BLINK BLUE
-    DISABLED, // ORANGE
+    PARTY_MODE // RAINBOW ANIMATION
   }
 
   public Lights() {
@@ -40,17 +39,14 @@ public class Lights {
     candle.configAllSettings(config);
 
     lightOptionsMap = new TreeMap<LightCode, Integer[]>();
-    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0});
     lightOptionsMap.put(LightCode.OFF, new Integer[] {0, 0, 0});
+    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 255, 0});
+    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0});
     lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {0, 255, 0});
     lightOptionsMap.put(LightCode.SCORE_PREP, new Integer[] {0, 0, 255});
-    lightOptionsMap.put(LightCode.READY_TO_SCORE, new Integer[] {0, 0, 0}); // will rainbow
     lightOptionsMap.put(LightCode.CLIMB_PREP_SHALLOW, new Integer[] {255, 0, 255});
-    lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 255}); // will blink purple
-    lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {0, 0, 0}); // will rainbow
-    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 255, 0});
-    lightOptionsMap.put(LightCode.CLIMBING, new Integer[] {0, 0, 255}); // will blink blue
-    lightOptionsMap.put(LightCode.PARTYMODE, new Integer[] {0, 0, 0}); // will rainbow
+    lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 255}); // blink purple
+    lightOptionsMap.put(LightCode.CLIMBING, new Integer[] {0, 0, 255}); // blink blue
     
   }
  
@@ -63,7 +59,7 @@ public class Lights {
 
   private void setLEDs() 
   {
-    if (currentLightStatus == LightCode.PARTYMODE || currentLightStatus == LightCode.READY_TO_CLIMB || currentLightStatus == LightCode.READY_TO_SCORE) {
+    if (currentLightStatus == LightCode.PARTY_MODE || currentLightStatus == LightCode.READY_TO_CLIMB || currentLightStatus == LightCode.READY_TO_SCORE) {
       setRainbow(); 
     }
     else if(currentLightStatus == LightCode.CLIMBING || currentLightStatus == LightCode.CLIMB_PREP_DEEP){
