@@ -20,17 +20,17 @@ public class Lights {
   private LightCode currentLightStatus = LightCode.OFF;
  
   public enum LightCode {
-    READY_TO_INTAKE, // ORANGE
+    READY_TO_INTAKE, // RED
     OFF, // BLACK
     HAS_CORAL, // GREEN
     SCORE_PREP, // BLUE
-    READY_TO_SCORE, // YELLOW
-    CLIMB_PREP_SHALLOW, // WHITE
-    CLIMB_PREP_DEEP, // RED
-    READY_TO_CLIMB, // PURPLE
-    PARTYMODE,
-    CLIMBING,
-    DISABLED,   
+    READY_TO_SCORE, // RAINBOW
+    CLIMB_PREP_SHALLOW, // PURPLE
+    CLIMB_PREP_DEEP, // BLINK PURPLE
+    READY_TO_CLIMB, // RAINBOW
+    PARTYMODE, // RAINBOW ANIMATION
+    CLIMBING, // BLINK BLUE
+    DISABLED, // ORANGE
   }
 
   public Lights() {
@@ -39,17 +39,17 @@ public class Lights {
     candle.configAllSettings(config);
 
     lightOptionsMap = new TreeMap<LightCode, Integer[]>();
-    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 128, 0});
+    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0});
     lightOptionsMap.put(LightCode.OFF, new Integer[] {0, 0, 0});
-    lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {128, 255, 0});
+    lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {0, 255, 0});
     lightOptionsMap.put(LightCode.SCORE_PREP, new Integer[] {0, 0, 255});
-    lightOptionsMap.put(LightCode.READY_TO_SCORE, new Integer[] {255, 255, 0});
-    lightOptionsMap.put(LightCode.CLIMB_PREP_SHALLOW, new Integer[] {255, 255, 255});
-    lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 0});
-    lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {127, 0, 255});
-    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {0, 128, 128});
-    lightOptionsMap.put(LightCode.CLIMBING, new Integer[] {128, 0, 128});
-    lightOptionsMap.put(LightCode.PARTYMODE, new Integer[] {0, 0, 0});
+    lightOptionsMap.put(LightCode.READY_TO_SCORE, new Integer[] {0, 0, 0}); // will rainbow
+    lightOptionsMap.put(LightCode.CLIMB_PREP_SHALLOW, new Integer[] {255, 0, 255});
+    lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 255}); // will blink purple
+    lightOptionsMap.put(LightCode.READY_TO_CLIMB, new Integer[] {0, 0, 0}); // will rainbow
+    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 255, 0});
+    lightOptionsMap.put(LightCode.CLIMBING, new Integer[] {0, 0, 255}); // will blink blue
+    lightOptionsMap.put(LightCode.PARTYMODE, new Integer[] {0, 0, 0}); // will rainbow
     
   }
  
@@ -62,16 +62,20 @@ public class Lights {
 
   private void setLEDs() 
   {
-    if (currentLightStatus == LightCode.PARTYMODE) {
+    if (currentLightStatus == LightCode.PARTYMODE || currentLightStatus == LightCode.READY_TO_CLIMB || currentLightStatus == LightCode.READY_TO_SCORE) {
       setRainbow(); 
-   
-  
+    }
+    else if(currentLightStatus == LightCode.CLIMBING || currentLightStatus == LightCode.CLIMB_PREP_DEEP){
+      setBlink(currentLightStatus);
+    }
+    else{
       candle.animate(null);
       candle.setLEDs(
       lightOptionsMap.get(currentLightStatus)[0],
       lightOptionsMap.get(currentLightStatus)[1],
-      lightOptionsMap.get(currentLightStatus)[2]);}
-    }
+      lightOptionsMap.get(currentLightStatus)[2]);
+    }  
+  }
   
 
   public void setBlink(LightCode light)
@@ -101,28 +105,3 @@ public class Lights {
     candle.animate(rainbowAnim);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ps. the skibidi demons are watching...
