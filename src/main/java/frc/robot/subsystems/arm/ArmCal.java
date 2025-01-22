@@ -1,5 +1,3 @@
 package frc.robot.subsystems.arm;
 
-public class ArmCal {
-    
-}
+public class ArmCal {}

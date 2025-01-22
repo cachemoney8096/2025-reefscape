@@ -1,5 +1,3 @@
 package frc.robot.subsystems.ScoringLimelight;
 
-public class ScoringLimelightConstants {
-    
-}
+public class ScoringLimelightConstants {}
