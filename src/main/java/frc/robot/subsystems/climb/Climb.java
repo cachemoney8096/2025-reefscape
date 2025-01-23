@@ -1,5 +1,4 @@
 package frc.robot.subsystems.climb;
-import java.util.Optional;
 import java.util.TreeMap;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
@@ -11,7 +10,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;;
@@ -31,15 +29,15 @@ public class Climb extends SubsystemBase {
 
     private TreeMap<ClimbPosition, Double> climbPositionMap;
     private ClimbPosition desiredPosition = ClimbPosition.STOWED;
-    private Optional<Double> lastControlledTime = Optional.empty();
     private boolean allowClimbMovement = false;
+    private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
     public Climb() {
         initClimbTalons();
         climbPositionMap = new TreeMap<ClimbPosition, Double>();
         climbPositionMap.put(ClimbPosition.CLIMBING, ClimbCal.CLIMB_CLIMBING_POSITION_DEGREES);
         climbPositionMap.put(ClimbPosition.STOWED, ClimbCal.CLIMB_STOWED_POSITION_DEGREES);
-        climbPositionMap.put(ClimbPosition.CLIMBING_PREP, ClimbCal.CLIMB_PRE_CLIMB_PREP_DEGREES);
+        climbPositionMap.put(ClimbPosition.CLIMBING_PREP, ClimbCal.CLIMB_CLIMBING_PREP_DEGREES);
         climbPositionMap.put(ClimbPosition.CLEAR_OF_ARM, ClimbCal.CLIMB_CLEAR_OF_ARM_DEGREES);
     }
 
@@ -70,38 +68,21 @@ public class Climb extends SubsystemBase {
         climbTalonLeft.setPosition(climbAbsoluteEncoder.getPosition().getValueAsDouble());
     }
 
-    /**
-    * @return the difference between the current time and the last controlled time by the timer. If
-    *     the lastControlledTime is empty (first record), then return 20 milliseconds
-    */
-    public double getTimeDifference() {
-        if (lastControlledTime.isEmpty()) {
-            lastControlledTime = Optional.of(Timer.getFPGATimestamp());
-            return Constants.PERIOD_TIME_SECONDS;
-        }
-        final double currentTimestamp = Timer.getFPGATimestamp();
-        final double timestampDifference = currentTimestamp - lastControlledTime.get();
-        lastControlledTime = Optional.of(currentTimestamp);
-
-        return timestampDifference;
-    }
-
     private void controlPosition(double inputPositionDegrees) {
         // trapezoidal motion profiling to account for large jumps in velocity which
         // result in large error
         final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DEG_PER_SEC, ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DEG_PER_SEC_SQUARED));
+                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DEG_PER_SEC, ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_DEG_PER_SEC_SQUARED));
         // goal position (rotations) w/ velocity at position (0?)
 
-        TrapezoidProfile.State tGoal = new TrapezoidProfile.State();
-        TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
+        TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
 
         PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
         // set next setpoint, where t = periodic interval (20ms)
-        tSetpoint = trapezoidProfile.calculate(0.02, tSetpoint, tGoal);
+        tSetpoint = trapezoidProfile.calculate(Constants.PERIOD_TIME_SECONDS, tSetpoint, tGoal);
 
         tRequest.Position = tSetpoint.position;
-        tRequest.Velocity = tRequest.Velocity * 360.0;
+        tRequest.Velocity = tSetpoint.velocity;
 
         climbTalonLeft.setControl(tRequest);
     }
@@ -127,12 +108,11 @@ public class Climb extends SubsystemBase {
                 currentPosition >= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MIN_DEGREES;
     }
 
-    public boolean isClimbAtDesiredPosition() {
+    public boolean atDesiredPosition() {
         double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0; 
         double desiredPositionDegrees = climbPositionMap.get(desiredPosition);
 
-        return currentPosition <= desiredPositionDegrees + ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN &&
-                currentPosition >= desiredPositionDegrees - ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN;
+        return Math.abs(currentPosition - desiredPositionDegrees) <= ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN;
     }
 
     @Override
@@ -146,11 +126,11 @@ public class Climb extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         builder.addStringProperty(
-            "Desired Position (Str)", (() -> desiredPosition.toString()) , null);
+            "Desired Position", (() -> desiredPosition.toString()) , null);
         builder.addBooleanProperty(
-            "At Desired Position (Bool)", this::isClimbAtDesiredPosition, null);
+            "At Desired Position", this::atDesiredPosition, null);
         builder.addBooleanProperty(
-            "Climb in Interference Zone (Bool)", this::isClimbInInterferenceZone, null);
+            "Climb in Interference Zone", this::isClimbInInterferenceZone, null);
         builder.addDoubleProperty(
             "Desired Position (Deg)", (() -> climbPositionMap.get(desiredPosition)) , null);
         builder.addDoubleProperty(
