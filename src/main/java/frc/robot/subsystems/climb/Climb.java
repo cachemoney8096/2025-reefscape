@@ -31,6 +31,10 @@ public class Climb extends SubsystemBase {
     private ClimbPosition desiredPosition = ClimbPosition.STOWED;
     private boolean allowClimbMovement = false;
     private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
+    private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DEG_PER_SEC, ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_DEG_PER_SEC_SQUARED));
+
+    private int currentSlot = 1; 
 
     public Climb() {
         initClimbTalons();
@@ -50,34 +54,40 @@ public class Climb extends SubsystemBase {
         toApply.CurrentLimits.SupplyCurrentLimitEnable = true;
         toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        toApply.Slot0.kP = ClimbCal.CLIMB_MOTOR_P;
-        toApply.Slot0.kI = ClimbCal.CLIMB_MOTOR_I;
-        toApply.Slot0.kD = ClimbCal.CLIMB_MOTOR_D;
-        toApply.Slot0.kV = ClimbCal.CLIMB_MOTOR_FF;
+        toApply.Slot0.kP = ClimbCal.CLIMBING_P;
+        toApply.Slot0.kI = ClimbCal.CLIMBING_I;
+        toApply.Slot0.kD = ClimbCal.CLIMBING_D;
+        toApply.Slot0.kV = ClimbCal.CLIMBING_FF;
+
+        toApply.Slot1.kP = ClimbCal.POSITIONING_P;
+        toApply.Slot1.kI = ClimbCal.POSITIONING_I;
+        toApply.Slot1.kD = ClimbCal.POSITIONING_D;
+        toApply.Slot1.kV = ClimbCal.POSITIONING_FF;
 
         cfgLeft.apply(toApply);
 
         climbTalonLeft.getDutyCycle().setUpdateFrequency(ClimbCal.CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ);
-        climbTalonRight.getDutyCycle().setUpdateFrequency(ClimbCal.CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ);
 
         Follower master = new Follower(climbTalonLeft.getDeviceID(), true);
         climbTalonRight.setControl(master);
     }
 
     public void zeroMotorEncoders() {
-        climbTalonLeft.setPosition(climbAbsoluteEncoder.getPosition().getValueAsDouble());
+        climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
+    }
+
+    public void setClimbingPID(){
+        currentSlot = 0;
+    }
+
+    public void setPositioningPID(){
+        currentSlot = 1;
     }
 
     private void controlPosition(double inputPositionDegrees) {
-        // trapezoidal motion profiling to account for large jumps in velocity which
-        // result in large error
-        final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DEG_PER_SEC, ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_DEG_PER_SEC_SQUARED));
-        // goal position (rotations) w/ velocity at position (0?)
+        TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0); // TODO make sure there isn't a ratio here (there shouldn't be because this is angular control but good to double check)
 
-        TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
-
-        PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
+        PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(currentSlot);
         // set next setpoint, where t = periodic interval (20ms)
         tSetpoint = trapezoidProfile.calculate(Constants.PERIOD_TIME_SECONDS, tSetpoint, tGoal);
 

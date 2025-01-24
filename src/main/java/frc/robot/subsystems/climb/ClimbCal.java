@@ -3,10 +3,15 @@ package frc.robot.subsystems.climb;
 import frc.robot.Constants;
 
 public class ClimbCal {
-    public static final double CLIMB_MOTOR_P = Constants.PLACEHOLDER_DOUBLE,
-        CLIMB_MOTOR_I = Constants.PLACEHOLDER_DOUBLE,
-        CLIMB_MOTOR_D = Constants.PLACEHOLDER_DOUBLE,
-        CLIMB_MOTOR_FF = Constants.PLACEHOLDER_DOUBLE;
+    public static final double CLIMBING_P = Constants.PLACEHOLDER_DOUBLE,
+        CLIMBING_I = Constants.PLACEHOLDER_DOUBLE,
+        CLIMBING_D = Constants.PLACEHOLDER_DOUBLE,
+        CLIMBING_FF = Constants.PLACEHOLDER_DOUBLE;
+
+    public static final double POSITIONING_P = Constants.PLACEHOLDER_DOUBLE,
+        POSITIONING_I = Constants.PLACEHOLDER_DOUBLE, 
+        POSITIONING_D = Constants.PLACEHOLDER_DOUBLE,
+        POSITIONING_FF = Constants.PLACEHOLDER_DOUBLE;
 
     public static final double CLIMB_CLIMBING_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE,
         CLIMB_STOWED_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE,
