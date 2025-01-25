@@ -107,7 +107,7 @@ public class Arm extends SubsystemBase {
         this.desiredSetpointVelocity = tRequest.Velocity * 360.0;
     }
 
-    public boolean atPositionDegrees(ArmPosition pos) {
+    public boolean atArmPosition(ArmPosition pos) {
         double checkPositionDeg = armPositions.get(pos);
         double currentPositionDeg = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
 
@@ -136,6 +136,7 @@ public class Arm extends SubsystemBase {
         super.initSendable(builder);
         builder.addDoubleProperty("Desired Setpoint Position (Deg)", (() -> desiredPositionDegrees), null);
         builder.addDoubleProperty("Desired Setpoint Velocity (deg/s)", (() -> desiredSetpointVelocity), null);
+        builder.addBooleanProperty("At Desired Position?", (() -> atArmPosition(armDesiredPosition)), null);
         builder.addBooleanProperty("Is Arm In Interference Zone", this::isArmInInterferenceZone, null);
         builder.addDoubleProperty("Right Motor Angle (Relative) ",
                 (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0), null);
