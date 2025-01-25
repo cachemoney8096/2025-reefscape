@@ -24,7 +24,7 @@ public class Climb extends SubsystemBase {
         CLIMBING_PREP,
         CLIMBING,
         STOWED,
-        CLEAR_OF_ARM,
+        CLEAR_OF_ARM
     }
 
     private TreeMap<ClimbPosition, Double> climbPositionMap;
@@ -122,7 +122,7 @@ public class Climb extends SubsystemBase {
         double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0; 
         double desiredPositionDegrees = climbPositionMap.get(desiredPosition);
 
-        return Math.abs(currentPosition - desiredPositionDegrees) <= ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN;
+        return Math.abs(currentPosition - desiredPositionDegrees) <= ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN_DEG;
     }
 
     @Override
