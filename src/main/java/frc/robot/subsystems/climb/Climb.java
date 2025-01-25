@@ -32,7 +32,7 @@ public class Climb extends SubsystemBase {
     private boolean allowClimbMovement = false;
     private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_DEG_PER_SEC, ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_DEG_PER_SEC_SQUARED));
+                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS, ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
 
     private int currentSlot = 1; 
 
