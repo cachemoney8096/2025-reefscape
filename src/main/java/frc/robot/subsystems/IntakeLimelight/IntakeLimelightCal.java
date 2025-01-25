@@ -1,5 +1,3 @@
 package frc.robot.subsystems.IntakeLimelight;
 
-public class IntakeLimelightCal {
-    
-}
+public class IntakeLimelightCal {}
