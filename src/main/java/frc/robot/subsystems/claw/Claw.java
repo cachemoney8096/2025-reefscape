@@ -14,8 +14,8 @@ import frc.robot.RobotMap;
 public class Claw extends SubsystemBase {
     public TalonFX rollerMotor = new TalonFX(RobotMap.ROLLER_MOTOR_CAN_ID);
 
-    public DigitalInput beamBreak1 = new DigitalInput(RobotMap.BEAM_BREAK_DIO_1);
-    public DigitalInput beamBreak2 = new DigitalInput(RobotMap.BEAM_BREAK_DIO_2);
+    public DigitalInput beamBreakLeft = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_LEFT);
+    public DigitalInput beamBreakRight = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_RIGHT);
 
 
     public Claw(){
@@ -37,16 +37,16 @@ public class Claw extends SubsystemBase {
         cfg.apply(toApply);
     }
 
-    public boolean beamBreak1(){
-        return !beamBreak1.get();
+    public boolean beamBreakLeft(){
+        return !beamBreakLeft.get();
     }
     
-    public boolean beamBreak2(){
-        return !beamBreak2.get();
+    public boolean beamBreakRight(){
+        return !beamBreakRight.get();
     }
 
     public boolean beamBreakSeesObject(){
-        return beamBreak1() || beamBreak2();
+        return beamBreakLeft() || beamBreakRight();
     }
 
     public void runMotorsIntaking(){
@@ -65,8 +65,8 @@ public class Claw extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         builder.addBooleanProperty(
-            "Beam Break 1 Status", this::beamBreak1, null);
+            "Beam Break 1 Status", this::beamBreakLeft, null);
         builder.addBooleanProperty(
-            "Beam Break 2 Status", this::beamBreak2, null);
+            "Beam Break 2 Status", this::beamBreakRight, null);
     }
 }

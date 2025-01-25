@@ -22,23 +22,21 @@ public class Arm extends SubsystemBase {
     private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
      // trapezoidal motion profiling to account for large jumps in velocity which result in large error
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-            ArmCal.ARM_MOTOR_MAX_VELOCITY_DPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_DPS_SQUARED));
+            ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
     private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
 
     public enum ArmPosition {
-        // home will also be the position for when we are deep climbing
         HOME,
         INTAKE,
-        DEEP_CLIMB,
+        DEEP_CLIMB, // TODO determine if this position is even necessary (could just be home)
         L1,
         L2,
         L3,
-        L4,
+        L4
     }
 
-    private double desiredPositionDegrees = 0.0;
-    private double desiredSetpointVelocity = 0.0;
+    private double desiredSetpointVelocityDegPerSec = 0.0;
 
     /**
      * Map each of our arm positions to an actual position on our arm (degrees)
@@ -92,7 +90,7 @@ public class Arm extends SubsystemBase {
     // Account for PID when setting position of our arm
     public void controlPosition(double inputPositionDegrees) {
         // goal position (rotations) w/ velocity at position (0?)
-        PositionVoltage tRequest = new PositionVoltage(0).withSlot(0);
+        PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
         TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
         // set next setpoint, where t = periodic interval (20ms)
         tSetpoint = trapezoidProfile.calculate(0.02, tSetpoint, tGoal);
@@ -101,17 +99,19 @@ public class Arm extends SubsystemBase {
         tRequest.Velocity = tSetpoint.velocity;
 
         armMotorLeft.setControl(tRequest);
-        // desired pos = requested pos
-        this.desiredPositionDegrees = tRequest.Position * 360.0;
-        // convert velocity in rotations/sec to deg/sec
-        this.desiredSetpointVelocity = tRequest.Velocity * 360.0;
+
+        this.desiredSetpointVelocityDegPerSec = tRequest.Velocity * 360.0;
     }
 
     public boolean atArmPosition(ArmPosition pos) {
         double checkPositionDeg = armPositions.get(pos);
         double currentPositionDeg = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
 
-        return Math.abs(checkPositionDeg - currentPositionDeg) < ArmCal.ARM_AT_POSITION_MARGIN_DEGREES;
+        return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_AT_POSITION_MARGIN_DEGREES;
+    }
+
+    public boolean atDesiredArmPosition() {
+        return atArmPosition(armDesiredPosition);
     }
 
     public boolean isArmInInterferenceZone() {
@@ -134,9 +134,9 @@ public class Arm extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("Desired Setpoint Position (Deg)", (() -> desiredPositionDegrees), null);
-        builder.addDoubleProperty("Desired Setpoint Velocity (deg/s)", (() -> desiredSetpointVelocity), null);
-        builder.addBooleanProperty("At Desired Position?", (() -> atArmPosition(armDesiredPosition)), null);
+        builder.addDoubleProperty("Desired Setpoint Position (Deg)", (() -> armPositions.get(armDesiredPosition)), null);
+        builder.addDoubleProperty("Desired Setpoint Velocity (deg/s)", (() -> desiredSetpointVelocityDegPerSec), null);
+        builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
         builder.addBooleanProperty("Is Arm In Interference Zone", this::isArmInInterferenceZone, null);
         builder.addDoubleProperty("Right Motor Angle (Relative) ",
                 (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0), null);

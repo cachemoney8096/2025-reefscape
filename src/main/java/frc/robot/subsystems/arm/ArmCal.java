@@ -20,6 +20,6 @@ public class ArmCal {
                         ARM_MOTOR_FF = Constants.PLACEHOLDER_DOUBLE;
         public static final double ARM_INTERFERENCE_THRESHOLD_MAX_DEGREES = Constants.PLACEHOLDER_DOUBLE,
                         ARM_INTERFERENCE_THRESHOLD_MIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
-        public static final double ARM_MOTOR_MAX_VELOCITY_DPS = Constants.PLACEHOLDER_DOUBLE,
-                        ARM_MOTOR_MAX_ACCERLATION_DPS_SQUARED = Constants.PLACEHOLDER_DOUBLE;
+        public static final double ARM_MOTOR_MAX_VELOCITY_RPS = Constants.PLACEHOLDER_DOUBLE,
+                        ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED = Constants.PLACEHOLDER_DOUBLE;
 }
