@@ -11,6 +11,7 @@ public class DeepClimbScoringSequence extends SequentialCommandGroup  {
         addRequirements(climb);
         addCommands(
             new InstantCommand(() -> climb.setClimbingPID()),
+            // TODO check for arm not in interference zone
             new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING))
 
         );
