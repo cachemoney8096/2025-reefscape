@@ -21,15 +21,19 @@ public class IntakeSequence extends SequentialCommandGroup {
     public IntakeSequence(Claw claw, IntakeLimelight light, Arm arm, Elevator elevator) {
         addRequirements(claw);
         addCommands(
-            new ConditionalCommand(/*TODO do drive logic here*/ null, 
+            new ConditionalCommand(
+                                    new SequentialCommandGroup(
+                                        /*TODO do drive logic here*/
+                                        // the next two need to be done at the same time as the driving
+                                        new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
+                                        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+                                        new InstantCommand(() -> claw.runMotorsIntaking()),
+                                        new WaitUntilCommand(claw::beamBreakSeesObject),
+                                        new InstantCommand(() -> claw.stopMotors())
+                                    ), 
                                     new InstantCommand(), // return out of the command if the robot does not see the intake april tag 
-                                    () -> {if(light.checkForTag().isEmpty()){return false;} else{return true;}}),
-            // the next two need to be done at the same time as the driving
-            new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-            new InstantCommand(() -> claw.runMotorsIntaking()),
-            new WaitUntilCommand(claw::beamBreakSeesObject),
-            new InstantCommand(() -> claw.stopMotors())
+                                    () -> {!light.checkForTag().isEmpty()}
+                                )
         );
     }
 }
