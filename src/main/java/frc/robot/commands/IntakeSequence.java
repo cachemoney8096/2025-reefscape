@@ -32,7 +32,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                                         new InstantCommand(() -> claw.stopMotors())
                                     ), 
                                     new InstantCommand(), // return out of the command if the robot does not see the intake april tag 
-                                    () -> {!light.checkForTag().isEmpty()}
+                                    () -> {return !light.checkForTag().isEmpty();}
                                 )
         );
     }
