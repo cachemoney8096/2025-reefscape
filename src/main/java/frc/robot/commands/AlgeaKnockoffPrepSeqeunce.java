@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class AlgeaKnockoffPrepSeqeunce extends SequentialCommandGroup  {
     public AlgeaKnockoffPrepSeqeunce(Elevator elevator, Arm arm, boolean isHigh) {
-        addRequirements(elevator);
+        addRequirements(elevator, arm);
         addCommands(
             new ConditionalCommand(
                 new SequentialCommandGroup(
