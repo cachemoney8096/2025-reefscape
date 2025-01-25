@@ -39,10 +39,6 @@ public class Claw extends SubsystemBase {
     cfg.apply(toApply);
   }
 
-  public boolean beamBreak1() {
-    return !beamBreak1.get();
-  }
-
   public boolean beamBreakLeft(){
         return !beamBreakLeft.get();
     }
@@ -75,3 +71,5 @@ public class Claw extends SubsystemBase {
         builder.addBooleanProperty(
             "Beam Break Right Status", this::beamBreakRight, null);
     }
+
+  }
