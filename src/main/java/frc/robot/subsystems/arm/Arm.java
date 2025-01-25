@@ -135,7 +135,7 @@ public class Arm extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         builder.addDoubleProperty("Desired Setpoint Position (Deg)", (() -> armPositions.get(armDesiredPosition)), null);
-        builder.addDoubleProperty("Desired Setpoint Velocity (deg/s)", (() -> desiredSetpointVelocityDegPerSec), null);
+        builder.addDoubleProperty("Desired Setpoint Velocity (Deg/Sec)", (() -> desiredSetpointVelocityDegPerSec), null);
         builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
         builder.addBooleanProperty("Is Arm In Interference Zone", this::isArmInInterferenceZone, null);
         builder.addDoubleProperty("Right Motor Angle (Relative) ",
