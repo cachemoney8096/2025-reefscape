@@ -52,4 +52,6 @@ public final class Constants {
     PIPELINE8,
     PIPELINE9
   }
+
+  public static final double PERIOD_TIME_SECONDS = 0.02;
 }
