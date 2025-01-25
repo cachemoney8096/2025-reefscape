@@ -50,7 +50,9 @@ public class RobotContainer implements Sendable {
   public Lights lights;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
+  public RobotContainer(MatchStateUtil ms) {
+    matchState = ms;
+
     /* Subsystems */
     arm = new Arm();
     claw = new Claw();
