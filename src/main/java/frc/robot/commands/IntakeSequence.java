@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.Optional;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -12,7 +14,9 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 
 public class IntakeSequence extends SequentialCommandGroup {
-    public IntakeSequence(Claw claw, IntakeLimelight light, Arm arm, Elevator elevator) {
+    private Optional<Transform2d> isTag = Optional.empty();
+    public IntakeSequence(Claw claw, IntakeLimelight intakeLime, Arm arm, Elevator elevator) {
+        isTag = intakeLime.checkForTag();
         addRequirements(claw);
         addCommands(
             new ConditionalCommand(
@@ -26,7 +30,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                                         new InstantCommand(() -> claw.stopMotors())
                                     ), 
                                     new InstantCommand(), // return out of the command if the robot does not see the intake april tag 
-                                    () -> {return !light.checkForTag().isEmpty();}
+                                    () -> {return !isTag.isEmpty();}
                                 )
         );
     }
