@@ -5,15 +5,17 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotMap;
 
 public class Claw extends SubsystemBase {
-  public TalonFX rollerMotor = new TalonFX(ClawConstants.ROLLER_MOTOR_CAN_ID);
+    public TalonFX rollerMotor = new TalonFX(RobotMap.ROLLER_MOTOR_CAN_ID);
 
-  public DigitalInput beamBreak1 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_1);
-  public DigitalInput beamBreak2 = new DigitalInput(ClawConstants.BEAM_BREAK_DIO_2);
+    public DigitalInput beamBreakLeft = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_LEFT);
+    public DigitalInput beamBreakRight = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_RIGHT);
 
   public Claw() {
     initTalons();
@@ -37,17 +39,17 @@ public class Claw extends SubsystemBase {
     cfg.apply(toApply);
   }
 
-  public boolean beamBreak1() {
-    return !beamBreak1.get();
-  }
+  public boolean beamBreakLeft(){
+        return !beamBreakLeft.get();
+    }
+    
+    public boolean beamBreakRight(){
+        return !beamBreakRight.get();
+    }
 
-  public boolean beamBreak2() {
-    return !beamBreak2.get();
-  }
-
-  public boolean beamBreakSeesObject() {
-    return beamBreak1() || beamBreak2();
-  }
+    public boolean beamBreakSeesObject(){
+        return beamBreakLeft() || beamBreakRight();
+    }
 
   public void runMotorsIntaking() {
     rollerMotor.set(ClawCal.CLAW_ROLLERS_INTAKING_SPEED_PERCENT);
@@ -61,10 +63,13 @@ public class Claw extends SubsystemBase {
     rollerMotor.set(0.0);
   }
 
-  @Override
-  public void initSendable(SendableBuilder builder) {
-    super.initSendable(builder);
-    builder.addBooleanProperty("Beam Break 1 Status", this::beamBreak1, null);
-    builder.addBooleanProperty("Beam Break 2 Status", this::beamBreak2, null);
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        builder.addBooleanProperty(
+            "Beam Break Left Status", this::beamBreakLeft, null);
+        builder.addBooleanProperty(
+            "Beam Break Right Status", this::beamBreakRight, null);
+    }
+
   }
-}
