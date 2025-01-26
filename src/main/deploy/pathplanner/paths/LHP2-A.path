@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.6940625,
-        "y": 7.29125
+        "x": 0.8531249999959464,
+        "y": 6.681875000006032
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.828125,
-        "y": 5.7190625
+        "x": 0.9871874999959463,
+        "y": 5.109687500006032
       },
       "isLocked": false,
-      "linkedName": "LHP1"
+      "linkedName": "LHP2"
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": "S2",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 123.69006752597979
+    "rotation": 125.21759296819272
   },
   "useDefaultConstraints": true
 }
