@@ -11,7 +11,7 @@ public class AutoIntakeSequence extends SequentialCommandGroup {
     public AutoIntakeSequence(Elevator elevator, Arm arm, Claw claw) {
         addRequirements(elevator, arm, claw);
         addCommands(
-            new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.HOME)),
+            new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.INTAKE)),
             new InstantCommand(() -> arm.setDesiredPosition(Arm.ArmPosition.INTAKE)),
             new InstantCommand(() -> claw.runMotorsIntaking()),
             new WaitUntilCommand(claw::beamBreakSeesObject),

@@ -13,8 +13,13 @@ public class AutoScoringSequence extends SequentialCommandGroup {
         addCommands(
             new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.SCORE_L4)),
             new InstantCommand(() -> arm.setDesiredPosition(Arm.ArmPosition.L4)),
+            
+            new WaitUntilCommand(elevator::atDesiredPosition),
+            new WaitUntilCommand(arm::atDesiredArmPosition),
+
             new InstantCommand(() -> claw.runMotorsScoring()),
-            new WaitUntilCommand(0.5)
+            new WaitUntilCommand(0.5),
+            new InstantCommand(() -> claw.stopMotors())
         );
     }
 }
