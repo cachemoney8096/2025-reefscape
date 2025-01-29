@@ -113,12 +113,17 @@ public class IntakeLimelight extends SubsystemBase {
     return new Transform2d(translation, rot);
   }
 
-  private static boolean validIntakingTag(double tagId) {
+  public static boolean validIntakingTag(double tagId) {
     long tagIdRounded = Math.round(tagId);
     List<Integer> humanPlayerStationTags = List.of(1, 2, 12, 13);
     return humanPlayerStationTags.contains((int) tagIdRounded);
   } // TODO if something breaks, could be this
 
+  public static boolean validDeepClimbTag(double tagId) {
+    long tagIdRounded = Math.round(tagId);
+    List<Integer> deepClimbTags = List.of(4, 5, 14, 15);
+    return deepClimbTags.contains((int) tagIdRounded);
+  }
   /**
    * @param targets array of all targets the LimeLight sees
    * @return array index of the tag closest to the robot
@@ -129,7 +134,7 @@ public class IntakeLimelight extends SubsystemBase {
     int bestTag = 0;
     for (int tagIndex = 0; tagIndex < numTags; tagIndex++) {
       LimelightTarget_Fiducial target = targets[tagIndex];
-      if (!validIntakingTag(target.fiducialID)) {
+      if (!validIntakingTag(target.fiducialID) || !validDeepClimbTag(target.fiducialID)) {
         continue;
       }
       double targetDistance = target.getTargetPose_RobotSpace().getTranslation().getNorm();
