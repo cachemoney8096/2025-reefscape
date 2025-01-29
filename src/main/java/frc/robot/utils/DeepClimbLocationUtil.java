@@ -9,7 +9,7 @@ public class DeepClimbLocationUtil {
     
     private Position position = Position.ONE;
 
-    public Position gePosition() {
+    public Position getPosition() {
         return this.position;
     }
 
