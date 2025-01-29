@@ -20,6 +20,7 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 
 public class IntakeSequence extends SequentialCommandGroup {
     private Optional<Transform2d> isTag = Optional.empty();
+    private double tagid = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0);
     public IntakeSequence(Claw claw, IntakeLimelight intakeLime, Arm arm, Elevator elevator, Climb climb) {
         isTag = intakeLime.checkForTag();
         SequentialCommandGroup moveArmElevatorClaw = new SequentialCommandGroup(
@@ -46,11 +47,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                                         moveArmElevatorClaw
                                     ), 
                                     moveArmElevatorClaw, // return out of the command if the robot does not see the intake april tag 
-                                    () -> {return (!isTag.isEmpty() && (
-                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 1) ||
-                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 2) ||
-                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 12) ||
-                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 13)));}
+                                    () -> {return (!isTag.isEmpty() && ((tagid == 1) || (tagid == 2) || (tagid == 12) || (tagid == 13)));}
                                 )
         );
     }
