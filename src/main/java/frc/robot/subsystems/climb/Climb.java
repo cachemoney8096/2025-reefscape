@@ -113,7 +113,7 @@ public class Climb extends SubsystemBase {
         return !isClimbInInterferenceZone();
     }
 
-    public BooleanSupplier isClimbInInterferenceZone() {
+    public Boolean isClimbInInterferenceZone() {
         double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
 
         return currentPosition <= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MAX_DEGREES &&
