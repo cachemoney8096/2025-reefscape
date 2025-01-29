@@ -1,5 +1,7 @@
 package frc.robot.subsystems.climb;
 import java.util.TreeMap;
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
@@ -24,7 +26,7 @@ public class Climb extends SubsystemBase {
         CLIMBING_PREP,
         CLIMBING,
         STOWED,
-        CLEAR_OF_ARM
+        CLEAR_OF_ARM 
     }
 
     private TreeMap<ClimbPosition, Double> climbPositionMap;
@@ -111,7 +113,7 @@ public class Climb extends SubsystemBase {
         return !isClimbInInterferenceZone();
     }
 
-    public boolean isClimbInInterferenceZone() {
+    public BooleanSupplier isClimbInInterferenceZone() {
         double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
 
         return currentPosition <= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MAX_DEGREES &&
