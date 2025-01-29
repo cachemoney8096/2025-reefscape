@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.Optional;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -30,7 +31,11 @@ public class IntakeSequence extends SequentialCommandGroup {
                                         new InstantCommand(() -> claw.stopMotors())
                                     ), 
                                     new InstantCommand(), // return out of the command if the robot does not see the intake april tag 
-                                    () -> {return !isTag.isEmpty();}
+                                    () -> {return (!isTag.isEmpty() && (
+                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 1) ||
+                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 2) ||
+                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 12) ||
+                                        (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0) == 13)));}
                                 )
         );
     }
