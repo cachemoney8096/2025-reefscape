@@ -23,7 +23,7 @@ public class Arm extends SubsystemBase {
      // trapezoidal motion profiling to account for large jumps in velocity which result in large error
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
             ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
-    private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
+    private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(),0);
 
 
     public enum ArmPosition {
