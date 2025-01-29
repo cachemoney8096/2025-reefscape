@@ -17,6 +17,7 @@ import java.util.TreeMap;
 public class Elevator extends SubsystemBase {
   public enum ElevatorHeight {
     HOME,
+    INTAKE,
     SCORE_L4,
     SCORE_L3,
     SCORE_L2,
