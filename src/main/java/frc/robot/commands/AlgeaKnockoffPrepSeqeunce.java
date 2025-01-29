@@ -26,7 +26,7 @@ public class AlgeaKnockoffPrepSeqeunce extends SequentialCommandGroup  {
                 ), new SequentialCommandGroup(
                     new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)),
                     new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L2))
-                ), climb.isClimbInInterferenceZone()), 
+                ), () -> climb.isClimbInInterferenceZone()), 
                 new ConditionalCommand(
                     new SequentialCommandGroup(
                     new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLEAR_OF_ARM)),
@@ -35,7 +35,7 @@ public class AlgeaKnockoffPrepSeqeunce extends SequentialCommandGroup  {
                 ), new SequentialCommandGroup(
                     new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L1)),
                     new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L1))
-                ), climb.isClimbInInterferenceZone()), () -> isHigh)
+                ), () -> climb.isClimbInInterferenceZone()), () -> isHigh)
                 
             );
 
