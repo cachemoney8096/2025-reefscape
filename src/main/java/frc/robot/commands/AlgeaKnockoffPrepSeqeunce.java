@@ -12,31 +12,20 @@ import java.time.Instant;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 public class AlgeaKnockoffPrepSeqeunce extends SequentialCommandGroup  {
     public AlgeaKnockoffPrepSeqeunce(Elevator elevator, Arm arm, Climb climb, boolean isHigh) {
         addRequirements(elevator, arm, climb);
         addCommands(
+
             new ConditionalCommand(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                    new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLEAR_OF_ARM)),
-                    new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)),
-                    new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L2))
-                ), new SequentialCommandGroup(
-                    new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)),
-                    new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L2))
-                ), () -> climb.isClimbInInterferenceZone()), 
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                    new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLEAR_OF_ARM)),
-                    new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L1)),
-                    new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L1))
-                ), new SequentialCommandGroup(
-                    new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L1)),
-                    new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L1))
-                ), () -> climb.isClimbInInterferenceZone()), () -> isHigh)
-                
+                new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLEAR_OF_ARM)),
+                new InstantCommand(),
+                () -> climb.isClimbInInterferenceZone()),
+                new InstantCommand(() -> elevator.setDesiredPosition(isHigh ? ElevatorHeight.SCORE_L2 : ElevatorHeight.SCORE_L1)),
+            new WaitUntilCommand(() -> climb.atDesiredPosition()),
+            new InstantCommand(() -> arm.setDesiredPosition(isHigh ? ArmPosition.L2 : ArmPosition.L1))
             );
 
     }       
