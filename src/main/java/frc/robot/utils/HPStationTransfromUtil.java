@@ -1,9 +1,8 @@
 package frc.robot.utils;
 
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class ScoringLocationUtil {
+public class HPStationTransfromUtil {
 
     private final double BASE_X_TRANSFORM = 10.6;
     private final double BASE_Y_TRANSFORM = 14.6;
