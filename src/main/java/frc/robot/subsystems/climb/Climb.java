@@ -30,7 +30,7 @@ public class Climb extends SubsystemBase {
     private TreeMap<ClimbPosition, Double> climbPositionMap;
     private ClimbPosition desiredPosition = ClimbPosition.STOWED;
     private boolean allowClimbMovement = false;
-    private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(),0);
+    private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
                 ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS, ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
 
@@ -74,6 +74,7 @@ public class Climb extends SubsystemBase {
 
     public void zeroMotorEncoders() {
         climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
+        tSetpoint = new TrapezoidProfile.State(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(),0);
     }
 
     public void setClimbingPID(){

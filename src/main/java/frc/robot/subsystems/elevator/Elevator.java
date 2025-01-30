@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase {
   private boolean isScoring = true;
   private int currentSlotValue = 0; // 0 is for scoring and 1 is for climbing
 
-  private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State(ElevatorCal.POSITION_HOME_INCHES / ElevatorConstants.DRUM_CIRCUMFERENCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO, 0);
+  private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
 
   private boolean allowElevatorMovement = false;
@@ -160,6 +160,7 @@ public class Elevator extends SubsystemBase {
         ElevatorCal.POSITION_HOME_INCHES
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO);
+      m_setpoint = new TrapezoidProfile.State(ElevatorCal.POSITION_HOME_INCHES / ElevatorConstants.DRUM_CIRCUMFERENCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO, 0);
   }
 
   public void setElevatorMovementAllowed(boolean allowed) {
