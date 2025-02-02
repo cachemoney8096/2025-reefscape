@@ -20,6 +20,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
             boolean isRight) {
         addRequirements(arm, elevator, scoringLimelight);
         Double[] reefScoringIds = new Double[] {17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+        boolean isLimelightIdReefId = Arrays.asList(reefScoringIds).contains(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0));
         // boolean check = 
         addCommands(
                 /**
@@ -33,18 +34,21 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                         new InstantCommand(
                                 () -> arm.setDesiredPosition(ArmPosition.values()[Constants.PLACEHOLDER_INT]))),
                 /**
-                 * If tag is seen, use limelight command sequence
-                 * Otherwise, assume manual
+                 * If tag is seen, use command sequence based on limelight
+                 * Otherwise, assume manual drive
                  */
                 new ConditionalCommand(
                     new SequentialCommandGroup(
-                        
+                        /**
+                         * Get tag and adjust position for offset. This needs drive code.
+                         */
                     ), 
                     new SequentialCommandGroup(
-
+                        /**
+                         * Let the driver manually adjust to the offset. This also needs drive code.
+                         */
                     ), 
                     
-                    () -> (scoringLimelight.checkForTag().isPresent() && Arrays.asList(reefScoringIds).contains(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0))))
-                    );
+                    () -> (scoringLimelight.checkForTag().isPresent() && isLimelightIdReefId)));
     }
 }
