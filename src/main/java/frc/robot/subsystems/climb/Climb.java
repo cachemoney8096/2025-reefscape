@@ -74,7 +74,7 @@ public class Climb extends SubsystemBase {
 
     public void zeroMotorEncoders() {
         climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
-        tSetpoint = new TrapezoidProfile.State(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(),0);
+        tSetpoint = new TrapezoidProfile.State(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(),0.0);
     }
 
     public void setClimbingPID(){
