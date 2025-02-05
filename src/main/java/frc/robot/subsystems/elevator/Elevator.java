@@ -160,6 +160,7 @@ public class Elevator extends SubsystemBase {
         ElevatorCal.POSITION_HOME_INCHES
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO);
+      m_setpoint = new TrapezoidProfile.State(ElevatorCal.POSITION_HOME_INCHES / ElevatorConstants.DRUM_CIRCUMFERENCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO, 0.0);
   }
 
   public void setElevatorMovementAllowed(boolean allowed) {
