@@ -24,28 +24,25 @@ public class DeepClimbPrep extends SequentialCommandGroup {
               new SequentialCommandGroup(
                 //TODO drive logic here
                 //drive should happen at the same time as the next 5 commands
-                new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-                new ConditionalCommand(
-                  new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)), 
-                  new InstantCommand(),  
-                  () -> {return arm.isArmInInterferenceZone();}),
-                new ConditionalCommand(
-                  new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)), 
-                  new InstantCommand(),  
-                  () -> {return climb.isClimbInInterferenceZone();})
               ),
               new SequentialCommandGroup(
-                new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-                new ConditionalCommand(
-                  new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)), 
-                  new InstantCommand(),  
-                  () -> {return arm.isArmInInterferenceZone();}),
-                new ConditionalCommand(
-                  new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)), 
-                  new InstantCommand(),  
-                  () -> {return climb.isClimbInInterferenceZone();})
-              ), // prep for manual if april tag not detected 
-          () -> {return Arrays.asList(climbScoringIds).contains(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0));}
+                //prep for manual if april tag not detected 
+              ), 
+          () -> {return IntakeLimelight.validDeepClimbTag(NetworkTableInstance.getDefault().getTable("limelight-scoring").getEntry("tid").getDouble(0));}
+        ),
+        new SequentialCommandGroup(
+          new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+          new ConditionalCommand(
+            new SequentialCommandGroup(
+              new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)), 
+              new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB))
+              ), 
+            new SequentialCommandGroup(
+              new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)), 
+              new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP))
+            ),
+            () -> {return climb.isClimbInInterferenceZone();}
+          )
         )
       );
       
