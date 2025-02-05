@@ -20,7 +20,7 @@ public class Lights {
   private LightCode currentLightStatus = LightCode.OFF;
  
   public enum LightCode {
-    OFF, // BLACK
+    OFF, // BLINK BLACK
     DISABLED, // ORANGE
     READY_TO_INTAKE, // RED
     HAS_CORAL, // GREEN
@@ -30,7 +30,8 @@ public class Lights {
     CLIMB_PREP_DEEP, // BLINK PURPLE
     READY_TO_CLIMB, // RAINBOW
     CLIMBING, // BLINK BLUE
-    PARTY_MODE // RAINBOW ANIMATION
+    PARTY_MODE, // RAINBOW ANIMATION
+    HOME
   }
 
   public Lights() {
