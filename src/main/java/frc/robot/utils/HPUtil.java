@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
-public class HPStationTransformUtil {
+public class HPUtil {
 
     private final double LOCATION_OFFSET_X_METERS = Units.inchesToMeters(Constants.HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES);
     private final double LOCATION_OFFSET_Y_METERS = Units.inchesToMeters(Constants.HP_INTAKE_TAG_LOCATION_OFFSET_Y_INCHES);
@@ -41,22 +41,28 @@ public class HPStationTransformUtil {
         this.position = position;
     }
 
-    public Translation2d getHPStationTransfrom(Station station, Position position, boolean isBlueTeam) {
+    public Translation2d getHPStationTransform(Station station, Position position, boolean isBlueTeam) {
         double x = LOCATION_OFFSET_X_METERS;
         double y = LOCATION_OFFSET_Y_METERS;
 
-        if (position == Position.TAG) {
-            x = 0;
-            y = 0;
-        }
-
-        if (station == Station.RIGHT) {
-            y *= -1;
-        }
-
-        if (position == Position.RIGHT) {
-            x *= -1;
-            y *= -1;
+        switch (position) {
+            case LEFT:
+                if (station == Station.LEFT) {
+                    y *= -1;
+                } else {
+                    x *= -1;
+                }
+                break;
+            case RIGHT:
+                if (station == Station.LEFT) {
+                    x *= -1;
+                    y *= -1;
+                }
+                break;
+            case TAG:
+                x = 0.0;
+                y = 0.0;
+                break;
         }
 
         if (!isBlueTeam) {
