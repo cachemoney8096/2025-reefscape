@@ -1,4 +1,5 @@
 package frc.robot.commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -16,11 +17,12 @@ public class GoHome extends SequentialCommandGroup {
     public GoHome(Climb climb, Elevator elevator, Arm arm, Claw claw, Lights lights) {
       addRequirements(climb, elevator, arm, claw);
       addCommands(
-        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
-        new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)),
+        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+        new WaitUntilCommand(() -> elevator.atDesiredPosition()),
+        new ConditionalCommand(new SequentialCommandGroup(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)), new WaitUntilCommand(() -> arm.atDesiredArmPosition()), new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED))), new SequentialCommandGroup(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)), new WaitUntilCommand(() -> climb.atDesiredPosition()), new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME))), () -> arm.isArmInInterferenceZone()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.HOME)),
-        new InstantCommand(() -> claw.stopMotors()),
-        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME))
-        );
+        new InstantCommand(() -> claw.stopMotors())
+        
+      );
     }
   }
