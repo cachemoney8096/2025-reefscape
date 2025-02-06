@@ -17,6 +17,7 @@ import java.util.TreeMap;
 public class Elevator extends SubsystemBase {
   public enum ElevatorHeight {
     HOME,
+    INTAKE,
     SCORE_L4,
     SCORE_L3,
     SCORE_L2,
@@ -58,6 +59,7 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
 
     elevatorPositions.put(ElevatorHeight.HOME, ElevatorCal.POSITION_HOME_INCHES);
+    elevatorPositions.put(ElevatorHeight.INTAKE, ElevatorCal.POSITION_INTAKE_INCHES);
     elevatorPositions.put(ElevatorHeight.SCORE_L4, ElevatorCal.POSITION_SCORE_L4_INCHES);
     elevatorPositions.put(ElevatorHeight.SCORE_L3, ElevatorCal.POSITION_SCORE_L3_INCHES);
     elevatorPositions.put(ElevatorHeight.SCORE_L2, ElevatorCal.POSITION_SCORE_L2_INCHES);
@@ -160,6 +162,7 @@ public class Elevator extends SubsystemBase {
         ElevatorCal.POSITION_HOME_INCHES
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO);
+      m_setpoint = new TrapezoidProfile.State(ElevatorCal.POSITION_HOME_INCHES / ElevatorConstants.DRUM_CIRCUMFERENCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO, 0.0);
   }
 
   public void setElevatorMovementAllowed(boolean allowed) {

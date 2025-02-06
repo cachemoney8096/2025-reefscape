@@ -85,6 +85,7 @@ public class Arm extends SubsystemBase {
 
     public void rezeroArm() {
         armMotorLeft.setPosition(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble());
+        tSetpoint = new TrapezoidProfile.State(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(),0.0);
     }
 
     // Account for PID when setting position of our arm

@@ -25,6 +25,7 @@ public final class Constants {
 
   public static final double HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES = 10.6;
   public static final double HP_INTAKE_TAG_LOCATION_OFFSET_Y_INCHES = 14.6;
+  public static final double CLIMB_CAGE_LOCATION_OFFSET_INCHES = 42.9;
 
   public static enum limelightLedMode {
     PIPELINE_MODE,
@@ -58,4 +59,5 @@ public final class Constants {
   }
 
   public static final double PERIOD_TIME_SECONDS = 0.02;
+  public static final double REEF_SCORING_OFFSET_INCHES = 6.5;
 }
