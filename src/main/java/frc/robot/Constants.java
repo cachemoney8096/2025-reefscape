@@ -55,4 +55,5 @@ public final class Constants {
   }
 
   public static final double PERIOD_TIME_SECONDS = 0.02;
+  public static final double REEF_SCORING_OFFSET_INCHES = 6.5;
 }
