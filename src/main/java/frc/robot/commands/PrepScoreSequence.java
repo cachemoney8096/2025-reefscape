@@ -8,20 +8,21 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
+import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 
 public class PrepScoreSequence extends SequentialCommandGroup {
     public PrepScoreSequence(Arm arm, Elevator elevator, ScoringLimelight scoringLimelight, ArmPosition armPosition,
-            boolean isRight) {
+            boolean isRight, Climb climb) {
         addRequirements(arm, elevator, scoringLimelight);
         Double[] reefScoringIds = new Double[] {17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-        boolean isLimelightIdReefId = Arrays.asList(reefScoringIds).contains(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0));
-        // boolean check = 
+        boolean isTagValid = Arrays.asList(reefScoringIds).contains(NetworkTableInstance.getDefault().getTable("limelight-scoring").getEntry("tid").getDouble(0));
         addCommands(
                 /**
                  * Set Desired Arm Pos
@@ -32,6 +33,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                         new InstantCommand(
                                 () -> elevator.setDesiredPosition(ElevatorHeight.values()[Constants.PLACEHOLDER_INT])),
                         new InstantCommand(
+                            /** Need to ensure that Deep Climb is NOT in interference zone */
                                 () -> arm.setDesiredPosition(ArmPosition.values()[Constants.PLACEHOLDER_INT]))),
                 /**
                  * If tag is seen, use command sequence based on limelight
@@ -49,6 +51,6 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                          */
                     ), 
                     
-                    () -> (scoringLimelight.checkForTag().isPresent() && isLimelightIdReefId)));
+                    () -> (scoringLimelight.checkForTag().isPresent() && isTagValid)));
     }
 }
