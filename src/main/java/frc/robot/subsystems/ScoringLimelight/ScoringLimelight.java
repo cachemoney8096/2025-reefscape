@@ -113,7 +113,7 @@ public class ScoringLimelight extends SubsystemBase {
     return new Transform2d(translation, rot);
   }
 
-  private static boolean validScoringTags(double tagId) {
+  public static boolean validScoringTags(double tagId) {
     long tagIdRounded = Math.round(tagId);
     List<Integer> humanPlayerStationTags = List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
     return humanPlayerStationTags.contains((int) tagIdRounded);
