@@ -23,6 +23,8 @@ public final class Constants {
   public static final double PLACEHOLDER_DOUBLE = 0.0;
   public static final boolean PLACEHOLDER_BOOLEAN = false;
 
+  public static final double CLIMB_CAGE_LOCATION_OFFSET_INCHES = 42.9;
+
   public static enum limelightLedMode {
     PIPELINE_MODE,
     OFF,
