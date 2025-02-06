@@ -20,9 +20,9 @@ public class Lights {
   private LightCode currentLightStatus = LightCode.OFF;
  
   public enum LightCode {
-    OFF, // BLINK RED
+    OFF, // Black
     DISABLED, // ORANGE
-    READY_TO_INTAKE, // RED
+    READY_TO_INTAKE, // Blink RED
     HAS_CORAL, // GREEN
     SCORE_PREP, // BLUE
     READY_TO_SCORE, // RAINBOW
@@ -31,7 +31,7 @@ public class Lights {
     READY_TO_CLIMB, // RAINBOW
     CLIMBING, // BLINK BLUE
     PARTY_MODE, // RAINBOW ANIMATION
-    HOME // BLACK
+    HOME // red
   }
 
   public Lights() {
@@ -40,15 +40,15 @@ public class Lights {
     candle.configAllSettings(config);
 
     lightOptionsMap = new TreeMap<LightCode, Integer[]>();
-    lightOptionsMap.put(LightCode.OFF, new Integer[] {255, 0, 0});
+    lightOptionsMap.put(LightCode.OFF, new Integer[] {0, 0, 0});
     lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 255, 0});
-    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0});
+    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0}); //bink red
     lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {0, 255, 0});
     lightOptionsMap.put(LightCode.SCORE_PREP, new Integer[] {0, 0, 255});
     lightOptionsMap.put(LightCode.CLIMB_PREP_SHALLOW, new Integer[] {255, 0, 255});
     lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 255}); // blink purple
     lightOptionsMap.put(LightCode.CLIMBING, new Integer[] {0, 0, 255}); // blink blue
-    lightOptionsMap.put(LightCode.HOME, new Integer[] {0, 0, 0}); // black
+    lightOptionsMap.put(LightCode.HOME, new Integer[] {255, 0, 0}); // redk
     
   }
  
@@ -64,7 +64,7 @@ public class Lights {
     if (currentLightStatus == LightCode.PARTY_MODE || currentLightStatus == LightCode.READY_TO_CLIMB || currentLightStatus == LightCode.READY_TO_SCORE) {
       setRainbow(); 
     }
-    else if(currentLightStatus == LightCode.CLIMBING || currentLightStatus == LightCode.CLIMB_PREP_DEEP || currentLightStatus == LightCode.OFF){
+    else if(currentLightStatus == LightCode.CLIMBING || currentLightStatus == LightCode.CLIMB_PREP_DEEP || currentLightStatus == LightCode.READY_TO_INTAKE){
       setBlink(currentLightStatus);
     }
     else{

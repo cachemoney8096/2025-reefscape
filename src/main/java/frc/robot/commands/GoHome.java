@@ -17,11 +17,18 @@ public class GoHome extends SequentialCommandGroup {
     public GoHome(Climb climb, Elevator elevator, Arm arm, Claw claw, Lights lights) {
       addRequirements(climb, elevator, arm, claw);
       addCommands(
-        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-        new WaitUntilCommand(() -> elevator.atDesiredPosition()),
-        new ConditionalCommand(new SequentialCommandGroup(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)), new WaitUntilCommand(() -> arm.atDesiredArmPosition()), new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED))), new SequentialCommandGroup(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)), new WaitUntilCommand(() -> climb.atDesiredPosition()), new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME))), () -> arm.isArmInInterferenceZone()),
+        new ConditionalCommand(new SequentialCommandGroup(
+            new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)), 
+            new WaitUntilCommand(() -> arm.atDesiredArmPosition()), 
+            new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED))), 
+            new SequentialCommandGroup(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)), 
+            new WaitUntilCommand(() -> climb.atDesiredPosition()), 
+            new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME))), 
+            () -> arm.isArmInInterferenceZone()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.HOME)),
-        new InstantCommand(() -> claw.stopMotors())
+        new InstantCommand(() -> claw.stopMotors()),
+        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+        new WaitUntilCommand(() -> elevator.atDesiredPosition())
         
       );
     }
