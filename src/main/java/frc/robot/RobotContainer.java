@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -16,6 +17,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoIntakeSequence;
+import frc.robot.commands.AutoScoringSequence;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
@@ -48,6 +51,8 @@ public class RobotContainer implements Sendable {
   public DriveSubsystem drive;
   public Elevator elevator;
   public Lights lights;
+  
+  public String pathCmd = "";
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
@@ -62,6 +67,17 @@ public class RobotContainer implements Sendable {
     lights = new Lights();
 
     /* Add named commands here */
+
+
+    NamedCommands.registerCommand(
+            "AUTO_INTAKE_SEQUENCE",
+            new InstantCommand(() -> pathCmd = "AUTO_INTAKE_SEQUENCE").andThen(new AutoIntakeSequence(elevator, arm, claw))
+            );
+
+    NamedCommands.registerCommand(
+      "AUTO_SCORING_SEQUENCE",
+      new InstantCommand(() -> pathCmd = "AUTO_SCORING_SEQUENCE").andThen(new AutoScoringSequence(elevator, arm, claw))
+      );
 
     /* Configure controller bindings */
     configureDriverBindings();
