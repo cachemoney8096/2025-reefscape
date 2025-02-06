@@ -28,7 +28,7 @@ public class GoHome extends SequentialCommandGroup {
         new InstantCommand(() -> lights.setLEDColor(LightCode.HOME)),
         new InstantCommand(() -> claw.stopMotors()),
         new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-        new WaitUntilCommand(() -> elevator.atDesiredPosition())
+        new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition() && climb.atDesiredPosition();})
         
       );
     }
