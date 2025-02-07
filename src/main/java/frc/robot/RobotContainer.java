@@ -131,7 +131,11 @@ public class RobotContainer implements Sendable {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureDriverBindings() {}
+  private void configureDriverBindings() {
+    
+    /* TODO: DRIVE CODE */
+    drive.setDefaultCommand(new InstantCommand());
+  }
 
   private void configureOperatorBindings() {
     /* Left right and center for intake and climb */
