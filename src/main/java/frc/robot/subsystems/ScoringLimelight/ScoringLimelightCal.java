@@ -11,7 +11,10 @@ public class ScoringLimelightCal {
 
   /** offset from AprilTags @ Human Player Station */
   public static final Transform2d REEF_OFFSET =
-      new Transform2d(new Translation2d(-Units.inchesToMeters(Constants.PLACEHOLDER_DOUBLE), Constants.PLACEHOLDER_DOUBLE), new Rotation2d(Constants.PLACEHOLDER_DOUBLE));
+      new Transform2d(
+          new Translation2d(
+              -Units.inchesToMeters(Constants.PLACEHOLDER_DOUBLE), Constants.PLACEHOLDER_DOUBLE),
+          new Rotation2d(Constants.PLACEHOLDER_DOUBLE));
 
   public static final double LIMELIGHT_DETECTION_OFFSET_DEGREES = 0.0;
 }

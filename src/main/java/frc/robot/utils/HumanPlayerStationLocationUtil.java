@@ -1,31 +1,32 @@
 package frc.robot.utils;
 
 public class HumanPlayerStationLocationUtil {
-    public enum Side {
-        RIGHT,
-        LEFT
-    }
-    public enum Position {
-        ONE,
-        TWO
-    }
+  public enum Side {
+    RIGHT,
+    LEFT
+  }
 
-    private Side side = Side.RIGHT;
-    private Position position = Position.ONE;
+  public enum Position {
+    ONE,
+    TWO
+  }
 
-    public Side getSide() {
-        return this.side;
-    }
+  private Side side = Side.RIGHT;
+  private Position position = Position.ONE;
 
-    public void setSide(Side side) {
-        this.side = side;
-    }
+  public Side getSide() {
+    return this.side;
+  }
 
-    public Position getPosition() {
-        return this.position;
-    }
-    
-    public void setPosition(Position position) {
-        this.position = position;
-    }
+  public void setSide(Side side) {
+    this.side = side;
+  }
+
+  public Position getPosition() {
+    return this.position;
+  }
+
+  public void setPosition(Position position) {
+    this.position = position;
+  }
 }

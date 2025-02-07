@@ -51,7 +51,7 @@ public class RobotContainer implements Sendable {
   public DriveSubsystem drive;
   public Elevator elevator;
   public Lights lights;
-  
+
   public String pathCmd = "";
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -68,16 +68,15 @@ public class RobotContainer implements Sendable {
 
     /* Add named commands here */
 
+    NamedCommands.registerCommand(
+        "AUTO_INTAKE_SEQUENCE",
+        new InstantCommand(() -> pathCmd = "AUTO_INTAKE_SEQUENCE")
+            .andThen(new AutoIntakeSequence(elevator, arm, claw)));
 
     NamedCommands.registerCommand(
-            "AUTO_INTAKE_SEQUENCE",
-            new InstantCommand(() -> pathCmd = "AUTO_INTAKE_SEQUENCE").andThen(new AutoIntakeSequence(elevator, arm, claw))
-            );
-
-    NamedCommands.registerCommand(
-      "AUTO_SCORING_SEQUENCE",
-      new InstantCommand(() -> pathCmd = "AUTO_SCORING_SEQUENCE").andThen(new AutoScoringSequence(elevator, arm, claw))
-      );
+        "AUTO_SCORING_SEQUENCE",
+        new InstantCommand(() -> pathCmd = "AUTO_SCORING_SEQUENCE")
+            .andThen(new AutoScoringSequence(elevator, arm, claw)));
 
     /* Configure controller bindings */
     configureDriverBindings();

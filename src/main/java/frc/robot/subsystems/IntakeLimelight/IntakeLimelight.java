@@ -18,13 +18,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightHelpers.LimelightTarget_Fiducial;
-
 import java.util.List;
 import java.util.Optional;
 
-/** Limelight for identifying April Tags @ Human Player Station
- * Code adapted from Team #3005
- */
+/** Limelight for identifying April Tags @ Human Player Station Code adapted from Team #3005 */
 public class IntakeLimelight extends SubsystemBase {
   private final double kCameraPitchAngleDegrees;
   private final double kCameraHeight;
@@ -85,29 +82,30 @@ public class IntakeLimelight extends SubsystemBase {
   }
 
   /**
-   * @param botPoseTargetSpace is the robot's 3D pose in the target's space (where the target is the origin)
+   * @param botPoseTargetSpace is the robot's 3D pose in the target's space (where the target is the
+   *     origin)
    * @return Transform2d with translation and rotation with the robot's pose relative to the target
-    */
+   */
   private static Transform2d getBotFromTarget(Pose3d botPoseTargetSpace) {
     /**
      * Target space: 3d Cartesian Coordinate System with (0,0,0) at the center of the target.
      *
-     * X is positive when the target is to the right.
+     * <p>X is positive when the target is to the right.
      *
-     * Y is positive when pointing down.
+     * <p>Y is positive when pointing down.
      *
-     * Z is positive when pointing out of the target (orthogonal to target’s plane, towards us).
+     * <p>Z is positive when pointing out of the target (orthogonal to target’s plane, towards us).
      */
 
     /**
-     * We convert to 2d target space:
-     * X is positive pointing out of the target (Z is now X).
-     * Y is positive when the target is to the right (X is now Y)
-     * Positive yaw is based on the positive Z axis pointing up
+     * We convert to 2d target space: X is positive pointing out of the target (Z is now X). Y is
+     * positive when the target is to the right (X is now Y) Positive yaw is based on the positive Z
+     * axis pointing up
      */
     Translation2d translation =
         new Translation2d(botPoseTargetSpace.getZ(), botPoseTargetSpace.getX());
-    Rotation2d rot = Rotation2d.fromDegrees(-botPoseTargetSpace.getRotation().getY()); // TODO why pitch?
+    Rotation2d rot =
+        Rotation2d.fromDegrees(-botPoseTargetSpace.getRotation().getY()); // TODO why pitch?
 
     System.out.println("Tag at " + -botPoseTargetSpace.getRotation().getY() + " deg");
     return new Transform2d(translation, rot);
@@ -178,7 +176,6 @@ public class IntakeLimelight extends SubsystemBase {
   }
 
   /**
-   *
    * @param mode Camera operating mode.
    */
   public void setCamMode(Constants.limelightCamMode mode) {
@@ -214,9 +211,8 @@ public class IntakeLimelight extends SubsystemBase {
   }
 
   /**
-   * @return validObject is 1 when LimeLight sees target.
-   * 0 when LimeLight doesn't see target.
-   * -1 when LimeLight isn't working.
+   * @return validObject is 1 when LimeLight sees target. 0 when LimeLight doesn't see target. -1
+   *     when LimeLight isn't working.
    */
   public double getValidTarget() {
     if (m_simDevice != null) {
@@ -226,8 +222,8 @@ public class IntakeLimelight extends SubsystemBase {
   }
 
   /**
-   * @return xOffSet - horizontal offset (left to right) from LimeLight crosshair to target.
-   * (LL2: -29.8 to 29.8 degrees)
+   * @return xOffSet - horizontal offset (left to right) from LimeLight crosshair to target. (LL2:
+   *     -29.8 to 29.8 degrees)
    */
   public double getOffSetX() {
     if (m_simDevice != null) {
@@ -237,8 +233,8 @@ public class IntakeLimelight extends SubsystemBase {
   }
 
   /**
-   * @return yOffSett - vertical offset from LimeLight crosshair to target
-   * (LL1: -20.5 degrees to 20.5 degrees | LL2: -24.85 to 24.85 degrees)
+   * @return yOffSett - vertical offset from LimeLight crosshair to target (LL1: -20.5 degrees to
+   *     20.5 degrees | LL2: -24.85 to 24.85 degrees)
    */
   public double getOffSetY() {
     if (m_simDevice != null) {
@@ -268,8 +264,8 @@ public class IntakeLimelight extends SubsystemBase {
   }
 
   /**
-   * @return latency - The pipeline’s latency contribution in seconds.
-   * Add at least the image capture latency (kImageCaptureLatency) defined above.
+   * @return latency - The pipeline’s latency contribution in seconds. Add at least the image
+   *     capture latency (kImageCaptureLatency) defined above.
    */
   public double getLatency() {
     if (m_simDevice != null) {
@@ -279,9 +275,8 @@ public class IntakeLimelight extends SubsystemBase {
   }
 
   /**
-   * Get the timestamp of the last update to the network table.
-   * This can be used to get a better estimate of the total latency.
-   * That is (lastUpdate - latency).
+   * Get the timestamp of the last update to the network table. This can be used to get a better
+   * estimate of the total latency. That is (lastUpdate - latency).
    *
    * @return timestamp of the last update to the latency update in seconds.
    */
@@ -335,7 +330,8 @@ public class IntakeLimelight extends SubsystemBase {
 
     // z is straight out of the camera
     double z = 1.0;
-    double length = Math.sqrt(x * x + y * y + z * z); // 3D distance formula (compared to the origin/camera)
+    double length =
+        Math.sqrt(x * x + y * y + z * z); // 3D distance formula (compared to the origin/camera)
 
     // Normalized vector components
     double x_norm = x / length;
