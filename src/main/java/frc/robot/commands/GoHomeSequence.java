@@ -14,8 +14,8 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 
-public class GoHome extends SequentialCommandGroup {
-  public GoHome(Climb climb, Elevator elevator, Arm arm, Claw claw, Lights lights) {
+public class GoHomeSequence extends SequentialCommandGroup {
+  public GoHomeSequence(Climb climb, Elevator elevator, Arm arm, Claw claw, Lights lights) {
     addRequirements(climb, elevator, arm, claw);
     addCommands(
         new ConditionalCommand(

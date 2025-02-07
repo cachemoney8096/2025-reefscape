@@ -14,7 +14,7 @@ public class ClimbUtil {
     CENTER
   }
 
-  public Translation2d getClimbTransform(CagePosition cagePosition, boolean isRed) {
+  public static Translation2d getClimbTransform(CagePosition cagePosition, boolean isRed) {
     double y = LOCATION_OFFSET_Y_METERS;
     if(cagePosition == CagePosition.RIGHT){
         y *= -1;

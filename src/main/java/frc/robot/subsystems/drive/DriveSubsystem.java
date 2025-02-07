@@ -11,4 +11,8 @@ public class DriveSubsystem extends SubsystemBase {
     public void driveToPoint(Pose2d point){
         /* PLACEHOLDER METHOD */
     }
+
+    public Pose2d getRobotPose(){
+        return new Pose2d();
+    }
 }

@@ -156,10 +156,8 @@ public class IntakeLimelight extends SubsystemBase {
             Rotation2d.fromRadians(-cameraToTag.getRotation().getY()));
 
     System.out.println("robotToTag: " + robotToTag);
-    System.out.println("trap offset: " + IntakeLimelightCal.HPS_OFFSET);
-    System.out.println("sum: " + robotToTag.plus(IntakeLimelightCal.HPS_OFFSET));
 
-    return Optional.of(robotToTag.plus(IntakeLimelightCal.HPS_OFFSET));
+    return Optional.of(robotToTag);
   }
 
   public double getLatencySeconds() {
