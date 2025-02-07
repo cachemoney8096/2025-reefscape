@@ -18,24 +18,13 @@ public class GoHomeSequence extends SequentialCommandGroup {
   public GoHomeSequence(Climb climb, Elevator elevator, Arm arm, Claw claw, Lights lights) {
     addRequirements(climb, elevator, arm, claw);
     addCommands(
-        new ConditionalCommand(
-            new SequentialCommandGroup(
-                new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)),
-                new WaitUntilCommand(() -> arm.atDesiredArmPosition()),
-                new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED))),
-            new SequentialCommandGroup(
-                new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
-                new WaitUntilCommand(() -> climb.atDesiredPosition()),
-                new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME))),
-            () -> arm.isArmInInterferenceZone()),
+        /* do everything that can be done instantly first. we will have to check with design about interferance zones, but doing it in this order should be optimal and not require zone checking */
         new InstantCommand(() -> lights.setLEDColor(LightCode.HOME)),
         new InstantCommand(() -> claw.stopMotors()),
-        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-        new WaitUntilCommand(
-            () -> {
-              return elevator.atDesiredPosition()
-                  && arm.atDesiredArmPosition()
-                  && climb.atDesiredPosition();
-            }));
+        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
+        new WaitUntilCommand(() -> climb.atDesiredPosition()),
+        new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)),
+        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME))
+    );
   }
 }
