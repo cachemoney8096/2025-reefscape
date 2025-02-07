@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import java.util.TreeMap;
 
-// assuming heading is correct (facing head on)
 public class ReefAngleCalcUtil {
 
   public enum ScoreTagPosition {
