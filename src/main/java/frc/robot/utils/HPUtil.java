@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
-public class HPUtilMerged {
+public class HPUtil {
     private static final double OFFSET_X_METERS =
       Units.inchesToMeters(Constants.HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES);
     private static final double OFFSET_Y_METERS =
