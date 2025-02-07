@@ -54,6 +54,29 @@ public class RobotContainer implements Sendable {
 
   public String pathCmd = "";
 
+  /* Prep states*/
+  public enum Location{
+    LEFT,
+    CENTER,
+    RIGHT
+  }
+
+  public enum Height{
+    L1, 
+    L2, 
+    L3, 
+    L4
+  }
+
+  public enum ScoringLocation{
+    LEFT,
+    RIGHT
+  }
+
+  public Location preppedLocation = Location.LEFT;
+  public Height preppedHeight = Height.L1;
+  public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
     matchState = ms;
@@ -110,7 +133,22 @@ public class RobotContainer implements Sendable {
    */
   private void configureDriverBindings() {}
 
-  private void configureOperatorBindings() {}
+  private void configureOperatorBindings() {
+    /* Left right and center for intake and climb */
+    operatorController.povLeft().onTrue(new InstantCommand(()->preppedLocation = Location.LEFT));
+    operatorController.povUp().onTrue(new InstantCommand(()->preppedLocation = Location.CENTER));
+    operatorController.povRight().onTrue(new InstantCommand(()->preppedLocation = Location.RIGHT));
+    /* Height for scoring */
+    operatorController.a().onTrue(new InstantCommand(()->preppedHeight = Height.L4));
+    operatorController.b().onTrue(new InstantCommand(()->preppedHeight = Height.L3));
+    operatorController.x().onTrue(new InstantCommand(()->preppedHeight = Height.L2));
+    operatorController.y().onTrue(new InstantCommand(()->preppedHeight = Height.L1));
+    /* Left and right for scoring */
+    operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.LEFT));
+    operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.RIGHT));
+    /* TODO: ZERO ROTATION ODOMETRY */
+    operatorController.start().onTrue(new InstantCommand());
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
