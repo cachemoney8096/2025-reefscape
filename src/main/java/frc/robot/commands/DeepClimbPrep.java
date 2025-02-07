@@ -46,10 +46,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
               return !arm.isArmInInterferenceZone();
             }),
         /* now we can definitely move the climb */
-        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)),
-        /* wait until it gets there to set PID for climbing */
-        new WaitUntilCommand(() -> climb.atDesiredPosition()),
-        new InstantCommand(() -> climb.setClimbingPID()));
+        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP))
+      );
 
     addCommands(
         /* fall back on manual if we don't see a tag */
