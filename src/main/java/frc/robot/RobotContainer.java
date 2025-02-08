@@ -25,6 +25,7 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.utils.MatchStateUtil;
 
@@ -62,20 +63,13 @@ public class RobotContainer implements Sendable {
     RIGHT
   }
 
-  public enum Height{
-    L1, 
-    L2, 
-    L3, 
-    L4
-  }
-
   public enum ScoringLocation{
     LEFT,
     RIGHT
   }
 
   public Location preppedLocation = Location.LEFT;
-  public Height preppedHeight = Height.L1;
+  public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L1;
   public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -147,10 +141,10 @@ public class RobotContainer implements Sendable {
     operatorController.povUp().onTrue(new InstantCommand(()->preppedLocation = Location.CENTER));
     operatorController.povRight().onTrue(new InstantCommand(()->preppedLocation = Location.RIGHT));
     /* Height for scoring */
-    operatorController.a().onTrue(new InstantCommand(()->preppedHeight = Height.L4));
-    operatorController.b().onTrue(new InstantCommand(()->preppedHeight = Height.L3));
-    operatorController.x().onTrue(new InstantCommand(()->preppedHeight = Height.L2));
-    operatorController.y().onTrue(new InstantCommand(()->preppedHeight = Height.L1));
+    operatorController.a().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L4));
+    operatorController.b().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L3));
+    operatorController.x().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L2));
+    operatorController.y().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L1));
     /* Left and right for scoring */
     operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.LEFT));
     operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.RIGHT));

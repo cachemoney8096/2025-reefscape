@@ -141,7 +141,7 @@ public class ScoringLimelight extends SubsystemBase {
   }
 
   /**
-   * @return Optional<Transform2d> of how to get to the tag (accounting for offset from HPS)
+   * @return Optional<Transform2d> of how to get to the tag 
    */
   public Optional<Transform2d> checkForTag() {
     // if 0 (no target found) or -1 (m_simDevice is null)
@@ -157,10 +157,8 @@ public class ScoringLimelight extends SubsystemBase {
             Rotation2d.fromRadians(-cameraToTag.getRotation().getY()));
 
     System.out.println("robotToTag: " + robotToTag);
-    System.out.println("trap offset: " + ScoringLimelightCal.REEF_OFFSET);
-    System.out.println("sum: " + robotToTag.plus(ScoringLimelightCal.REEF_OFFSET));
 
-    return Optional.of(robotToTag.plus(ScoringLimelightCal.REEF_OFFSET));
+    return Optional.of(robotToTag); //don't include the offset here because it is variable and we will modify it later
   }
 
   public double getLatencySeconds() {

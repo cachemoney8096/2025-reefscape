@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
+import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
@@ -24,11 +24,11 @@ public class DeepClimbPrep extends SequentialCommandGroup {
   public static Transform2d robotToTag;
   public static Pose2d targetPose;
 
-  public DeepClimbPrep(Climb climb, Arm arm, IntakeLimelight intakeLimelight, RobotContainer.Location location,
+  public DeepClimbPrep(Climb climb, Arm arm, ScoringLimelight scoringLimelight, RobotContainer.Location location,
       MatchStateUtil msu, DriveSubsystem drive) {
     addRequirements(climb, arm);
     BooleanSupplier checkForTag = () -> {
-      Optional<Transform2d> robotToTagOptional = intakeLimelight.checkForTag();
+      Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
       if (robotToTagOptional.isPresent()) {
         robotToTag = robotToTagOptional.get();
         return true;
@@ -64,8 +64,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                         ClimbUtil.getClimbTransform(ClimbUtil.CagePosition.LEFT, msu.isRed()), new Rotation2d()));
                   }
                   // rotate to face the correct way (the rotation here could end up being 180)
-                  robotToTag = new Transform2d(robotToTag.getTranslation(), new Rotation2d());
                   targetPose = drive.getRobotPose().plus(robotToTag);
+                  targetPose = new Pose2d(targetPose.getTranslation(), msu.isRed()?new Rotation2d():new Rotation2d(180.0));
                 }),
                 new InstantCommand(() -> drive.driveToPoint(targetPose)), // TODO the drive logic here probably won't be the same
                 deepClimbPrep),
