@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
+import frc.robot.commands.AutoScoringSequence;
 import frc.robot.commands.DeepClimbPrep;
 import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.FinishScore;
@@ -106,9 +107,14 @@ public class RobotContainer implements Sendable {
             .andThen(new AutoIntakeSequence(elevator, arm, claw)));
 
     NamedCommands.registerCommand(
-        "AUTO_SCORING_SEQUENCE",
-        new InstantCommand(() -> pathCmd = "AUTO_SCORING_SEQUENCE")
+        "AUTO_SCORING_PREP_SEQUENCE",
+        new InstantCommand(() -> pathCmd = "AUTO_SCORING_PRED_SEQUENCE")
             .andThen(new AutoScoringPrepSequence(elevator, arm, claw)));
+
+    NamedCommands.registerCommand(
+      "AUTO_SCORING_SEQUENCE",
+      new InstantCommand(() -> pathCmd = "AUTO_SCORING_SEQUENCE")
+          .andThen(new AutoScoringSequence(claw)));
 
     /* Configure controller bindings */
     configureDriverBindings();
@@ -188,5 +194,10 @@ public class RobotContainer implements Sendable {
   }
 
   @Override
-  public void initSendable(SendableBuilder builder) {}
+  public void initSendable(SendableBuilder builder) {
+    builder.addStringProperty("Prepped Location", () -> preppedLocation.toString(), null);
+    builder.addStringProperty("Prepped Height", () -> preppedHeight.toString(), null);
+    builder.addStringProperty("Prepped Scoring Location", () -> preppedScoringLocation.toString(), null);
+
+  }
 }
