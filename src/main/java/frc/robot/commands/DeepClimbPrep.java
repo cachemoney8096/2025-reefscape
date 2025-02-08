@@ -63,7 +63,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                     robotToTag = robotToTag.plus(new Transform2d(
                         ClimbUtil.getClimbTransform(ClimbUtil.CagePosition.LEFT, msu.isRed()), new Rotation2d()));
                   }
-                  // rotate to face the correct way (the rotation here could end up being 180)
+                  // rotate to face the correct way (the rotation here could end up being 180), these rotations are not technically needed, but increase precision
                   targetPose = drive.getRobotPose().plus(robotToTag);
                   targetPose = new Pose2d(targetPose.getTranslation(), msu.isRed()?new Rotation2d():new Rotation2d(180.0));
                 }),

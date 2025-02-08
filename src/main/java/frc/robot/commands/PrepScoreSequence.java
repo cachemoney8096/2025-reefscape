@@ -86,6 +86,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                             .getEntry("tid")
                             .getDouble(0);
                     /* map of id -> pair<util tag position id, robot heading> */
+                    /* edit from later james - i think i was tweaking and the angles aren't technically needed. however, it does make it more precise. */
                     TreeMap<Integer, Pair<ReefAngleCalcUtil.ScoreTagPosition, Double>> map = new TreeMap<Integer, Pair<ReefAngleCalcUtil.ScoreTagPosition, Double>>();
                     map.put(20, new Pair<ReefAngleCalcUtil.ScoreTagPosition, Double>(ReefAngleCalcUtil.ScoreTagPosition.ID_A, 120.0));
                     map.put(8, new Pair<ReefAngleCalcUtil.ScoreTagPosition, Double>(ReefAngleCalcUtil.ScoreTagPosition.ID_A, 120.0));
