@@ -31,13 +31,11 @@ public class HPUtil {
         blueMap.put(new Pair<Station, Position>(Station.RIGHT, Position.LEFT), new Pair<Double, Double>(1.0, -1.0));
         blueMap.put(new Pair<Station, Position>(Station.RIGHT, Position.RIGHT), new Pair<Double, Double>(-1.0, 1.0));
         blueMap.put(new Pair<Station, Position>(Station.RIGHT, Position.CENTER), new Pair<Double, Double>(0.0, 0.0));
-        blueMap.put(new Pair<Station, Position>(Station.LEFT, Position.LEFT), new Pair<Double, Double>(0.0, 0.0));
+        blueMap.put(new Pair<Station, Position>(Station.LEFT, Position.CENTER), new Pair<Double, Double>(0.0, 0.0));
         int flipForRed = isRed?-1:1;
         Pair<Double, Double> multipliers = blueMap.get(new Pair<Station, Position>(station, position));
-        double xMult = multipliers.getFirst();
-        double yMult = multipliers.getSecond();
-        xMult *= flipForRed;
-        yMult *= flipForRed;
+        double xMult = multipliers.getFirst() * flipForRed;
+        double yMult = multipliers.getSecond() * flipForRed;
         return new Translation2d(OFFSET_X_METERS*xMult, OFFSET_Y_METERS*yMult);
     }
 

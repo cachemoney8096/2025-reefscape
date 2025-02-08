@@ -59,24 +59,20 @@ public class PrepScoreSequence extends SequentialCommandGroup {
         new InstantCommand(()->elevator.setDesiredPosition(height))
     );
     
-    ConditionalCommand checkAndSetPositions = new ConditionalCommand(
-       new SequentialCommandGroup(
-        new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
-        new WaitUntilCommand(()->climb.atDesiredPosition()),
-        setPositions
-       ),
-       setPositions,
-       ()->arm.isArmInInterferenceZone()
+    SequentialCommandGroup checkAndSetPositions = new SequentialCommandGroup(
+        new ConditionalCommand(new SequentialCommandGroup(
+            new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
+            new WaitUntilCommand(()->climb.atDesiredPosition())), new InstantCommand(), ()->!arm.isArmInInterferenceZone()),
+       setPositions
     );
 
     addCommands(
         /* check for a tag first so we can start driving. fall back onto manual driving */
         new ConditionalCommand(
             new SequentialCommandGroup(
-                new InstantCommand(()->drive.driveToPoint(targetPose)),
-                checkAndSetPositions
+                new InstantCommand(()->drive.driveToPoint(targetPose))
             ),
-            checkAndSetPositions,
+            new InstantCommand(),
             ()->{
                 Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
                 if(robotToTagOptional.isPresent()){
@@ -113,7 +109,8 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                 }
                 return false;
             }
-        )
+        ),
+        checkAndSetPositions
     );
   }
 }

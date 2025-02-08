@@ -34,23 +34,23 @@ public class ReefAngleCalcUtil {
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_A,
         new Pair<Double, Double>(
-            (scoreTagOffsetInches / 2) * Math.sqrt(3), (scoreTagOffsetInches / 2)));
+            (scoreTagOffsetInches / 2.0) * Math.sqrt(3.0), (scoreTagOffsetInches / 2.0)));
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_B, new Pair<Double, Double>((0.0), (scoreTagOffsetInches)));
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_C,
         new Pair<Double, Double>(
-            (scoreTagOffsetInches / 2) * Math.sqrt(3), (scoreTagOffsetInches / 2)));
+            (scoreTagOffsetInches / 2.0) * Math.sqrt(3.0), (scoreTagOffsetInches / 2.0)));
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_D,
         new Pair<Double, Double>(
-            (scoreTagOffsetInches / 2) * Math.sqrt(3), (scoreTagOffsetInches / 2)));
+            (scoreTagOffsetInches / 2.0) * Math.sqrt(3.0), (scoreTagOffsetInches / 2.0)));
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_E, new Pair<Double, Double>((0.0), (scoreTagOffsetInches)));
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_F,
         new Pair<Double, Double>(
-            (scoreTagOffsetInches / 2) * Math.sqrt(3), (scoreTagOffsetInches / 2)));
+            (scoreTagOffsetInches / 2.0) * Math.sqrt(3.0), (scoreTagOffsetInches / 2.0)));
 
     Pair<Double, Double> calcVector = tagScoreVectorMap.get(desiredTagScorePosition);
     Pair<Double, Double> updatedVector = new Pair<Double, Double>(null, null);

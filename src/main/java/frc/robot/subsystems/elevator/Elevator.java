@@ -129,7 +129,7 @@ public class Elevator extends SubsystemBase {
         < ElevatorCal.DESIRED_POSITION_MARGIN_IN;
   }
 
-  public boolean atPosition(ElevatorHeight height) {
+  public boolean atElevatorPosition(ElevatorHeight height) {
     return Math.abs(
             leftMotor.getPosition().getValueAsDouble()
                 - elevatorPositions.get(height)

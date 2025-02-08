@@ -42,13 +42,13 @@ public class Lights {
     lightOptionsMap = new TreeMap<LightCode, Integer[]>();
     lightOptionsMap.put(LightCode.OFF, new Integer[] {0, 0, 0});
     lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 255, 0});
-    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0}); // bink red
+    lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0}); // blink red
     lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {0, 255, 0});
     lightOptionsMap.put(LightCode.SCORE_PREP, new Integer[] {0, 0, 255});
     lightOptionsMap.put(LightCode.CLIMB_PREP_SHALLOW, new Integer[] {255, 0, 255});
     lightOptionsMap.put(LightCode.CLIMB_PREP_DEEP, new Integer[] {255, 0, 255}); // blink purple
     lightOptionsMap.put(LightCode.CLIMBING, new Integer[] {0, 0, 255}); // blink blue
-    lightOptionsMap.put(LightCode.HOME, new Integer[] {255, 0, 0}); // redk
+    lightOptionsMap.put(LightCode.HOME, new Integer[] {255, 0, 0}); // red
   }
 
   public void setLEDColor(LightCode light) {

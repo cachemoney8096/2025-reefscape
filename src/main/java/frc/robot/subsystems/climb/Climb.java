@@ -128,12 +128,16 @@ public class Climb extends SubsystemBase {
         && currentPosition >= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MIN_DEGREES;
   }
 
-  public boolean atDesiredPosition() {
+  public boolean atClimbPosition(ClimbPosition checkPos) {
     double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
-    double desiredPositionDegrees = climbPositionMap.get(desiredPosition);
+    double checkPosDegrees = climbPositionMap.get(checkPos);
 
-    return Math.abs(currentPosition - desiredPositionDegrees)
+    return Math.abs(currentPosition - checkPosDegrees)
         <= ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN_DEG;
+  }
+
+  public boolean atDesiredPosition() {
+    return atClimbPosition(desiredPosition);
   }
 
   @Override

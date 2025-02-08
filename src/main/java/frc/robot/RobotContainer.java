@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -34,6 +36,7 @@ import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
 
 /**
@@ -66,19 +69,19 @@ public class RobotContainer implements Sendable {
   public String pathCmd = "";
 
   /* Prep states*/
-  public enum Location{
+  public enum IntakeClimbLocation {
     LEFT,
     CENTER,
     RIGHT
   }
 
-  public enum ScoringLocation{
+  public enum ScoringLocation {
     LEFT,
     RIGHT
   }
 
-  public Location preppedLocation = Location.LEFT;
-  public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L1;
+  public IntakeClimbLocation preppedLocation = IntakeClimbLocation.LEFT;
+  public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
   public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -147,9 +150,10 @@ public class RobotContainer implements Sendable {
     /* climb */
     driverController.start().onTrue(new DeepClimbScoringSequence(climb));
     /* intake */
-    driverController.leftTrigger().onTrue(new IntakeSequence(claw, intakeLimelight, arm, elevator, climb, scoringLimelight, preppedLocation, drive));
+    driverController.leftTrigger().whileTrue(new SequentialCommandGroup(new IntakeSequence(claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive), new RunCommand(() -> claw.runMotorsIntaking()).until(claw::beamBreakSeesObject).andThen(() -> {new InstantCommand(() -> claw.stopMotors()); lights.setLEDColor(LightCode.READY_TO_SCORE);})));
+    driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     /* finish score */
-    driverController.rightTrigger().onTrue(new FinishScore(claw));
+    driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     drive.setDefaultCommand(new InstantCommand());
@@ -157,9 +161,9 @@ public class RobotContainer implements Sendable {
 
   private void configureOperatorBindings() {
     /* Left right and center for intake and climb */
-    operatorController.povLeft().onTrue(new InstantCommand(()->preppedLocation = Location.LEFT));
-    operatorController.povUp().onTrue(new InstantCommand(()->preppedLocation = Location.CENTER));
-    operatorController.povRight().onTrue(new InstantCommand(()->preppedLocation = Location.RIGHT));
+    operatorController.povLeft().onTrue(new InstantCommand(()->preppedLocation = IntakeClimbLocation.LEFT));
+    operatorController.povUp().onTrue(new InstantCommand(()->preppedLocation = IntakeClimbLocation.CENTER));
+    operatorController.povRight().onTrue(new InstantCommand(()->preppedLocation = IntakeClimbLocation.RIGHT));
     /* Height for scoring */
     operatorController.a().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L4));
     operatorController.b().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L3));
@@ -169,6 +173,7 @@ public class RobotContainer implements Sendable {
     operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.LEFT));
     operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.RIGHT));
     /* TODO: ZERO ROTATION ODOMETRY */
+    /* TODO: RESET YAW */
     operatorController.back().onTrue(new InstantCommand());
   }
 

@@ -6,6 +6,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -24,14 +25,19 @@ public class DeepClimbPrep extends SequentialCommandGroup {
   public static Transform2d robotToTag;
   public static Pose2d targetPose;
 
-  public DeepClimbPrep(Climb climb, Arm arm, ScoringLimelight scoringLimelight, RobotContainer.Location location,
+  public DeepClimbPrep(Climb climb, Arm arm, ScoringLimelight scoringLimelight, RobotContainer.IntakeClimbLocation location,
       MatchStateUtil msu, DriveSubsystem drive) {
     addRequirements(climb, arm);
+    
     BooleanSupplier checkForTag = () -> {
       Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
       if (robotToTagOptional.isPresent()) {
         robotToTag = robotToTagOptional.get();
-        return true;
+        int id = (int)NetworkTableInstance.getDefault()
+                            .getTable("limelight-intake")
+                            .getEntry("tid")
+                            .getDouble(0.0);
+        return (id == 14 && !msu.isRed()) || (id == 5 && msu.isRed());
       }
       return false;
     };
@@ -56,10 +62,10 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                 /* we saw a tag */
                 new InstantCommand(() -> {
                   // translate as needed
-                  if (location == RobotContainer.Location.RIGHT) {
+                  if (location == RobotContainer.IntakeClimbLocation.RIGHT) {
                     robotToTag = robotToTag.plus(new Transform2d(
                         ClimbUtil.getClimbTransform(ClimbUtil.CagePosition.RIGHT, msu.isRed()), new Rotation2d()));
-                  } else if (location == RobotContainer.Location.LEFT) {
+                  } else if (location == RobotContainer.IntakeClimbLocation.LEFT) {
                     robotToTag = robotToTag.plus(new Transform2d(
                         ClimbUtil.getClimbTransform(ClimbUtil.CagePosition.LEFT, msu.isRed()), new Rotation2d()));
                   }
@@ -67,9 +73,9 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                   targetPose = drive.getRobotPose().plus(robotToTag);
                   targetPose = new Pose2d(targetPose.getTranslation(), msu.isRed()?new Rotation2d():new Rotation2d(180.0));
                 }),
-                new InstantCommand(() -> drive.driveToPoint(targetPose)), // TODO the drive logic here probably won't be the same
-                deepClimbPrep),
-            deepClimbPrep,
-            checkForTag));
+                new InstantCommand(() -> drive.driveToPoint(targetPose))), // TODO the drive logic here probably won't be the same
+            new InstantCommand(),
+            checkForTag),
+            deepClimbPrep);
   }
 }

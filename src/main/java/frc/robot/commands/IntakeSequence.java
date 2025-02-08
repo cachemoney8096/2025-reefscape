@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
-import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
@@ -28,7 +27,7 @@ public class IntakeSequence extends SequentialCommandGroup {
     public static Transform2d robotToTag;
     public static Pose2d targetPose;
   public IntakeSequence(
-      Claw claw, IntakeLimelight intakeLime, Arm arm, Elevator elevator, Climb climb, ScoringLimelight scoringLimelight, RobotContainer.Location location, DriveSubsystem drive) {
+      Claw claw, IntakeLimelight intakeLimelight, Arm arm, Elevator elevator, Climb climb, RobotContainer.IntakeClimbLocation location, DriveSubsystem drive) {
     /* mechanical intake sequence - slightly modified version of what ruben had previously */
     SequentialCommandGroup moveArmElevatorClaw =
         new SequentialCommandGroup(
@@ -36,17 +35,15 @@ public class IntakeSequence extends SequentialCommandGroup {
                 new SequentialCommandGroup(
                     new InstantCommand(
                         () -> climb.setDesiredClimbPosition(ClimbPosition.CLEAR_OF_ARM)),
-                    new WaitUntilCommand(()->climb.atDesiredPosition()),
-                    new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE))),
-                new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
-                ()->arm.isArmInInterferenceZone()),
+                    new WaitUntilCommand(()->climb.atDesiredPosition())),
+                new InstantCommand(),
+                ()->!arm.isArmInInterferenceZone()),
+            new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
             new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-            new InstantCommand(() -> claw.runMotorsIntaking()),
-            new WaitUntilCommand(claw::beamBreakSeesObject),
-            new InstantCommand(() -> claw.stopMotors()));
+            new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();}));
 
     BooleanSupplier checkForTag = () -> {
-      Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
+      Optional<Transform2d> robotToTagOptional = intakeLimelight.checkForTag();
       if (robotToTagOptional.isPresent()) {
         robotToTag = robotToTagOptional.get();
         return true;
@@ -63,34 +60,36 @@ public class IntakeSequence extends SequentialCommandGroup {
                 new InstantCommand(()->{
                     //translate as needed
                     int id = (int)NetworkTableInstance.getDefault()
-                            .getTable("limelight-scoring")
+                            .getTable("limelight-intake")
                             .getEntry("tid")
-                            .getDouble(0);
-                    HPUtil.Position pos = location==RobotContainer.Location.LEFT?HPUtil.Position.LEFT:HPUtil.Position.RIGHT;
-                    if(id == 13){
-                        //BL
-                        robotToTag = robotToTag.plus(new Transform2d(HPUtil.getTranslation(HPUtil.Station.LEFT, pos, false), new Rotation2d()));
-                    }
-                    else if(id == 12){
-                        //BR
-                        robotToTag = robotToTag.plus(new Transform2d(HPUtil.getTranslation(HPUtil.Station.RIGHT, pos, false), new Rotation2d()));
-                    }
-                    else if(id == 1){
-                        //RL
-                        robotToTag = robotToTag.plus(new Transform2d(HPUtil.getTranslation(HPUtil.Station.LEFT, pos, true), new Rotation2d()));
-                    }
-                    else if(id == 2){
-                        //RR
+                            .getDouble(0.0);
+                    HPUtil.Position pos = location==RobotContainer.IntakeClimbLocation.LEFT?HPUtil.Position.LEFT:HPUtil.Position.RIGHT;
+                    switch (id) {
+                        case 13: // BL
+                            robotToTag = robotToTag.plus(new Transform2d(HPUtil.getTranslation(HPUtil.Station.LEFT, pos, false), new Rotation2d()));
+                            break;
+
+                        case 12: // BR
+                            robotToTag = robotToTag.plus(new Transform2d(HPUtil.getTranslation(HPUtil.Station.RIGHT, pos, false), new Rotation2d()));
+                            break;
+
+                        case 1: // RL
+                            robotToTag = robotToTag.plus(new Transform2d(HPUtil.getTranslation(HPUtil.Station.LEFT, pos, true), new Rotation2d()));
+                            break;
+
+                        case 2: // RR
                         robotToTag = robotToTag.plus(new Transform2d(HPUtil.getTranslation(HPUtil.Station.RIGHT, pos, true), new Rotation2d()));
+                        break;
+
                     }
                     targetPose = drive.getRobotPose().plus(robotToTag);
                 }),
-                new InstantCommand(()->drive.driveToPoint(targetPose)),
-                moveArmElevatorClaw
+                new InstantCommand(()->drive.driveToPoint(targetPose))
             ),
-            moveArmElevatorClaw,
+            new InstantCommand(),
             checkForTag
-        )
+        ),
+        moveArmElevatorClaw
     );
   }
 }

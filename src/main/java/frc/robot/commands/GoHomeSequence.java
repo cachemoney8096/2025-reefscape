@@ -23,7 +23,8 @@ public class GoHomeSequence extends SequentialCommandGroup {
         new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
         new WaitUntilCommand(() -> climb.atDesiredPosition()),
         new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)),
-        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME))
+        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+        new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();})
     );
   }
 }
