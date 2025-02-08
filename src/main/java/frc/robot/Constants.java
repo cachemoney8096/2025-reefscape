@@ -60,4 +60,7 @@ public final class Constants {
 
   public static final double PERIOD_TIME_SECONDS = 0.02;
   public static final double REEF_SCORING_OFFSET_INCHES = 6.5;
+
+  public static final double SCORING_LIMELIGHT_PITCH_DEG = Constants.PLACEHOLDER_DOUBLE, SCORING_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
+  public static final double INTAKE_LIMELIGHT_PITCH_DEG = Constants.PLACEHOLDER_DOUBLE, INTAKE_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
 }

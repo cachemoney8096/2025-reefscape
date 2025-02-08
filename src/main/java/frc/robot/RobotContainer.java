@@ -19,7 +19,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringSequence;
+import frc.robot.commands.DeepClimbPrep;
+import frc.robot.commands.DeepClimbScoringSequence;
+import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
+import frc.robot.commands.IntakeSequence;
+import frc.robot.commands.PrepScoreSequence;
+import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
+import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
@@ -53,6 +60,8 @@ public class RobotContainer implements Sendable {
   public DriveSubsystem drive;
   public Elevator elevator;
   public Lights lights;
+  public IntakeLimelight intakeLimelight;
+  public ScoringLimelight scoringLimelight;
 
   public String pathCmd = "";
 
@@ -83,8 +92,10 @@ public class RobotContainer implements Sendable {
     drive = new DriveSubsystem();
     elevator = new Elevator();
     lights = new Lights();
+    scoringLimelight = new ScoringLimelight(Constants.SCORING_LIMELIGHT_PITCH_DEG, Constants.SCORING_LIMELIGHT_HEIGHT_M, 0.0); //TODO add placeholders in constants
+    intakeLimelight = new IntakeLimelight(Constants.INTAKE_LIMELIGHT_PITCH_DEG, Constants.INTAKE_LIMELIGHT_HEIGHT_M, 0.0); //""
 
-    /* Add named commands here */
+    /* Named commands here */
 
     NamedCommands.registerCommand(
         "AUTO_INTAKE_SEQUENCE",
@@ -129,7 +140,16 @@ public class RobotContainer implements Sendable {
   private void configureDriverBindings() {
     /* Go home */
     driverController.leftBumper().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
-    
+    /* prep score */
+    driverController.rightBumper().onTrue(new PrepScoreSequence(arm, elevator, scoringLimelight, climb, preppedHeight, preppedScoringLocation, drive, matchState));
+    /* climb prep */
+    driverController.back().onTrue(new DeepClimbPrep(climb, arm, scoringLimelight, preppedLocation, matchState, drive));
+    /* climb */
+    driverController.start().onTrue(new DeepClimbScoringSequence(climb));
+    /* intake */
+    driverController.leftTrigger().onTrue(new IntakeSequence(claw, intakeLimelight, arm, elevator, climb, scoringLimelight, preppedLocation, drive));
+    /* finish score */
+    driverController.rightTrigger().onTrue(new FinishScore(claw));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     drive.setDefaultCommand(new InstantCommand());
@@ -149,7 +169,7 @@ public class RobotContainer implements Sendable {
     operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.LEFT));
     operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.RIGHT));
     /* TODO: ZERO ROTATION ODOMETRY */
-    operatorController.start().onTrue(new InstantCommand());
+    operatorController.back().onTrue(new InstantCommand());
   }
 
   /**
