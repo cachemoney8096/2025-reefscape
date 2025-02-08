@@ -18,6 +18,8 @@ public class ClimbUtil {
     double y = LOCATION_OFFSET_Y_METERS;
     if(cagePosition == CagePosition.RIGHT){
         y *= -1;
+    } else if (cagePosition == CagePosition.CENTER){
+        y = 0.0;
     }
     if(isRed){
         y *= -1;

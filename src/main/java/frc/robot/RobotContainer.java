@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoIntakeSequence;
-import frc.robot.commands.AutoScoringSequence;
+import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.DeepClimbPrep;
 import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.FinishScore;
@@ -105,7 +105,7 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
         "AUTO_SCORING_SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO_SCORING_SEQUENCE")
-            .andThen(new AutoScoringSequence(elevator, arm, claw)));
+            .andThen(new AutoScoringPrepSequence(elevator, arm, claw)));
 
     /* Configure controller bindings */
     configureDriverBindings();
