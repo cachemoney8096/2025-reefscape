@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "AUTO INTAKE SEQUENCE",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.533579933681672,
       "endWaypointRelativePos": null,
       "command": null
     }
