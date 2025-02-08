@@ -129,7 +129,7 @@ public class Elevator extends SubsystemBase {
         < ElevatorCal.DESIRED_POSITION_MARGIN_IN;
   }
 
-  public boolean atPosition(ElevatorHeight height) {
+  public boolean atElevatorPosition(ElevatorHeight height) {
     return Math.abs(
             leftMotor.getPosition().getValueAsDouble()
                 - elevatorPositions.get(height)
@@ -162,7 +162,12 @@ public class Elevator extends SubsystemBase {
         ElevatorCal.POSITION_HOME_INCHES
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO);
-      m_setpoint = new TrapezoidProfile.State(ElevatorCal.POSITION_HOME_INCHES / ElevatorConstants.DRUM_CIRCUMFERENCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO, 0.0);
+    m_setpoint =
+        new TrapezoidProfile.State(
+            ElevatorCal.POSITION_HOME_INCHES
+                / ElevatorConstants.DRUM_CIRCUMFERENCE
+                * ElevatorConstants.MOTOR_TO_DRUM_RATIO,
+            0.0);
   }
 
   public void setElevatorMovementAllowed(boolean allowed) {

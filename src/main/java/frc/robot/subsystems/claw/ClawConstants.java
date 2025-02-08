@@ -1,4 +1,3 @@
 package frc.robot.subsystems.claw;
 
-public class ClawConstants {
-}
+public class ClawConstants {}

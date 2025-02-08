@@ -21,7 +21,6 @@ public class Robot extends TimedRobot {
 
   private MatchStateUtil matchState = new MatchStateUtil(false, true, false);
 
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.

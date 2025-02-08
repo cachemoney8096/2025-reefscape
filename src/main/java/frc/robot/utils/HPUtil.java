@@ -1,78 +1,42 @@
 package frc.robot.utils;
 
+import java.util.TreeMap;
+
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
 public class HPUtil {
+    private static final double OFFSET_X_METERS =
+      Units.inchesToMeters(Constants.HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES);
+    private static final double OFFSET_Y_METERS =
+      Units.inchesToMeters(Constants.HP_INTAKE_TAG_LOCATION_OFFSET_Y_INCHES);
 
-    private final double LOCATION_OFFSET_X_METERS = Units.inchesToMeters(Constants.HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES);
-    private final double LOCATION_OFFSET_Y_METERS = Units.inchesToMeters(Constants.HP_INTAKE_TAG_LOCATION_OFFSET_Y_INCHES);
-
-    // The left or right HP station (from driver's perspective). 
     public enum Station {
         LEFT,
         RIGHT
     }
-
-    // Position on the HP station that the robot is going to (from robot's perspetive).
     public enum Position {
         LEFT,
         RIGHT,
-        TAG
+        CENTER
     }
 
-    private Station side = Station.RIGHT;
-    private Position position = Position.LEFT;
-
-    public Station getSide() {
-        return this.side;
-    }
-
-    public void setSide(Station side) {
-        this.side = side;
-    }
-
-    public Position getPosition() {
-        return this.position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
-    }
-
-    public Translation2d getHPStationTransform(Station station, Position position, boolean isBlueTeam) {
-        double x = LOCATION_OFFSET_X_METERS;
-        double y = LOCATION_OFFSET_Y_METERS;
-
-        switch (position) {
-            case LEFT:
-                if (station == Station.LEFT) {
-                    y *= -1;
-                } else {
-                    x *= -1;
-                }
-                break;
-            case RIGHT:
-                if (station == Station.LEFT) {
-                    x *= -1;
-                    y *= -1;
-                }
-                break;
-            case TAG:
-                x = 0.0;
-                y = 0.0;
-                break;
-        }
-
-        if (!isBlueTeam) {
-            x *= -1;
-            y *= -1;
-        }
-
-        Translation2d out = new Translation2d(x, y);
-
-        return(out);
-    }
+    private static TreeMap<Pair<Station, Position>, Pair<Double, Double>> blueMap = new TreeMap<Pair<Station, Position>, Pair<Double, Double>>();
     
+    public static Translation2d getTranslation(Station station, Position position, boolean isRed){
+        blueMap.put(new Pair<Station, Position>(Station.LEFT, Position.LEFT), new Pair<Double, Double>(-1.0, -1.0));
+        blueMap.put(new Pair<Station, Position>(Station.LEFT, Position.RIGHT), new Pair<Double, Double>(1.0, 1.0));
+        blueMap.put(new Pair<Station, Position>(Station.RIGHT, Position.LEFT), new Pair<Double, Double>(1.0, -1.0));
+        blueMap.put(new Pair<Station, Position>(Station.RIGHT, Position.RIGHT), new Pair<Double, Double>(-1.0, 1.0));
+        blueMap.put(new Pair<Station, Position>(Station.RIGHT, Position.CENTER), new Pair<Double, Double>(0.0, 0.0));
+        blueMap.put(new Pair<Station, Position>(Station.LEFT, Position.CENTER), new Pair<Double, Double>(0.0, 0.0));
+        int flipForRed = isRed?-1:1;
+        Pair<Double, Double> multipliers = blueMap.get(new Pair<Station, Position>(station, position));
+        double xMult = multipliers.getFirst() * flipForRed;
+        double yMult = multipliers.getSecond() * flipForRed;
+        return new Translation2d(OFFSET_X_METERS*xMult, OFFSET_Y_METERS*yMult);
+    }
+
 }
