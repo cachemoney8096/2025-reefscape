@@ -7,13 +7,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.ControlType;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLowLevel.PeriodicFrame;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.AbsoluteEncoder;
+import com.revrobotics.spark.SparkPIDController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -26,9 +26,8 @@ import frc.robot.utils.SparkMaxUtils;
 
 public class SwerveModule implements Sendable {
   public final TalonFX drivingTalon;
-  public final CANSparkMax turningSparkMax;
-
-  private final RelativeEncoder turningRelativeEncoder;
+  public final SparkMax turningSparkMax;
+  private final RelativeEncoder turningRelativeEncoder;k
   private final AbsoluteEncoder turningAbsoluteEncoder;
   private AbsoluteEncoderChecker turningAbsoluteEncoderChecker = new AbsoluteEncoderChecker();
 
