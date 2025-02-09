@@ -1,7 +1,8 @@
 package frc.robot.subsystems.drive;
 
-import com.fasterxml.jackson.databind.type.PlaceholderForType;
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
@@ -61,8 +62,13 @@ public class DriveCal {
   public static final double ROTATION_DEADBAND_THRESHOLD_DEG = Constants.PLACEHOLDER_DOUBLE;
 
   /** path finding controller for translation and rotation; used in PathPlanner */
-  public static final PIDConstants PATH_TRANSLATION_CONTROLLER = new PIDConstants(Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE),
-      PATH_ROTATION_CONTROLLER = new PIDConstants(Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE);
+    public static final PIDConstants PATH_TRANSLATION_CONTROLLER = new PIDConstants(Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE),
+        PATH_ROTATION_CONTROLLER = new PIDConstants(Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE, Constants.PLACEHOLDER_DOUBLE);
+
+    public static final PPHolonomicDriveController DRIVE_CONTROLLER = new PPHolonomicDriveController(
+        PATH_TRANSLATION_CONTROLLER,
+        PATH_ROTATION_CONTROLLER
+    );
 
   public static final double MEDIUM_LINEAR_SPEED_METERS_PER_SEC = Constants.PLACEHOLDER_DOUBLE,
       MEDIUM_LINEAR_ACCELERATION_METERS_PER_SEC_SQ = Constants.PLACEHOLDER_DOUBLE,
