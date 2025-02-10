@@ -82,7 +82,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                         break;
 
                     }
-                    targetPose = drive.getRobotPose().plus(robotToTag);
+                    targetPose = drive.getPose().plus(robotToTag);
                 }),
                 new InstantCommand(()->drive.driveToPoint(targetPose))
             ),
