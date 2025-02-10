@@ -43,6 +43,7 @@ import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.PoseBuffer;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -181,13 +182,6 @@ public class DriveSubsystem extends SubsystemBase {
         rearLeft.getPosition(),
         rearRight.getPosition()
     };
-  }
-
-  public void burnFlashSparks() {
-    frontLeft.burnFlashSparks();
-    frontRight.burnFlashSparks();
-    rearLeft.burnFlashSparks();
-    rearRight.burnFlashSparks();
   }
 
   public Pose2d getPose() {
@@ -495,10 +489,16 @@ public class DriveSubsystem extends SubsystemBase {
     return path;
   }
 
+  public void driveToPoint(Pose2d point) {
+    targetPose = Optional.of(point);
+    Optional<PathPlannerPath> path = poseToPath(new Translation2d(lastSetChassisSpeeds.vxMetersPerSecond, lastSetChassisSpeeds.vyMetersPerSecond).getNorm());
+
+    followTrajectoryCommand(path.get(), false);
+  }
+
   public Optional<PathPlannerPath> poseToPath(double startingSpeedMetersPerSec) {
     Pose2d curPose = getPose();
 
-    System.out.println("Acquired target? " + targetPose.isPresent());
     if (!targetPose.isPresent()) {
       return Optional.empty();
     }

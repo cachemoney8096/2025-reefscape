@@ -7,13 +7,17 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.ControlType;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkLowLevel.PeriodicFrame;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.AbsoluteEncoder;
-import com.revrobotics.spark.SparkPIDController;
+import com.revrobotics.spark.SparkClosedLoopController;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -27,11 +31,11 @@ import frc.robot.utils.SparkMaxUtils;
 public class SwerveModule implements Sendable {
   public final TalonFX drivingTalon;
   public final SparkMax turningSparkMax;
-  private final RelativeEncoder turningRelativeEncoder;k
+  private final RelativeEncoder turningRelativeEncoder;
   private final AbsoluteEncoder turningAbsoluteEncoder;
   private AbsoluteEncoderChecker turningAbsoluteEncoderChecker = new AbsoluteEncoderChecker();
 
-  private final SparkPIDController turningPIDController;
+  private final SparkClosedLoopController turningPIDController;
 
   private double chassisAngularOffsetRadians = 0;
 
@@ -49,15 +53,15 @@ public class SwerveModule implements Sendable {
    */
   public SwerveModule(int drivingCanId, int turningCanId, double chassisAngularOffset) {
     drivingTalon = new TalonFX(drivingCanId);
-    turningSparkMax = new CANSparkMax(turningCanId, MotorType.kBrushless);
+    turningSparkMax = new SparkMax(turningCanId, MotorType.kBrushless);
     chassisAngularOffsetRadians = chassisAngularOffset;
 
     initDriveTalon();
     SparkMaxUtils.initWithRetry(this::initTurnSpark, DriveCal.SPARK_INIT_RETRY_ATTEMPTS);
 
     turningRelativeEncoder = turningSparkMax.getEncoder();
-    turningAbsoluteEncoder = turningSparkMax.getAbsoluteEncoder(Type.kDutyCycle);
-    turningPIDController = turningSparkMax.getPIDController();
+    turningAbsoluteEncoder = turningSparkMax.getAbsoluteEncoder();
+    turningPIDController = turningSparkMax.getClosedLoopController();
 
     // desiredState.angle = Rotation2d.fromRadians(turningAbsoluteEncoder.getPosition());
     desiredState.angle = Rotation2d.fromRadians(turningRelativeEncoder.getPosition());
@@ -68,70 +72,42 @@ public class SwerveModule implements Sendable {
   boolean initTurnSpark() {
     int errors = 0;
 
-    errors += SparkMaxUtils.check(turningSparkMax.restoreFactoryDefaults());
+    SparkMaxConfig config = new SparkMaxConfig();
 
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 20));
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 20));
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20));
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 500));
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 500));
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 300));
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 500));
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus7, 500));
+    config.signals
+      .primaryEncoderPositionPeriodMs(DriveConstants.SPARK_MAX_ENCODER_POSITION_PERIOD_MS)
+      .primaryEncoderVelocityPeriodMs(DriveConstants.SPARK_MAX_ENCODER_POSITION_PERIOD_MS);
+
     Timer.delay(0.1);
 
-    turningSparkMax.setInverted(false);
-
-    RelativeEncoder tunringRelativeEncoderTmp = turningSparkMax.getEncoder();
-    AbsoluteEncoder turningAbsoluteEncoderTmp = turningSparkMax.getAbsoluteEncoder(Type.kDutyCycle);
-    SparkPIDController turningPidTmp = turningSparkMax.getPIDController();
-
-    errors += SparkMaxUtils.check(turningPidTmp.setFeedbackDevice(tunringRelativeEncoderTmp));
+    config.absoluteEncoder.inverted(DriveConstants.TURNING_ENCODER_INVERTED);
+    
+    config.closedLoop
+      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+      .positionWrappingEnabled(true)
+      .positionWrappingMinInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT_RADIANS)
+      .positionWrappingMinInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
+      .pidf(DriveCal.TURNING_P, DriveCal.TURNING_I, DriveCal.TURNING_D, DriveCal.TURNING_FF);
 
     errors +=
         SparkMaxUtils.check(
             SparkMaxUtils.UnitConversions.setRadsFromGearRatio(
-                tunringRelativeEncoderTmp, DriveConstants.TURN_MODULE_RELATIVE_ENCODER_GEAR_RATIO));
+                turningSparkMax, DriveConstants.TURN_MODULE_RELATIVE_ENCODER_GEAR_RATIO));
 
     // Gear ratio 1.0 because the encoder is 1:1 with the module (doesn't involve the actual turning
     // gear ratio)
     errors +=
         SparkMaxUtils.check(
             SparkMaxUtils.UnitConversions.setRadsFromGearRatio(
-                turningAbsoluteEncoderTmp, DriveConstants.TURN_MODULE_ABSOLUTE_ENCODER_GEAR_RATIO));
+                turningSparkMax, DriveConstants.TURN_MODULE_ABSOLUTE_ENCODER_GEAR_RATIO));
 
-    errors +=
-        SparkMaxUtils.check(
-            turningAbsoluteEncoderTmp.setInverted(DriveConstants.TURNING_ENCODER_INVERTED));
+   config
+    .inverted(false)
+    .idleMode(IdleMode.kBrake)
+    .smartCurrentLimit(DriveConstants.TURNING_MOTOR_CURRENT_LIMIT_AMPS);
 
-    errors += SparkMaxUtils.check(turningPidTmp.setPositionPIDWrappingEnabled(true));
-    errors +=
-        SparkMaxUtils.check(
-            turningPidTmp.setPositionPIDWrappingMinInput(
-                DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT_RADIANS));
-    errors +=
-        SparkMaxUtils.check(
-            turningPidTmp.setPositionPIDWrappingMaxInput(
-                DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS));
-
-    errors += SparkMaxUtils.check(turningPidTmp.setP(DriveCal.TURNING_P));
-    errors += SparkMaxUtils.check(turningPidTmp.setI(DriveCal.TURNING_I));
-    errors += SparkMaxUtils.check(turningPidTmp.setD(DriveCal.TURNING_D));
-    errors += SparkMaxUtils.check(turningPidTmp.setFF(DriveCal.TURNING_FF));
-
-    errors +=
-        SparkMaxUtils.check(turningSparkMax.setIdleMode(DriveConstants.TURNING_MOTOR_IDLE_MODE));
-    errors +=
-        SparkMaxUtils.check(
-            turningSparkMax.setSmartCurrentLimit(DriveConstants.TURNING_MOTOR_CURRENT_LIMIT_AMPS));
+    errors += 
+      SparkMaxUtils.check(turningSparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
 
     return errors == 0;
   }
@@ -168,15 +144,6 @@ public class SwerveModule implements Sendable {
     drivingTalon.optimizeBusUtilization();
   }
 
-  /**
-   * Burns the current settings to sparks so they keep current settings on reboot. Should be done
-   * after all settings are set.
-   */
-  public void burnFlashSparks() {
-    Timer.delay(0.005);
-    turningSparkMax.burnFlash();
-  }
-
   public void considerZeroingEncoder() {
     if (Math.abs(turningAbsoluteEncoder.getPosition()) < 0.01) {
       return;
@@ -200,7 +167,7 @@ public class SwerveModule implements Sendable {
     //     drivingTalon.getVelocity().getValue(),
     //     new Rotation2d(turningAbsoluteEncoder.getPosition() - chassisAngularOffsetRadians));
     return new SwerveModuleState(
-        drivingTalon.getVelocity().getValue(),
+        drivingTalon.getVelocity().getValueAsDouble() * DriveConstants.WHEEL_DIAMETER_METERS / 2,
         new Rotation2d(turningRelativeEncoder.getPosition()));
   }
 
@@ -216,7 +183,7 @@ public class SwerveModule implements Sendable {
     //     drivingTalon.getPosition().getValue(),
     //     new Rotation2d(turningAbsoluteEncoder.getPosition() - chassisAngularOffsetRadians));
     return new SwerveModulePosition(
-        drivingTalon.getPosition().getValue(),
+        drivingTalon.getPosition().getValueAsDouble() * DriveConstants.WHEEL_CIRCUMFERENCE_METERS,
         new Rotation2d(turningRelativeEncoder.getPosition()));
   }
 
@@ -263,9 +230,7 @@ public class SwerveModule implements Sendable {
     // inputState =
     //     SwerveModuleState.optimize(inputState, new
     // Rotation2d(turningAbsoluteEncoder.getPosition()));
-    inputState =
-        SwerveModuleState.optimize(
-            inputState, new Rotation2d(turningRelativeEncoder.getPosition()));
+    inputState.optimize(new Rotation2d(turningRelativeEncoder.getPosition()));
 
     // Ensure optimized state
     inputState.angle = Rotation2d.fromRadians(mod(inputState.angle.getRadians(), 2.0 * Math.PI));
@@ -290,7 +255,7 @@ public class SwerveModule implements Sendable {
                     : inputState.speedMetersPerSecond)
             .withSlot(0));
     turningPIDController.setReference(
-        inputState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+        inputState.angle.getRadians(), SparkMax.ControlType.kPosition);
   }
 
   /** Zeroes all the SwerveModule encoders. */
@@ -357,15 +322,15 @@ public class SwerveModule implements Sendable {
           return drivingTalon.getClosedLoopFeedForward().getValue();
         },
         null);
-    builder.addDoubleProperty("Turning kP", turningPIDController::getP, turningPIDController::setP);
-    builder.addDoubleProperty("Turning kI", turningPIDController::getI, turningPIDController::setI);
-    builder.addDoubleProperty("Turning kD", turningPIDController::getD, turningPIDController::setD);
+    builder.addDoubleProperty("Turning kP", turningSparkMax.configAccessor.closedLoop::getP, null);
+    builder.addDoubleProperty("Turning kI", turningSparkMax.configAccessor.closedLoop::getI, null);
+    builder.addDoubleProperty("Turning kD", turningSparkMax.configAccessor.closedLoop::getD, null);
     builder.addDoubleProperty(
-        "Turning kFF", turningPIDController::getFF, turningPIDController::setFF);
+        "Turning kFF", turningSparkMax.configAccessor.closedLoop::getFF, null);
     builder.addDoubleProperty(
         "Driving Vel (m/s)",
         () -> {
-          return drivingTalon.getVelocity().getValue();
+          return drivingTalon.getVelocity().getValueAsDouble() * DriveConstants.WHEEL_DIAMETER_METERS / 2;
         },
         null);
     builder.addDoubleProperty(
