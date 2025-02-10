@@ -93,7 +93,7 @@ public class RobotContainer implements Sendable {
     arm = new Arm();
     claw = new Claw();
     climb = new Climb();
-    drive = new DriveSubsystem();
+    drive = new DriveSubsystem(ms);
     elevator = new Elevator();
     lights = new Lights();
     scoringLimelight = new ScoringLimelight(Constants.SCORING_LIMELIGHT_PITCH_DEG, Constants.SCORING_LIMELIGHT_HEIGHT_M, 0.0); //TODO add placeholders in constants

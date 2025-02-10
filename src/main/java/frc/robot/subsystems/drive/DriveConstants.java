@@ -20,6 +20,9 @@ public class DriveConstants {
 
     public static final boolean GYRO_REVERSED = Constants.PLACEHOLDER_BOOLEAN;
 
+    public static final int SPARK_MAX_ENCODER_POSITION_PERIOD_MS = Constants.PLACEHOLDER_INT,
+        SPARK_MAX_ENCODER_VELOCITY_PERIOD_MS = Constants.PLACEHOLDER_INT;
+
     public static final double MAX_SPEED_METERS_PER_SECOND = Constants.PLACEHOLDER_DOUBLE;
 
     public static final double ROBOT_MASS_KG = Constants.PLACEHOLDER_DOUBLE;
@@ -51,13 +54,14 @@ public class DriveConstants {
         TURNING_ENCODER_POSITION_PID_MIN_INPUT_RADIANS = Constants.PLACEHOLDER_DOUBLE,
         TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS = Constants.PLACEHOLDER_DOUBLE;
 
-    public static final double TURNING_MOTOR_IDLE_MODE = Constants.PLACEHOLDER_DOUBLE,
-        TURNING_MOTOR_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE;
+    public static final double TURNING_MOTOR_IDLE_MODE = Constants.PLACEHOLDER_DOUBLE;
+        
+    public static final int TURNING_MOTOR_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_INT;
 
     public static final double DRIVING_MOTOR_REDUCTION = Constants.PLACEHOLDER_DOUBLE,
         DRIVING_MOTOR_STATOR_TELEOP_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE,
         DRIVING_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = Constants.PLACEHOLDER_DOUBLE;
-        
+
 
     public static final boolean TURNING_ENCODER_INVERTED = Constants.PLACEHOLDER_BOOLEAN;
 
