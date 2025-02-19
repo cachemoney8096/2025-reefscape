@@ -76,7 +76,7 @@ public class SwerveModule implements Sendable {
 
     config.signals
       .primaryEncoderPositionPeriodMs(DriveConstants.SPARK_MAX_ENCODER_POSITION_PERIOD_MS)
-      .primaryEncoderVelocityPeriodMs(DriveConstants.SPARK_MAX_ENCODER_POSITION_PERIOD_MS);
+      .primaryEncoderVelocityPeriodMs(DriveConstants.SPARK_MAX_ENCODER_VELOCITY_PERIOD_MS);
 
     Timer.delay(0.1);
 
@@ -85,8 +85,8 @@ public class SwerveModule implements Sendable {
     config.closedLoop
       .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
       .positionWrappingEnabled(true)
-      .positionWrappingMinInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT_RADIANS)
-      .positionWrappingMinInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
+      .positionWrappingMaxInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
+      .positionWrappingMaxInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
       .pidf(DriveCal.TURNING_P, DriveCal.TURNING_I, DriveCal.TURNING_D, DriveCal.TURNING_FF);
 
     errors +=
@@ -251,7 +251,7 @@ public class SwerveModule implements Sendable {
     drivingTalon.setControl(
         new VelocityDutyCycle(
                 this.throttleSpeed
-                    ? inputState.speedMetersPerSecond * 0.8
+                    ? inputState.speedMetersPerSecond * 0.8 //TODO change idk mabye
                     : inputState.speedMetersPerSecond)
             .withSlot(0));
     turningPIDController.setReference(
