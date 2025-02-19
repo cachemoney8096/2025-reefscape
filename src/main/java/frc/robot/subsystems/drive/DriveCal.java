@@ -39,7 +39,7 @@ public class DriveCal {
           SWERVE_FRONT_RIGHT_ANGULAR_OFFSET_RAD + (Constants.PLACEHOLDER_DOUBLE * Math.PI / Constants.PLACEHOLDER_DOUBLE),
       BACK_LEFT_CHASSIS_ANGULAR_OFFSET_RAD =
           SWERVE_BACK_LEFT_ANGULAR_OFFSET_RAD - (Constants.PLACEHOLDER_DOUBLE * Math.PI / Constants.PLACEHOLDER_DOUBLE),
-      BACK_RIGHT_CHASSIS_ANGULAR_OFFSET_RAD =
+      REAR_RIGHT_CHASSIS_ANGULAR_OFFSET_RAD =
           SWERVE_BACK_RIGHT_ANGULAR_OFFSET_RAD + (Constants.PLACEHOLDER_DOUBLE * Math.PI / Constants.PLACEHOLDER_DOUBLE);
 
   /** Controller on module speed for rotating to target, input degrees [-180,180], output [0,1]. */

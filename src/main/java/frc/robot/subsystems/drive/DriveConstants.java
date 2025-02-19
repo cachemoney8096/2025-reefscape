@@ -23,6 +23,8 @@ public class DriveConstants {
     public static final int SPARK_MAX_ENCODER_POSITION_PERIOD_MS = Constants.PLACEHOLDER_INT,
         SPARK_MAX_ENCODER_VELOCITY_PERIOD_MS = Constants.PLACEHOLDER_INT;
 
+    public static final double LOOP_TIME_SEC = Constants.PLACEHOLDER_DOUBLE;
+
     public static final double MAX_SPEED_METERS_PER_SECOND = Constants.PLACEHOLDER_DOUBLE;
 
     public static final double ROBOT_MASS_KG = Constants.PLACEHOLDER_DOUBLE;

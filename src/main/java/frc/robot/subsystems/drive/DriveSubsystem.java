@@ -43,7 +43,6 @@ import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.PoseBuffer;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -70,7 +69,7 @@ public class DriveSubsystem extends SubsystemBase {
   public final SwerveModule rearRight = new SwerveModule(
       RobotMap.REAR_RIGHT_DRIVING_CAN_ID,
       RobotMap.REAR_RIGHT_TURNING_CAN_ID,
-      DriveCal.BACK_RIGHT_CHASSIS_ANGULAR_OFFSET_RAD);
+      DriveCal.REAR_RIGHT_CHASSIS_ANGULAR_OFFSET_RAD);
 
   private final Pigeon2 gyro = new Pigeon2(RobotMap.PIGEON_CAN_ID);
   private ChassisSpeeds lastSetChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
@@ -124,6 +123,7 @@ public class DriveSubsystem extends SubsystemBase {
         this);
 
     yawOffsetMap = new InterpolatingDoubleTreeMap();
+    //TODO: TUNE THESE VALUES
     yawOffsetMap.put(0.0, 0.0);
     yawOffsetMap.put(120.0, 5.0);
     yawOffsetMap.put(167.0, 22.0);
@@ -193,22 +193,19 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public ChassisSpeeds getCurrentChassisSpeeds() {
-    ChassisSpeeds chassisSpeeds = DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(
-        frontLeft.getState(), frontRight.getState(), rearLeft.getState(), rearRight.getState());
-    return chassisSpeeds;
+    return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(frontLeft.getState(), frontRight.getState(), rearLeft.getState(), rearRight.getState());
   }
 
   private static ChassisSpeeds correctForDynamics(ChassisSpeeds originalSpeeds) {
-    final double LOOP_TIME_S = 0.02;
     Pose2d futureRobotPose = new Pose2d(
-        originalSpeeds.vxMetersPerSecond * LOOP_TIME_S,
-        originalSpeeds.vyMetersPerSecond * LOOP_TIME_S,
-        Rotation2d.fromRadians(originalSpeeds.omegaRadiansPerSecond * LOOP_TIME_S));
+        originalSpeeds.vxMetersPerSecond * DriveConstants.LOOP_TIME_SEC,
+        originalSpeeds.vyMetersPerSecond * DriveConstants.LOOP_TIME_SEC,
+        Rotation2d.fromRadians(originalSpeeds.omegaRadiansPerSecond * DriveConstants.LOOP_TIME_SEC));
     Twist2d twistForPose = GeometryUtils.log(futureRobotPose);
     ChassisSpeeds updatedSpeeds = new ChassisSpeeds(
-        twistForPose.dx / LOOP_TIME_S,
-        twistForPose.dy / LOOP_TIME_S,
-        twistForPose.dtheta / LOOP_TIME_S);
+        twistForPose.dx / DriveConstants.LOOP_TIME_SEC,
+        twistForPose.dy / DriveConstants.LOOP_TIME_SEC,
+        twistForPose.dtheta / DriveConstants.LOOP_TIME_SEC);
     return updatedSpeeds;
   }
 
@@ -242,19 +239,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void resetYaw() {
     resetYawToAngle(matchState.isBlue() ? 0 : 180);
-  }
-
-  public void resetOdometryToCenterSubwoofer() {
-    double odometryXMeters = matchState.isBlue() ? 1.168 : 15.429;
-    double odometryYMeters = matchState.isBlue() ? 5.467 : 5.422;
-    double curYawDeg = gyro.getYaw().getValueAsDouble();
-    double offsetToTargetDeg = targetHeadingDegrees - curYawDeg;
-    double yawDeg = matchState.isBlue() ? 0 : 180;
-    gyro.setYaw(yawDeg);
-    Pose2d resetPose = new Pose2d(
-        new Translation2d(odometryXMeters, odometryYMeters), Rotation2d.fromDegrees(yawDeg));
-    odometry.resetPosition(Rotation2d.fromDegrees(yawDeg), getModulePositions(), resetPose);
-    targetHeadingDegrees = yawDeg + offsetToTargetDeg;
   }
 
   public void setNoMove() {
