@@ -26,4 +26,6 @@ public class ClimbCal {
   public static final double CLIMB_DESIRED_POSITION_ERROR_MARGIN_DEG = Constants.PLACEHOLDER_DOUBLE;
 
   public static final double CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ = Constants.PLACEHOLDER_DOUBLE;
+
+  public static final double DEGREES_PER_ABS_ENCODER_PULSE = Constants.PLACEHOLDER_DOUBLE;
 }
