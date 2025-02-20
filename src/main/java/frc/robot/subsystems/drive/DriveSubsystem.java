@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.Pigeon2Configurator;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
@@ -99,15 +100,18 @@ public class DriveSubsystem extends SubsystemBase {
     intializeGyro();
     this.matchState = matchState;
 
-    AutoBuilder.configure(
+    RobotConfig config;
+    try {
+      config = RobotConfig.fromGUISettings();
+      AutoBuilder.configure(
         this::getPose, // Robot pose supplier
         this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting
         // pose)
         this::getCurrentChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        this::setOutputRobotRelativeSpeeds, // Method that will drive the robot given ROBOT RELATIVE
+        (speeds, feedforwards) -> setOutputRobotRelativeSpeeds(speeds), // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
         new PPHolonomicDriveController(DriveCal.PATH_TRANSLATION_CONTROLLER, DriveCal.PATH_ROTATION_CONTROLLER),
-        DriveConstants.ROBOT_CONFIG,
+        config,
         () -> {
           // Boolean supplier that controls when the path will be mirrored for the red
           // alliance
@@ -121,6 +125,10 @@ public class DriveSubsystem extends SubsystemBase {
           return false;
         },
         this);
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
 
     yawOffsetMap = new InterpolatingDoubleTreeMap();
     //TODO: TUNE THESE VALUES
@@ -218,7 +226,7 @@ public class DriveSubsystem extends SubsystemBase {
     rearRight.setDesiredState(desiredStates[3], false);
   }
 
-  public void setOutputRobotRelativeSpeeds(ChassisSpeeds desiredChassisSpeeds, DriveFeedforwards feedforwards) {
+  public void setOutputRobotRelativeSpeeds(ChassisSpeeds desiredChassisSpeeds) {
 
     ChassisSpeeds correctedDesiredChassisSpeeds = correctForDynamics(desiredChassisSpeeds);
 
@@ -371,39 +379,47 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Command followTrajectoryCommand(PathPlannerPath path, boolean isFirstPath) {
-    return new SequentialCommandGroup(
-        new InstantCommand(
-            () -> {
-              // Reset odometry for the first path you run during auto
-              if (isFirstPath) {
-                this.resetOdometry(path.getStartingHolonomicPose().get());
-              }
-            }),
-        new InstantCommand(
-            () -> {
-              targetHeadingDegrees = getHeadingDegrees();
-            }),
-        new FollowPathCommand(
-            path,
-            this::getPose,
-            this::getCurrentChassisSpeeds,
-            this::setOutputRobotRelativeSpeeds,
-            DriveCal.DRIVE_CONTROLLER,
-            DriveConstants.ROBOT_CONFIG,
-            () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red
-              // alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    RobotConfig config;
+    try {
+      config = RobotConfig.fromGUISettings();
+      return new SequentialCommandGroup(
+          new InstantCommand(
+              () -> {
+                // Reset odometry for the first path you run during auto
+                if (isFirstPath) {
+                  this.resetOdometry(path.getStartingHolonomicPose().get());
+                }
+              }),
+          new InstantCommand(
+              () -> {
+                targetHeadingDegrees = getHeadingDegrees();
+              }),
+          new FollowPathCommand(
+              path,
+              this::getPose,
+              this::getCurrentChassisSpeeds,
+              (speeds, feedforwards) -> setOutputRobotRelativeSpeeds(speeds),
+              DriveCal.DRIVE_CONTROLLER,
+              config,
+              () -> {
+                // Boolean supplier that controls when the path will be mirrored for the red
+                // alliance
+                // This will flip the path being followed to the red side of the field.
+                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            this),
-        new PrintCommand("Finished a trajectory"));
+                var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                  return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+              },
+              this),
+          new PrintCommand("Finished a trajectory"));
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+      return new SequentialCommandGroup(null);
+    }
   }
 
   public Pose2d getPastBufferedPose(double latencySec) {
