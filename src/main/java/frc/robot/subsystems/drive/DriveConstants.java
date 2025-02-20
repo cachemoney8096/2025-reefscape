@@ -1,13 +1,10 @@
 package frc.robot.subsystems.drive;
 
-import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
@@ -86,23 +83,4 @@ public class DriveConstants {
         new Translation2d(WHEEL_BASE_METERS / 2, -DriveConstants.TRACK_WIDTH_METERS / 2),
         new Translation2d(-WHEEL_BASE_METERS / 2, DriveConstants.TRACK_WIDTH_METERS / 2),
         new Translation2d(-WHEEL_BASE_METERS / 2, -DriveConstants.TRACK_WIDTH_METERS / 2));
-
-    public static final RobotConfig ROBOT_CONFIG = 
-    new RobotConfig(
-        DriveConstants.ROBOT_MASS_KG, DriveConstants.ROBOT_MOMENT_OF_INERTIA, new ModuleConfig(
-        DriveConstants.WHEEL_DIAMETER_METERS,
-        DriveConstants.MAX_SPEED_METERS_PER_SECOND, 
-        DriveConstants.WHEEL_COEFFICIENT_OF_FRICTION, 
-        new DCMotor(
-            DriveConstants.DRIVE_MOTOR_VOLTAGE, 
-            DriveConstants.DRIVE_MOTOR_STALL_TORQUE_NEWTON_METERS, 
-            DriveConstants.DRIVE_MOTOR_STALL_CURRENT, 
-            DriveConstants.DRIVE_MOTOR_FREE_CURRENT, 
-            Units.rotationsPerMinuteToRadiansPerSecond(DriveConstants.DRIVE_MOTOR_FREE_SPEED_RPS / 60), 
-            4), 
-        DriveConstants.MOTOR_CURRENT_LIMIT, 4),
-        DriveConstants.FRONT_LEFT_MODULE_OFFSET, 
-        DriveConstants.FRONT_RIGHT_MODULE_OFFSET, 
-        DriveConstants.REAR_LEFT_MODULE_OFFSET, 
-        DriveConstants.REAR_RIGHT_MODULE_OFFSET);
 }
