@@ -43,7 +43,7 @@ public class Climb extends SubsystemBase {
 
   public Climb() {
     initClimbTalons();
-    climbAbsoluteEncoder.setDistancePerPulse(ClimbCal.DEGREES_PER_ABS_ENCODER_PULSE);
+    climbAbsoluteEncoder.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
     climbPositionMap = new TreeMap<ClimbPosition, Double>();
     climbPositionMap.put(ClimbPosition.CLIMBING, ClimbCal.CLIMB_CLIMBING_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.STOWED, ClimbCal.CLIMB_STOWED_POSITION_DEGREES);

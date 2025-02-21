@@ -11,6 +11,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotMap;
 import java.util.TreeMap;
 
@@ -54,6 +55,7 @@ public class Arm extends SubsystemBase {
     armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
 
     initArmTalons();
+    armLeftEncoderAbs.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
   }
 
   private void initArmTalons() {
