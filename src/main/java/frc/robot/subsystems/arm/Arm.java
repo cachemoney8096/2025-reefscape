@@ -19,16 +19,17 @@ public class Arm extends SubsystemBase {
 
   private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
   // trapezoidal motion profiling to account for large jumps in velocity which result in large error
+  private TrapezoidProfile.Constraints trapezoidProfileConstraints = new TrapezoidProfile.Constraints(
+    ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED);
   private final TrapezoidProfile trapezoidProfile =
-      new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(
-              ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
+      new TrapezoidProfile(trapezoidProfileConstraints);
   private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
   public enum ArmPosition {
     HOME,
     INTAKE,
-    DEEP_CLIMB, // TODO determine if this position is even necessary (could just be home)
+    DEEP_CLIMB,
+    DEEP_CLIMB_PREP,
     L1,
     L2,
     L3,
@@ -43,6 +44,7 @@ public class Arm extends SubsystemBase {
   private ArmPosition armDesiredPosition = ArmPosition.HOME;
 
   public Arm() {
+  
     armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
     armPositions.put(ArmPosition.INTAKE, ArmCal.ARM_POSITION_INTAKE_DEGREES);
     armPositions.put(ArmPosition.L1, ArmCal.ARM_POSITION_L1_DEGREES);
@@ -115,19 +117,27 @@ public class Arm extends SubsystemBase {
 
   public boolean isArmInInterferenceZone() {
     double currentPosition = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
-    return currentPosition <= ArmCal.ARM_INTERFERENCE_THRESHOLD_MAX_DEGREES
-        && currentPosition >= ArmCal.ARM_INTERFERENCE_THRESHOLD_MIN_DEGREES;
+    return currentPosition <= ArmCal.ARM_INTERFERENCE_THRESHOLD_DEGREES;
   }
 
   public void stopArmMovement() {
-    // left motor follows right motor, so armMotorLeft is not necessary here
+    // left motor follows right motor, so armMotorRight is not necessary here
     armMotorLeft.setVoltage(0.0);
+  }
+
+  /** Functions for calibrating on-field. Can remove after precise values are calc'ed */
+  private void setMaxVelocity(double maxVelocity) {
+    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(maxVelocity, trapezoidProfileConstraints.maxAcceleration);
+  }
+  private void setMaxAcceleration(double maxAcceleration) {
+    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(trapezoidProfileConstraints.maxVelocity, maxAcceleration);
   }
 
   @Override
   public void periodic() {
     controlPosition(armPositions.get(this.armDesiredPosition));
   }
+  
 
   @Override
   public void initSendable(SendableBuilder builder) {
@@ -150,5 +160,12 @@ public class Arm extends SubsystemBase {
         "Left Motor Angle (Absolute) ",
         (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
         null);
+    /** More values for debugging and testing various calibrations. Setters are included. */
+    builder.addDoubleProperty("Deep Climb Prep Pos (Deg)", (() -> armPositions.get(ArmPosition.DEEP_CLIMB_PREP)), ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB_PREP, newPos)));
+    builder.addDoubleProperty("Deep Climb Pos (Deg)", (() -> armPositions.get(ArmPosition.DEEP_CLIMB)), ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
+    builder.addDoubleProperty("Max Velocity (RPS)", (() -> trapezoidProfileConstraints.maxVelocity), ((newVelocity) -> setMaxVelocity(newVelocity)));
+    builder.addDoubleProperty("Max Acceleration (RPS^2)", (() -> trapezoidProfileConstraints.maxAcceleration), ((newAcceleration) -> setMaxVelocity(newAcceleration)));
+    builder.addDoubleProperty("Arm Interference Threshold Degrees", (() -> trapezoidProfileConstraints.maxAcceleration), ((newAcceleration) -> setMaxAcceleration(newAcceleration)));
+    /** Interference Threshold is not included here. */
   }
 }
