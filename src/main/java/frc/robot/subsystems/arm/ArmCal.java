@@ -14,7 +14,7 @@ public class ArmCal {
     public static final double ARM_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
             ARM_STATOR_CURRENT_LIMIT_AMPS = 80.0;
 
-    public static final double ARM_AT_POSITION_MARGIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
+    public static final double ARM_MARGIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
 
     public static final double ARM_MOTOR_P = Constants.PLACEHOLDER_DOUBLE,
             ARM_MOTOR_I = Constants.PLACEHOLDER_DOUBLE,

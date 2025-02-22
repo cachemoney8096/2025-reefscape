@@ -125,7 +125,7 @@ public class Elevator extends SubsystemBase {
         leftMotor.getPosition().getValueAsDouble()
             - elevatorPositions.get(desiredPosition)
                 / ElevatorConstants.DRUM_CIRCUMFERENCE
-                * ElevatorConstants.MOTOR_TO_DRUM_RATIO) < ElevatorCal.DESIRED_POSITION_MARGIN_IN;
+                * ElevatorConstants.MOTOR_TO_DRUM_RATIO) < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
   }
 
   public boolean atElevatorPosition(ElevatorHeight height) {
@@ -133,7 +133,7 @@ public class Elevator extends SubsystemBase {
         leftMotor.getPosition().getValueAsDouble()
             - elevatorPositions.get(height)
                 / ElevatorConstants.DRUM_CIRCUMFERENCE
-                * ElevatorConstants.MOTOR_TO_DRUM_RATIO) < ElevatorCal.DESIRED_POSITION_MARGIN_IN;
+                * ElevatorConstants.MOTOR_TO_DRUM_RATIO) < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
   }
 
   /* The limit switches we are using are active low, hence the ! operator */

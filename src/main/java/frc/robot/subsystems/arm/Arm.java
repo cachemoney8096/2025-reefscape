@@ -109,7 +109,7 @@ public class Arm extends SubsystemBase {
     double checkPositionDeg = armPositions.get(pos);
     double currentPositionDeg = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
 
-    return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_AT_POSITION_MARGIN_DEGREES;
+    return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_MARGIN_DEGREES;
   }
 
   public boolean atDesiredArmPosition() {
