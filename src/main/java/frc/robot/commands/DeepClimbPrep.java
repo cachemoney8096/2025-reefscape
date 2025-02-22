@@ -18,6 +18,8 @@ import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
 
@@ -25,18 +27,19 @@ public class DeepClimbPrep extends SequentialCommandGroup {
   public static Transform2d robotToTag;
   public static Pose2d targetPose;
 
-  public DeepClimbPrep(Climb climb, Arm arm, ScoringLimelight scoringLimelight, RobotContainer.IntakeClimbLocation location,
-      MatchStateUtil msu, DriveSubsystem drive) {
+  public DeepClimbPrep(Climb climb, Arm arm, ScoringLimelight scoringLimelight,
+      RobotContainer.IntakeClimbLocation location,
+      MatchStateUtil msu, DriveSubsystem drive, Elevator elevator) {
     addRequirements(climb, arm);
-    
+
     BooleanSupplier checkForTag = () -> {
       Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
       if (robotToTagOptional.isPresent()) {
         robotToTag = robotToTagOptional.get();
-        int id = (int)NetworkTableInstance.getDefault()
-                            .getTable("limelight-intake")
-                            .getEntry("tid")
-                            .getDouble(0.0);
+        int id = (int) NetworkTableInstance.getDefault()
+            .getTable("limelight-intake")
+            .getEntry("tid")
+            .getDouble(0.0);
         return (id == 14 && !msu.isRed()) || (id == 5 && msu.isRed());
       }
       return false;
@@ -46,14 +49,15 @@ public class DeepClimbPrep extends SequentialCommandGroup {
         new ConditionalCommand(
             new InstantCommand(),
             new SequentialCommandGroup(
-                new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)),
-                new WaitUntilCommand(() -> arm.atDesiredArmPosition())),
+                new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB_PREP)),
+                new WaitUntilCommand(arm::atDesiredArmPosition),
+                new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+                new WaitUntilCommand(elevator::atDesiredPosition)),
             () -> {
-              return !arm.isArmInInterferenceZone();
+              return !arm.isArmInInterferenceZone() && elevator.atElevatorPosition(ElevatorHeight.HOME);
             }),
         /* now we can definitely move the climb */
-        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP))
-      );
+        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
 
     addCommands(
         /* fall back on manual if we don't see a tag */
@@ -69,13 +73,16 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                     robotToTag = robotToTag.plus(new Transform2d(
                         ClimbUtil.getClimbTransform(ClimbUtil.CagePosition.LEFT, msu.isRed()), new Rotation2d()));
                   }
-                  // rotate to face the correct way (the rotation here could end up being 180), these rotations are not technically needed, but increase precision
+                  // rotate to face the correct way (the rotation here could end up being 180),
+                  // these rotations are not technically needed, but increase precision
                   targetPose = drive.getRobotPose().plus(robotToTag);
-                  targetPose = new Pose2d(targetPose.getTranslation(), msu.isRed()?new Rotation2d():new Rotation2d(180.0));
+                  targetPose = new Pose2d(targetPose.getTranslation(),
+                      msu.isRed() ? new Rotation2d() : new Rotation2d(180.0));
                 }),
-                new InstantCommand(() -> drive.driveToPoint(targetPose))), // TODO the drive logic here probably won't be the same
+                new InstantCommand(() -> drive.driveToPoint(targetPose))), 
+                // TODO the drive logic here probably won't be the same
             new InstantCommand(),
             checkForTag),
-            deepClimbPrep);
+        deepClimbPrep);
   }
 }
