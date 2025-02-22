@@ -7,7 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
-public class DriveCal {
+public class BackUpDriveCal {
   public static final int SPARK_INIT_RETRY_ATTEMPTS = Constants.PLACEHOLDER_INT;
 
   /** Input meters/second, output [-1,1] */

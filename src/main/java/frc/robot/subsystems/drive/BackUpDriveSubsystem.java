@@ -45,7 +45,7 @@ import frc.robot.utils.PoseBuffer;
 import java.util.List;
 import java.util.Optional;
 
-public class DriveSubsystem extends SubsystemBase {
+public class BackUpDriveSubsystem extends SubsystemBase {
 
   private double targetHeadingDegrees;
 
@@ -96,7 +96,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private InterpolatingDoubleTreeMap velocityToMultiplierMap;
 
-  public DriveSubsystem(MatchStateUtil matchState) {
+  public BackUpDriveSubsystem(MatchStateUtil matchState) {
     intializeGyro();
     this.matchState = matchState;
 
