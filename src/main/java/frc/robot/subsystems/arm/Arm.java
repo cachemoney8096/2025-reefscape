@@ -29,6 +29,7 @@ public class Arm extends SubsystemBase {
     HOME,
     INTAKE,
     DEEP_CLIMB,
+    CLEAR_OF_CLIMB,
     DEEP_CLIMB_PREP,
     L1,
     L2,
@@ -51,7 +52,7 @@ public class Arm extends SubsystemBase {
     armPositions.put(ArmPosition.L2, ArmCal.ARM_POSITION_L2_DEGREES);
     armPositions.put(ArmPosition.L3, ArmCal.ARM_POSITION_L3_DEGREES);
     armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
-
+    armPositions.put(ArmPosition.CLEAR_OF_CLIMB, ArmCal.ARM_INTERFERENCE_THRESHOLD_DEGREES);
     initArmTalons();
   }
 
@@ -162,10 +163,9 @@ public class Arm extends SubsystemBase {
         null);
     /** More values for debugging and testing various calibrations. Setters are included. */
     builder.addDoubleProperty("Deep Climb Prep Pos (Deg)", (() -> armPositions.get(ArmPosition.DEEP_CLIMB_PREP)), ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB_PREP, newPos)));
+    builder.addDoubleProperty("Clear of Climb (interference threshold) Pos (Deg)", (() -> armPositions.get(ArmPosition.CLEAR_OF_CLIMB)), ((newPos) -> armPositions.put(ArmPosition.CLEAR_OF_CLIMB, newPos)));
     builder.addDoubleProperty("Deep Climb Pos (Deg)", (() -> armPositions.get(ArmPosition.DEEP_CLIMB)), ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
     builder.addDoubleProperty("Max Velocity (RPS)", (() -> trapezoidProfileConstraints.maxVelocity), ((newVelocity) -> setMaxVelocity(newVelocity)));
-    builder.addDoubleProperty("Max Acceleration (RPS^2)", (() -> trapezoidProfileConstraints.maxAcceleration), ((newAcceleration) -> setMaxVelocity(newAcceleration)));
-    builder.addDoubleProperty("Arm Interference Threshold Degrees", (() -> trapezoidProfileConstraints.maxAcceleration), ((newAcceleration) -> setMaxAcceleration(newAcceleration)));
-    /** Interference Threshold is not included here. */
+    builder.addDoubleProperty("Max Acceleration (RPS^2)", (() -> trapezoidProfileConstraints.maxAcceleration), ((newAcceleration) -> setMaxAcceleration(newAcceleration)));
   }
 }
