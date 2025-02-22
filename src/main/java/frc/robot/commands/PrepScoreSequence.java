@@ -55,8 +55,9 @@ public class PrepScoreSequence extends SequentialCommandGroup {
     }
 
     SequentialCommandGroup setPositions = new SequentialCommandGroup(
-        new InstantCommand(()->arm.setDesiredPosition(p)),
-        new InstantCommand(()->elevator.setDesiredPosition(height))
+        new InstantCommand(()->elevator.setDesiredPosition(height)),
+        new WaitUntilCommand(elevator::atDesiredPosition),
+        new InstantCommand(()->arm.setDesiredPosition(p))
     );
     
     SequentialCommandGroup checkAndSetPositions = new SequentialCommandGroup(

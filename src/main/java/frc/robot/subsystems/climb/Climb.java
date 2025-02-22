@@ -24,18 +24,19 @@ public class Climb extends SubsystemBase {
     CLIMBING_PREP,
     CLIMBING,
     STOWED,
-    CLEAR_OF_ARM
   }
 
   private TreeMap<ClimbPosition, Double> climbPositionMap;
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
   private boolean allowClimbMovement = false;
   private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
-  private final TrapezoidProfile trapezoidProfile =
-      new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(
-              ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
-              ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
+  private TrapezoidProfile.Constraints trapezoidProfileConstraints = new TrapezoidProfile.Constraints(
+      ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
+      ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED);
+  private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(
+      new TrapezoidProfile.Constraints(
+          ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
+          ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
 
   private int currentSlot = 1;
 
@@ -45,7 +46,6 @@ public class Climb extends SubsystemBase {
     climbPositionMap.put(ClimbPosition.CLIMBING, ClimbCal.CLIMB_CLIMBING_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.STOWED, ClimbCal.CLIMB_STOWED_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.CLIMBING_PREP, ClimbCal.CLIMB_CLIMBING_PREP_DEGREES);
-    climbPositionMap.put(ClimbPosition.CLEAR_OF_ARM, ClimbCal.CLIMB_CLEAR_OF_ARM_DEGREES);
   }
 
   private void initClimbTalons() {
@@ -77,9 +77,8 @@ public class Climb extends SubsystemBase {
 
   public void zeroMotorEncoders() {
     climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
-    tSetpoint =
-        new TrapezoidProfile.State(
-            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
+    tSetpoint = new TrapezoidProfile.State(
+        climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
   }
 
   public void setClimbingPID() {
@@ -91,10 +90,9 @@ public class Climb extends SubsystemBase {
   }
 
   private void controlPosition(double inputPositionDegrees) {
-    TrapezoidProfile.State tGoal =
-        new TrapezoidProfile.State(
-            inputPositionDegrees / 360.0,
-            0); // TODO make sure there isn't a ratio here (there shouldn't be because this is
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(
+        inputPositionDegrees / 360.0,
+        0); // TODO make sure there isn't a ratio here (there shouldn't be because this is
     // angular control but good to double check)
 
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(currentSlot);
@@ -116,28 +114,25 @@ public class Climb extends SubsystemBase {
     this.allowClimbMovement = false;
   }
 
-  public boolean isClimbMovable() {
-    // return opposite of whether or not arm is in interference zone
-    return !isClimbInInterferenceZone();
-  }
-
-  public boolean isClimbInInterferenceZone() {
-    double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
-
-    return currentPosition <= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MAX_DEGREES
-        && currentPosition >= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MIN_DEGREES;
-  }
-
   public boolean atClimbPosition(ClimbPosition checkPos) {
     double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
     double checkPosDegrees = climbPositionMap.get(checkPos);
 
-    return Math.abs(currentPosition - checkPosDegrees)
-        <= ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN_DEG;
+    return Math.abs(currentPosition - checkPosDegrees) <= ClimbCal.CLIMB_MARGIN_DEGREES;
   }
 
   public boolean atDesiredPosition() {
     return atClimbPosition(desiredPosition);
+  }
+
+  private void setMaxVelocity(double maxVelocity) {
+    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(maxVelocity,
+        trapezoidProfileConstraints.maxAcceleration);
+  }
+
+  private void setMaxAcceleration(double maxAcceleration) {
+    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(trapezoidProfileConstraints.maxVelocity,
+        maxAcceleration);
   }
 
   @Override
@@ -152,7 +147,6 @@ public class Climb extends SubsystemBase {
     super.initSendable(builder);
     builder.addStringProperty("Desired Position", (() -> desiredPosition.toString()), null);
     builder.addBooleanProperty("At Desired Position", this::atDesiredPosition, null);
-    builder.addBooleanProperty("Climb in Interference Zone", this::isClimbInInterferenceZone, null);
     builder.addDoubleProperty(
         "Desired Position (Deg)", (() -> climbPositionMap.get(desiredPosition)), null);
     builder.addDoubleProperty(
@@ -163,5 +157,10 @@ public class Climb extends SubsystemBase {
         "Current Right Motor Position (Deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
+    builder.addDoubleProperty("Max Velocity (RPS)", (() -> trapezoidProfileConstraints.maxVelocity),
+        ((newVelocity) -> setMaxVelocity(newVelocity)));
+    builder.addDoubleProperty("Max Acceleration (RPS^2)", (() -> trapezoidProfileConstraints.maxAcceleration),
+        ((newAcceleration) -> setMaxAcceleration(newAcceleration)));
+
   }
 }

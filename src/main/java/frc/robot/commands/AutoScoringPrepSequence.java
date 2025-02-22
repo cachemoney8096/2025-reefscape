@@ -12,7 +12,8 @@ public class AutoScoringPrepSequence extends SequentialCommandGroup {
     addRequirements(elevator, arm, claw);
     addCommands(
         new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.SCORE_L4)),
+        new WaitUntilCommand(elevator::atDesiredPosition),
         new InstantCommand(() -> arm.setDesiredPosition(Arm.ArmPosition.L4)),
-        new WaitUntilCommand(() -> elevator.atDesiredPosition() && arm.atDesiredArmPosition()));
+        new WaitUntilCommand(arm::atDesiredArmPosition));
   }
 }
