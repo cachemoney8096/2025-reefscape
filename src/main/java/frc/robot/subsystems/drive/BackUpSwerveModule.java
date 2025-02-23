@@ -7,17 +7,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkClosedLoopController;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -74,20 +73,22 @@ public class BackUpSwerveModule implements Sendable {
 
     SparkMaxConfig config = new SparkMaxConfig();
 
-    config.signals
-      .primaryEncoderPositionPeriodMs(DriveConstants.SPARK_MAX_ENCODER_POSITION_PERIOD_MS)
-      .primaryEncoderVelocityPeriodMs(DriveConstants.SPARK_MAX_ENCODER_VELOCITY_PERIOD_MS);
+    config
+        .signals
+        .primaryEncoderPositionPeriodMs(DriveConstants.SPARK_MAX_ENCODER_POSITION_PERIOD_MS)
+        .primaryEncoderVelocityPeriodMs(DriveConstants.SPARK_MAX_ENCODER_VELOCITY_PERIOD_MS);
 
     Timer.delay(0.1);
 
     config.absoluteEncoder.inverted(DriveConstants.TURNING_ENCODER_INVERTED);
-    
-    config.closedLoop
-      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .positionWrappingEnabled(true)
-      .positionWrappingMaxInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
-      .positionWrappingMaxInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
-      .pidf(DriveCal.TURNING_P, DriveCal.TURNING_I, DriveCal.TURNING_D, DriveCal.TURNING_FF);
+
+    config
+        .closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .positionWrappingEnabled(true)
+        .positionWrappingMaxInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
+        .positionWrappingMaxInput(DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS)
+        .pidf(DriveCal.TURNING_P, DriveCal.TURNING_I, DriveCal.TURNING_D, DriveCal.TURNING_FF);
 
     errors +=
         SparkMaxUtils.check(
@@ -101,13 +102,15 @@ public class BackUpSwerveModule implements Sendable {
             SparkMaxUtils.UnitConversions.setRadsFromGearRatio(
                 turningSparkMax, DriveConstants.TURN_MODULE_ABSOLUTE_ENCODER_GEAR_RATIO));
 
-   config
-    .inverted(false)
-    .idleMode(IdleMode.kBrake)
-    .smartCurrentLimit(DriveConstants.TURNING_MOTOR_CURRENT_LIMIT_AMPS);
+    config
+        .inverted(false)
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(DriveConstants.TURNING_MOTOR_CURRENT_LIMIT_AMPS);
 
-    errors += 
-      SparkMaxUtils.check(turningSparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    errors +=
+        SparkMaxUtils.check(
+            turningSparkMax.configure(
+                config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
 
     return errors == 0;
   }
@@ -251,7 +254,7 @@ public class BackUpSwerveModule implements Sendable {
     drivingTalon.setControl(
         new VelocityDutyCycle(
                 this.throttleSpeed
-                    ? inputState.speedMetersPerSecond * 0.8 //TODO change idk mabye
+                    ? inputState.speedMetersPerSecond * 0.8 // TODO change idk mabye
                     : inputState.speedMetersPerSecond)
             .withSlot(0));
     turningPIDController.setReference(
@@ -330,7 +333,9 @@ public class BackUpSwerveModule implements Sendable {
     builder.addDoubleProperty(
         "Driving Vel (m/s)",
         () -> {
-          return drivingTalon.getVelocity().getValueAsDouble() * DriveConstants.WHEEL_DIAMETER_METERS / 2;
+          return drivingTalon.getVelocity().getValueAsDouble()
+              * DriveConstants.WHEEL_DIAMETER_METERS
+              / 2;
         },
         null);
     builder.addDoubleProperty(

@@ -96,8 +96,14 @@ public class RobotContainer implements Sendable {
     drive = new DriveSubsystem(ms);
     elevator = new Elevator();
     lights = new Lights();
-    scoringLimelight = new ScoringLimelight(Constants.SCORING_LIMELIGHT_PITCH_DEG, Constants.SCORING_LIMELIGHT_HEIGHT_M, 0.0); //TODO add placeholders in constants
-    intakeLimelight = new IntakeLimelight(Constants.INTAKE_LIMELIGHT_PITCH_DEG, Constants.INTAKE_LIMELIGHT_HEIGHT_M, 0.0); //""
+    scoringLimelight =
+        new ScoringLimelight(
+            Constants.SCORING_LIMELIGHT_PITCH_DEG,
+            Constants.SCORING_LIMELIGHT_HEIGHT_M,
+            0.0); // TODO add placeholders in constants
+    intakeLimelight =
+        new IntakeLimelight(
+            Constants.INTAKE_LIMELIGHT_PITCH_DEG, Constants.INTAKE_LIMELIGHT_HEIGHT_M, 0.0); // ""
 
     /* Named commands here */
 
@@ -112,9 +118,9 @@ public class RobotContainer implements Sendable {
             .andThen(new AutoScoringPrepSequence(elevator, arm, claw)));
 
     NamedCommands.registerCommand(
-      "AUTO SCORING SEQUENCE",
-      new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE")
-          .andThen(new AutoScoringSequence(claw)));
+        "AUTO SCORING SEQUENCE",
+        new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE")
+            .andThen(new AutoScoringSequence(claw)));
 
     /* Configure controller bindings */
     configureDriverBindings();
@@ -150,13 +156,39 @@ public class RobotContainer implements Sendable {
     /* Go home */
     driverController.leftBumper().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
     /* prep score */
-    driverController.rightBumper().onTrue(new PrepScoreSequence(arm, elevator, scoringLimelight, climb, preppedHeight, preppedScoringLocation, drive, matchState));
+    driverController
+        .rightBumper()
+        .onTrue(
+            new PrepScoreSequence(
+                arm,
+                elevator,
+                scoringLimelight,
+                climb,
+                preppedHeight,
+                preppedScoringLocation,
+                drive,
+                matchState));
     /* climb prep */
-    driverController.back().onTrue(new DeepClimbPrep(climb, arm, scoringLimelight, preppedLocation, matchState, drive));
+    driverController
+        .back()
+        .onTrue(
+            new DeepClimbPrep(climb, arm, scoringLimelight, preppedLocation, matchState, drive));
     /* climb */
     driverController.start().onTrue(new DeepClimbScoringSequence(climb));
     /* intake */
-    driverController.leftTrigger().whileTrue(new SequentialCommandGroup(new IntakeSequence(claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive), new RunCommand(() -> claw.runMotorsIntaking()).until(claw::beamBreakSeesObject).andThen(() -> {new InstantCommand(() -> claw.stopMotors()); lights.setLEDColor(LightCode.READY_TO_SCORE);})));
+    driverController
+        .leftTrigger()
+        .whileTrue(
+            new SequentialCommandGroup(
+                new IntakeSequence(
+                    claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive),
+                new RunCommand(() -> claw.runMotorsIntaking())
+                    .until(claw::beamBreakSeesObject)
+                    .andThen(
+                        () -> {
+                          new InstantCommand(() -> claw.stopMotors());
+                          lights.setLEDColor(LightCode.READY_TO_SCORE);
+                        })));
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     /* finish score */
     driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight));
@@ -167,17 +199,35 @@ public class RobotContainer implements Sendable {
 
   private void configureOperatorBindings() {
     /* Left right and center for intake and climb */
-    operatorController.povLeft().onTrue(new InstantCommand(()->preppedLocation = IntakeClimbLocation.LEFT));
-    operatorController.povUp().onTrue(new InstantCommand(()->preppedLocation = IntakeClimbLocation.CENTER));
-    operatorController.povRight().onTrue(new InstantCommand(()->preppedLocation = IntakeClimbLocation.RIGHT));
+    operatorController
+        .povLeft()
+        .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.LEFT));
+    operatorController
+        .povUp()
+        .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.CENTER));
+    operatorController
+        .povRight()
+        .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.RIGHT));
     /* Height for scoring */
-    operatorController.a().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L4));
-    operatorController.b().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L3));
-    operatorController.x().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L2));
-    operatorController.y().onTrue(new InstantCommand(()->preppedHeight = ElevatorHeight.SCORE_L1));
+    operatorController
+        .a()
+        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L4));
+    operatorController
+        .b()
+        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L3));
+    operatorController
+        .x()
+        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2));
+    operatorController
+        .y()
+        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
     /* Left and right for scoring */
-    operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.LEFT));
-    operatorController.leftBumper().onTrue(new InstantCommand(()->preppedScoringLocation = ScoringLocation.RIGHT));
+    operatorController
+        .leftBumper()
+        .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.LEFT));
+    operatorController
+        .leftBumper()
+        .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
     operatorController.back().onTrue(new InstantCommand());
@@ -197,7 +247,7 @@ public class RobotContainer implements Sendable {
   public void initSendable(SendableBuilder builder) {
     builder.addStringProperty("Prepped Location", () -> preppedLocation.toString(), null);
     builder.addStringProperty("Prepped Height", () -> preppedHeight.toString(), null);
-    builder.addStringProperty("Prepped Scoring Location", () -> preppedScoringLocation.toString(), null);
-
+    builder.addStringProperty(
+        "Prepped Scoring Location", () -> preppedScoringLocation.toString(), null);
   }
 }

@@ -26,5 +26,4 @@ public class RobotMap {
       REAR_RIGHT_DRIVING_CAN_ID = Constants.PLACEHOLDER_INT,
       REAR_RIGHT_TURNING_CAN_ID = Constants.PLACEHOLDER_INT,
       PIGEON_CAN_ID = Constants.PLACEHOLDER_INT;
-      
 }

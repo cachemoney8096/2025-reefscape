@@ -1,11 +1,10 @@
 package frc.robot.utils;
 
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.REVLibError;
-
 import java.util.function.BooleanSupplier;
 
 /** Mostly borrowed from 3005 */
@@ -15,7 +14,8 @@ public class SparkMaxUtils {
    * @param error API return value
    * @return
    */
-  public static int check(REVLibError error) { // TODO: Add proper support for the new config system.
+  public static int check(
+      REVLibError error) { // TODO: Add proper support for the new config system.
     return error == REVLibError.kOk ? 0 : 1;
   }
 
@@ -30,7 +30,8 @@ public class SparkMaxUtils {
       config.encoder.positionConversionFactor(degreesPerRotation);
       config.encoder.velocityConversionFactor(degreesPerRotation);
 
-      return sparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      return sparkMax.configure(
+          config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /** Sets the encoder to read radians after some gear ratio. */
@@ -41,7 +42,8 @@ public class SparkMaxUtils {
 
       config.encoder.positionConversionFactor(radsPerRotation);
 
-      return sparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      return sparkMax.configure(
+          config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
@@ -52,15 +54,17 @@ public class SparkMaxUtils {
      *     is a reduction.
      * @param diameter The diameter of the winch (or other rotary-to-linear converter).
      */
-    public static REVLibError setLinearFromGearRatio(SparkMax sparkMax, final double ratio, final double diameter) {
+    public static REVLibError setLinearFromGearRatio(
+        SparkMax sparkMax, final double ratio, final double diameter) {
       double linearDistPerRotation = diameter * Math.PI / ratio;
 
       SparkMaxConfig config = new SparkMaxConfig();
-      
+
       config.encoder.positionConversionFactor(linearDistPerRotation);
       config.encoder.velocityConversionFactor(linearDistPerRotation);
 
-      return sparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      return sparkMax.configure(
+          config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
   }
 

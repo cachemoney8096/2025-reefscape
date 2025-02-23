@@ -1,25 +1,16 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-
 import com.ctre.phoenix6.hardware.TalonFX;
-
-import com.revrobotics.AbsoluteEncoder;
-
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
-
-
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-
-import frc.robot.utils.AbsoluteEncoderChecker;
 import frc.robot.utils.SparkMaxUtils;
 
 public class SwerveModule implements Sendable {
@@ -68,13 +59,9 @@ public class SwerveModule implements Sendable {
   }
 
   /** Does all the initialization for the spark, return true on success */
-  void initDriveTalon() {
-    
-  }
+  void initDriveTalon() {}
 
-  public void considerZeroingEncoder() {
-    
-  }
+  public void considerZeroingEncoder() {}
 
   /**
    * Returns the current state of the module.
@@ -106,8 +93,8 @@ public class SwerveModule implements Sendable {
 
   /** Applies slew rate. */
   public double getDesiredVelocityMps(double inputVelocityMps) {
-   
-    return  0.0;
+
+    return 0.0;
   }
 
   /** Ensures the value a is in [0, b) */
@@ -122,12 +109,10 @@ public class SwerveModule implements Sendable {
    * @param desiredState Desired state with speed and angle. Angle is relative to chassis (no offset
    *     needed).
    */
-  public void setDesiredState(SwerveModuleState inputState, boolean overrideSlew) {
-  }
+  public void setDesiredState(SwerveModuleState inputState, boolean overrideSlew) {}
 
   /** Zeroes all the SwerveModule encoders. */
-  public void resetDriveEncoder() {
-  }
+  public void resetDriveEncoder() {}
 
   public double getEncoderAbsPositionRad() {
     return 0.0;
@@ -137,15 +122,9 @@ public class SwerveModule implements Sendable {
     return 0.0;
   }
 
-  public void periodic() {
-   
-  }
+  public void periodic() {}
 
-  public void throttleSpeed(boolean throttleSpeed) {
-  
-  }
+  public void throttleSpeed(boolean throttleSpeed) {}
 
-  public void initSendable(SendableBuilder builder) {
-    
-  }
+  public void initSendable(SendableBuilder builder) {}
 }
