@@ -23,7 +23,8 @@ public final class Constants {
   public static final double PLACEHOLDER_DOUBLE = 0.0;
   public static final boolean PLACEHOLDER_BOOLEAN = false;
 
-  public static final double HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES = 10.6; //TODO check these values
+  public static final double HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES =
+      10.6; // TODO check these values
   public static final double HP_INTAKE_TAG_LOCATION_OFFSET_Y_INCHES = 14.6;
   public static final double CLIMB_CAGE_LOCATION_OFFSET_INCHES = 42.9;
 
@@ -61,8 +62,10 @@ public final class Constants {
   public static final double PERIOD_TIME_SECONDS = 0.02;
   public static final double REEF_SCORING_OFFSET_INCHES = 6.5;
 
-  public static final double SCORING_LIMELIGHT_PITCH_DEG = Constants.PLACEHOLDER_DOUBLE, SCORING_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
-  public static final double INTAKE_LIMELIGHT_PITCH_DEG = Constants.PLACEHOLDER_DOUBLE, INTAKE_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
+  public static final double SCORING_LIMELIGHT_PITCH_DEG = Constants.PLACEHOLDER_DOUBLE,
+      SCORING_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
+  public static final double INTAKE_LIMELIGHT_PITCH_DEG = Constants.PLACEHOLDER_DOUBLE,
+      INTAKE_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
 
   // found using specifications from this website: https://www.revrobotics.com/rev-11-1271/
   public static final double DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE = 0.0439453125;

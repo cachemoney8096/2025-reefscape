@@ -3,7 +3,6 @@ package frc.robot.subsystems.arm;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -20,7 +19,8 @@ public class Arm extends SubsystemBase {
   private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID);
 
   // private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
-  private final Encoder armLeftEncoderAbs = new Encoder(RobotMap.ARM_ABS_ENCODER_DIO_A, RobotMap.ARM_ABS_ENCODER_DIO_B);
+  private final Encoder armLeftEncoderAbs =
+      new Encoder(RobotMap.ARM_ABS_ENCODER_DIO_A, RobotMap.ARM_ABS_ENCODER_DIO_B);
 
   // trapezoidal motion profiling to account for large jumps in velocity which result in large error
   private final TrapezoidProfile trapezoidProfile =
@@ -89,7 +89,8 @@ public class Arm extends SubsystemBase {
     // armMotorLeft.setPosition(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble());
     armMotorLeft.setPosition(armLeftEncoderAbs.getDistance());
     tSetpoint =
-        // new TrapezoidProfile.State(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(), 0.0);
+        // new TrapezoidProfile.State(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(),
+        // 0.0);
         new TrapezoidProfile.State(armLeftEncoderAbs.getDistance(), 0.0);
   }
 

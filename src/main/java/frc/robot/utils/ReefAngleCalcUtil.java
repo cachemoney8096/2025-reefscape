@@ -22,14 +22,11 @@ public class ReefAngleCalcUtil {
   private static TreeMap<ScoreTagPosition, Pair<Double, Double>> tagScoreVectorMap;
 
   /**
-   * (Reef is symmetric on both sides of the field). Assume ID_A starts at at ID20
-   * on Blue and ID8
+   * (Reef is symmetric on both sides of the field). Assume ID_A starts at at ID20 on Blue and ID8
    * on Red, and the tags go clockwise around the reef.
-   *
    */
-
   public static Translation2d translateScorePositionOffset(
-    ScoreTagPosition desiredTagScorePosition, boolean isRight) {
+      ScoreTagPosition desiredTagScorePosition, boolean isRight) {
     tagScoreVectorMap = new TreeMap<ScoreTagPosition, Pair<Double, Double>>();
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_A,
@@ -56,35 +53,41 @@ public class ReefAngleCalcUtil {
     Pair<Double, Double> updatedVector = new Pair<Double, Double>(null, null);
     switch (desiredTagScorePosition) {
       case ID_A:
-        updatedVector = isRight
-            ? new Pair<Double, Double>(-calcVector.getFirst(), calcVector.getSecond())
-            : new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond());
-            break;
+        updatedVector =
+            isRight
+                ? new Pair<Double, Double>(-calcVector.getFirst(), calcVector.getSecond())
+                : new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond());
+        break;
       case ID_B:
-        updatedVector = isRight
-            ? new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond())
-            : new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond());
-            break;
+        updatedVector =
+            isRight
+                ? new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond())
+                : new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond());
+        break;
       case ID_C:
-        updatedVector = isRight
-            ? new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond())
-            : new Pair<Double, Double>(-calcVector.getFirst(), -calcVector.getSecond());
-            break;
+        updatedVector =
+            isRight
+                ? new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond())
+                : new Pair<Double, Double>(-calcVector.getFirst(), -calcVector.getSecond());
+        break;
       case ID_D:
-        updatedVector = isRight
-            ? new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond())
-            : new Pair<Double, Double>(-calcVector.getFirst(), calcVector.getSecond());
-            break;
+        updatedVector =
+            isRight
+                ? new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond())
+                : new Pair<Double, Double>(-calcVector.getFirst(), calcVector.getSecond());
+        break;
       case ID_E:
-        updatedVector = isRight
-            ? new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond())
-            : new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond());
-            break;
+        updatedVector =
+            isRight
+                ? new Pair<Double, Double>(calcVector.getFirst(), -calcVector.getSecond())
+                : new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond());
+        break;
       case ID_F:
-        updatedVector = isRight
-            ? new Pair<Double, Double>(-calcVector.getFirst(), -calcVector.getSecond())
-            : new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond());
-            break;
+        updatedVector =
+            isRight
+                ? new Pair<Double, Double>(-calcVector.getFirst(), -calcVector.getSecond())
+                : new Pair<Double, Double>(calcVector.getFirst(), calcVector.getSecond());
+        break;
     }
 
     return new Translation2d(updatedVector.getFirst(), updatedVector.getSecond());
