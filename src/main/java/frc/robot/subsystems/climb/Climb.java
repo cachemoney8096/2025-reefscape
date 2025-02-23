@@ -30,9 +30,6 @@ public class Climb extends SubsystemBase {
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
   private boolean allowClimbMovement = false;
   private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
-  private TrapezoidProfile.Constraints trapezoidProfileConstraints = new TrapezoidProfile.Constraints(
-      ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
-      ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED);
   private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
           ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
@@ -125,16 +122,6 @@ public class Climb extends SubsystemBase {
     return atClimbPosition(desiredPosition);
   }
 
-  private void setMaxVelocity(double maxVelocity) {
-    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(maxVelocity,
-        trapezoidProfileConstraints.maxAcceleration);
-  }
-
-  private void setMaxAcceleration(double maxAcceleration) {
-    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(trapezoidProfileConstraints.maxVelocity,
-        maxAcceleration);
-  }
-
   @Override
   public void periodic() {
     if (allowClimbMovement) {
@@ -157,10 +144,5 @@ public class Climb extends SubsystemBase {
         "Current Right Motor Position (Deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
-    builder.addDoubleProperty("Max Velocity (RPS)", (() -> trapezoidProfileConstraints.maxVelocity),
-        ((newVelocity) -> setMaxVelocity(newVelocity)));
-    builder.addDoubleProperty("Max Acceleration (RPS^2)", (() -> trapezoidProfileConstraints.maxAcceleration),
-        ((newAcceleration) -> setMaxAcceleration(newAcceleration)));
-
   }
 }

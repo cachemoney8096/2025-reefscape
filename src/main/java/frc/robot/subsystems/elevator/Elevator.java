@@ -16,7 +16,6 @@ import java.util.TreeMap;
 
 public class Elevator extends SubsystemBase {
   public enum ElevatorHeight {
-    /** HOME = POS FOR CLIMBING */
     HOME,
     INTAKE,
     SCORE_L4,
@@ -35,14 +34,12 @@ public class Elevator extends SubsystemBase {
   DigitalInput limitSwitchBelowHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
   DigitalInput limitSwitchTop = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
   private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
-  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
-
-  private TrapezoidProfile.Constraints scoreTrapezoidProfileConstraints = new TrapezoidProfile.Constraints(
-      ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE,
-      ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE);
+  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);;
 
   private final TrapezoidProfile m_profile_scoring = new TrapezoidProfile(
-      scoreTrapezoidProfileConstraints);
+    new TrapezoidProfile.Constraints(
+      ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE,
+      ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE));
   private final TrapezoidProfile m_profile_climbing = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
           ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_CLIMB,
@@ -171,20 +168,6 @@ public class Elevator extends SubsystemBase {
     allowElevatorMovement = allowed;
   }
 
-  /**
-   * Functions for calibrating on-field. Can remove after precise values are
-   * calc'ed
-   */
-  private void setMaxVelocity(double maxVelocity) {
-    scoreTrapezoidProfileConstraints = new TrapezoidProfile.Constraints(maxVelocity,
-        scoreTrapezoidProfileConstraints.maxAcceleration);
-  }
-
-  private void setMaxAcceleration(double maxAcceleration) {
-    scoreTrapezoidProfileConstraints = new TrapezoidProfile.Constraints(scoreTrapezoidProfileConstraints.maxVelocity,
-        maxAcceleration);
-  }
-
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
@@ -204,8 +187,6 @@ public class Elevator extends SubsystemBase {
             / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
         null);
     builder.addDoubleProperty("Arm Clear of Climb Pos (in)", (() -> elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)), ((newPos) -> elevatorPositions.put(ElevatorHeight.ARM_CLEAR_OF_CLIMB, newPos)));
-    builder.addDoubleProperty("Max Velocity (RPS)", (() -> scoreTrapezoidProfileConstraints.maxVelocity), ((newVelocity) -> setMaxVelocity(newVelocity)));
-    builder.addDoubleProperty("Max Acceleration (RPS^2)", (() -> scoreTrapezoidProfileConstraints.maxAcceleration), ((newAcceleration) -> setMaxAcceleration(newAcceleration)));
 
   } 
 

@@ -31,16 +31,10 @@ public class IntakeSequence extends SequentialCommandGroup {
             RobotContainer.IntakeClimbLocation location, DriveSubsystem drive) {
         /* mechanical intake sequence */
         SequentialCommandGroup moveArmElevatorClaw = new SequentialCommandGroup(
-                new ConditionalCommand(
-                        new SequentialCommandGroup(
-                                new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.CLEAR_OF_CLIMB)),
-                                new WaitUntilCommand(arm::atDesiredArmPosition)),
-                        new InstantCommand(),
-                        () -> !arm.isArmInInterferenceZone()),
                 new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.INTAKE)),
-                new WaitUntilCommand(elevator::atDesiredPosition),
+                new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
                 new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
-                new WaitUntilCommand(arm::atDesiredArmPosition));
+                new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();}));
 
         BooleanSupplier checkForTag = () -> {
             Optional<Transform2d> robotToTagOptional = intakeLimelight.checkForTag();

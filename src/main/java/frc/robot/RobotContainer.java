@@ -114,7 +114,7 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
       "AUTO SCORING SEQUENCE",
       new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE")
-          .andThen(new AutoScoringSequence(claw)));
+          .andThen(new AutoScoringSequence(arm, elevator, claw)));
 
     /* Configure controller bindings */
     configureDriverBindings();

@@ -20,12 +20,12 @@ public class GoHomeSequence extends SequentialCommandGroup {
         /* do everything that can be done instantly first. we will have to check with design about interferance zones, but doing it in this order should be optimal and not require zone checking */
         new InstantCommand(() -> lights.setLEDColor(LightCode.HOME)),
         new InstantCommand(() -> claw.stopMotors()),
-        new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)),
-        new WaitUntilCommand(arm::atDesiredArmPosition),
-        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
-        new WaitUntilCommand(() -> climb.atDesiredPosition()),
         new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-        new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();})
+        new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+        new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)),
+        new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();}),
+        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
+        new WaitUntilCommand(() -> climb.atDesiredPosition())
     );
   }
 }

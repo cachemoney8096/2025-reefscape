@@ -37,7 +37,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
       if (robotToTagOptional.isPresent()) {
         robotToTag = robotToTagOptional.get();
         int id = (int) NetworkTableInstance.getDefault()
-            .getTable("limelight-intake")
+            .getTable("limelight-scoring")
             .getEntry("tid")
             .getDouble(0.0);
         return (id == 14 && !msu.isRed()) || (id == 5 && msu.isRed());
@@ -45,18 +45,10 @@ public class DeepClimbPrep extends SequentialCommandGroup {
       return false;
     };
     SequentialCommandGroup deepClimbPrep = new SequentialCommandGroup(
-        /* interferance zones */
-        new ConditionalCommand(
-            new InstantCommand(),
-            new SequentialCommandGroup(
-                new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB_PREP)),
-                new WaitUntilCommand(arm::atDesiredArmPosition),
-                new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-                new WaitUntilCommand(elevator::atDesiredPosition)),
-            () -> {
-              return !arm.isArmInInterferenceZone() && elevator.atElevatorPosition(ElevatorHeight.HOME);
-            }),
-        /* now we can definitely move the climb */
+        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+        new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+        new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)),
+        new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();}),
         new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
 
     addCommands(

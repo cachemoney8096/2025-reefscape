@@ -19,18 +19,15 @@ public class Arm extends SubsystemBase {
 
   private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
   // trapezoidal motion profiling to account for large jumps in velocity which result in large error
-  private TrapezoidProfile.Constraints trapezoidProfileConstraints = new TrapezoidProfile.Constraints(
-    ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED);
   private final TrapezoidProfile trapezoidProfile =
-      new TrapezoidProfile(trapezoidProfileConstraints);
+      new TrapezoidProfile(new TrapezoidProfile.Constraints(
+        ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
   private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
   public enum ArmPosition {
     HOME,
     INTAKE,
     DEEP_CLIMB,
-    CLEAR_OF_CLIMB,
-    DEEP_CLIMB_PREP,
     L1,
     L2,
     L3,
@@ -48,11 +45,11 @@ public class Arm extends SubsystemBase {
   
     armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
     armPositions.put(ArmPosition.INTAKE, ArmCal.ARM_POSITION_INTAKE_DEGREES);
+    armPositions.put(ArmPosition.DEEP_CLIMB, ArmCal.ARM_POSITION_DEEP_CLIMB_DEGREES);
     armPositions.put(ArmPosition.L1, ArmCal.ARM_POSITION_L1_DEGREES);
     armPositions.put(ArmPosition.L2, ArmCal.ARM_POSITION_L2_DEGREES);
     armPositions.put(ArmPosition.L3, ArmCal.ARM_POSITION_L3_DEGREES);
     armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
-    armPositions.put(ArmPosition.CLEAR_OF_CLIMB, ArmCal.ARM_INTERFERENCE_THRESHOLD_DEGREES);
     initArmTalons();
   }
 
@@ -76,11 +73,6 @@ public class Arm extends SubsystemBase {
 
   public void setDesiredPosition(ArmPosition armPosition) {
     this.armDesiredPosition = armPosition;
-  }
-
-  public boolean isArmMoveable() {
-    // return opposite of whether or not arm is in interference zone
-    return !isArmInInterferenceZone();
   }
 
   public void rezeroArm() {
@@ -116,22 +108,9 @@ public class Arm extends SubsystemBase {
     return atArmPosition(armDesiredPosition);
   }
 
-  public boolean isArmInInterferenceZone() {
-    double currentPosition = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
-    return currentPosition <= ArmCal.ARM_INTERFERENCE_THRESHOLD_DEGREES;
-  }
-
   public void stopArmMovement() {
     // left motor follows right motor, so armMotorRight is not necessary here
     armMotorLeft.setVoltage(0.0);
-  }
-
-  /** Functions for calibrating on-field. Can remove after precise values are calc'ed */
-  private void setMaxVelocity(double maxVelocity) {
-    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(maxVelocity, trapezoidProfileConstraints.maxAcceleration);
-  }
-  private void setMaxAcceleration(double maxAcceleration) {
-    trapezoidProfileConstraints = new TrapezoidProfile.Constraints(trapezoidProfileConstraints.maxVelocity, maxAcceleration);
   }
 
   @Override
@@ -148,7 +127,6 @@ public class Arm extends SubsystemBase {
     builder.addDoubleProperty(
         "Desired Setpoint Velocity (Deg/Sec)", (() -> desiredSetpointVelocityDegPerSec), null);
     builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
-    builder.addBooleanProperty("Is Arm In Interference Zone", this::isArmInInterferenceZone, null);
     builder.addDoubleProperty(
         "Right Motor Angle (Relative) ",
         (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
@@ -162,10 +140,6 @@ public class Arm extends SubsystemBase {
         (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
         null);
     /** More values for debugging and testing various calibrations. Setters are included. */
-    builder.addDoubleProperty("Deep Climb Prep Pos (Deg)", (() -> armPositions.get(ArmPosition.DEEP_CLIMB_PREP)), ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB_PREP, newPos)));
-    builder.addDoubleProperty("Clear of Climb (interference threshold) Pos (Deg)", (() -> armPositions.get(ArmPosition.CLEAR_OF_CLIMB)), ((newPos) -> armPositions.put(ArmPosition.CLEAR_OF_CLIMB, newPos)));
     builder.addDoubleProperty("Deep Climb Pos (Deg)", (() -> armPositions.get(ArmPosition.DEEP_CLIMB)), ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
-    builder.addDoubleProperty("Max Velocity (RPS)", (() -> trapezoidProfileConstraints.maxVelocity), ((newVelocity) -> setMaxVelocity(newVelocity)));
-    builder.addDoubleProperty("Max Acceleration (RPS^2)", (() -> trapezoidProfileConstraints.maxAcceleration), ((newAcceleration) -> setMaxAcceleration(newAcceleration)));
   }
 }

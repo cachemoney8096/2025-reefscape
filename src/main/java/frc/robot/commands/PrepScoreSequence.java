@@ -56,15 +56,8 @@ public class PrepScoreSequence extends SequentialCommandGroup {
 
     SequentialCommandGroup setPositions = new SequentialCommandGroup(
         new InstantCommand(()->elevator.setDesiredPosition(height)),
-        new WaitUntilCommand(elevator::atDesiredPosition),
+        new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
         new InstantCommand(()->arm.setDesiredPosition(p))
-    );
-    
-    SequentialCommandGroup checkAndSetPositions = new SequentialCommandGroup(
-        new ConditionalCommand(new SequentialCommandGroup(
-            new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
-            new WaitUntilCommand(()->climb.atDesiredPosition())), new InstantCommand(), ()->!arm.isArmInInterferenceZone()),
-       setPositions
     );
 
     addCommands(
@@ -111,7 +104,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                 return false;
             }
         ),
-        checkAndSetPositions
+        setPositions
     );
   }
 }

@@ -12,9 +12,8 @@ public class AutoIntakeSequence extends SequentialCommandGroup {
     addRequirements(elevator, arm, claw);
     addCommands(
         new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.INTAKE)),
-        new WaitUntilCommand(elevator::atDesiredPosition),
         new InstantCommand(() -> arm.setDesiredPosition(Arm.ArmPosition.INTAKE)),
-        new WaitUntilCommand(arm::atDesiredArmPosition),
+        new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();}),
         new InstantCommand(() -> claw.runMotorsIntaking()),
         new WaitUntilCommand(claw::beamBreakSeesObject).withTimeout(3.0),
         new InstantCommand(() -> claw.stopMotors()));

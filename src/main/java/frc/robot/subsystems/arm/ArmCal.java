@@ -9,8 +9,8 @@ public class ArmCal {
             ARM_POSITION_L2_DEGREES = 99.0,
             ARM_POSITION_L3_DEGREES = 112.0,
             ARM_POSITION_L4_DEGREES = 150.35,
-            ARM_POSITION_DEEP_CLIMB_DEGREES = 26.0,
-            ARM_POSITION_DEEP_CLIMB_PREP_DEGREES = 34.0;
+            ARM_POSITION_DEEP_CLIMB_DEGREES = 26.0;
+            
     public static final double ARM_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
             ARM_STATOR_CURRENT_LIMIT_AMPS = 80.0;
 
