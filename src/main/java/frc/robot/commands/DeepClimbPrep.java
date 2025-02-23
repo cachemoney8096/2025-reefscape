@@ -87,7 +87,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                       }
                       // rotate to face the correct way (the rotation here could end up being 180),
                       // these rotations are not technically needed, but increase precision
-                      targetPose = drive.getRobotPose().plus(robotToTag);
+                      targetPose = drive.getPose().plus(robotToTag);
                       targetPose =
                           new Pose2d(
                               targetPose.getTranslation(),

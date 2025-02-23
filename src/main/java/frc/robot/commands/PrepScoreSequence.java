@@ -138,7 +138,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                       ReefAngleCalcUtil.translateScorePositionOffset(
                           map.get(id).getFirst(), location == RobotContainer.ScoringLocation.RIGHT);
                   robotToTag = robotToTag.plus(new Transform2d(offset, new Rotation2d()));
-                  targetPose = drive.getRobotPose().plus(robotToTag);
+                  targetPose = drive.getPose().plus(robotToTag);
                   targetPose =
                       new Pose2d(
                           targetPose.getTranslation(), new Rotation2d(map.get(id).getSecond()));
