@@ -4,12 +4,12 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
@@ -18,7 +18,9 @@ import java.util.TreeMap;
 public class Climb extends SubsystemBase {
   private final TalonFX climbTalonLeft = new TalonFX(RobotMap.CLIMBING_LEFT_MOTOR_CAN_ID);
   private final TalonFX climbTalonRight = new TalonFX(RobotMap.CLIMBING_RIGHT_MOTOR_CAN_ID);
-  private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID);
+  // private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID);
+  private final Encoder climbAbsoluteEncoder =
+      new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
 
   public enum ClimbPosition {
     CLIMBING_PREP,
@@ -41,6 +43,8 @@ public class Climb extends SubsystemBase {
 
   public Climb() {
     initClimbTalons();
+    climbAbsoluteEncoder.setDistancePerPulse(
+        Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
     climbPositionMap = new TreeMap<ClimbPosition, Double>();
     climbPositionMap.put(ClimbPosition.CLIMBING, ClimbCal.CLIMB_CLIMBING_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.STOWED, ClimbCal.CLIMB_STOWED_POSITION_DEGREES);
@@ -76,10 +80,12 @@ public class Climb extends SubsystemBase {
   }
 
   public void zeroMotorEncoders() {
-    climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
+    // climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
+    climbTalonLeft.setPosition(climbAbsoluteEncoder.getDistance());
     tSetpoint =
         new TrapezoidProfile.State(
-            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
+            // climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
+            climbAbsoluteEncoder.getDistance(), 0.0);
   }
 
   public void setClimbingPID() {
