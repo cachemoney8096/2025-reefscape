@@ -12,6 +12,9 @@ public class DeepClimbScoringSequence extends SequentialCommandGroup {
     addCommands(
         new WaitUntilCommand(() -> climb.atClimbPosition(ClimbPosition.CLIMBING_PREP)),
         new InstantCommand(() -> climb.setClimbingPID()),
-        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING))); // TODO might have to drive at same time
+        new InstantCommand(
+            () ->
+                climb.setDesiredClimbPosition(
+                    ClimbPosition.CLIMBING))); // TODO might have to drive at same time
   }
 }
