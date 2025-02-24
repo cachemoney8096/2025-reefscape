@@ -32,7 +32,7 @@ public class IntakeSequence extends SequentialCommandGroup {
         /* mechanical intake sequence */
         SequentialCommandGroup moveArmElevatorClaw = new SequentialCommandGroup(
                 new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.INTAKE)),
-                new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+                new WaitUntilCommand(elevator::armMovementAllowed), 
                 new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
                 new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();}));
 

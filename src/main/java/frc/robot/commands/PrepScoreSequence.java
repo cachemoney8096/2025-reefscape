@@ -18,7 +18,6 @@ import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
@@ -56,7 +55,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
 
     SequentialCommandGroup setPositions = new SequentialCommandGroup(
         new InstantCommand(()->elevator.setDesiredPosition(height)),
-        new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+        new WaitUntilCommand(elevator::armMovementAllowed),
         new InstantCommand(()->arm.setDesiredPosition(p))
     );
 

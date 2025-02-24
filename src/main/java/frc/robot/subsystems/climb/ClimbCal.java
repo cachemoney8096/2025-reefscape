@@ -22,5 +22,5 @@ public class ClimbCal {
             
     public static final double CLIMB_MARGIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
 
-    public static final double CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ = Constants.PLACEHOLDER_DOUBLE;
+    public static final double CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ = 50.0;
 }
