@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S2-H"
+            "pathName": "R_S2-H"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "H-LHP2"
+            "pathName": "R_H-LHP2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LHP2-G"
+            "pathName": "R_LHP2-G"
           }
         }
       ]

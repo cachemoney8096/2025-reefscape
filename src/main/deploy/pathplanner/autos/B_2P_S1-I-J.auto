@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S1-I"
+            "pathName": "R_S1-I"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "I-LHP1"
+            "pathName": "R_I-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LHP1-J"
+            "pathName": "R_LHP1-J"
           }
         }
       ]

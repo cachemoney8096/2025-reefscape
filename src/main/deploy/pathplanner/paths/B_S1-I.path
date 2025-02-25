@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.840937499995982,
-        "y": 1.3559374999976705
+        "x": 7.5928125,
+        "y": 6.1334375
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4137499999999998,
-        "y": 2.3675000000000006
+        "x": 6.435,
+        "y": 6.41375
       },
       "isLocked": false,
-      "linkedName": "RHP2"
+      "linkedName": "S1"
     },
     {
       "anchor": {
-        "x": 2.7665625,
-        "y": 3.8299999999999996
+        "x": 5.50875,
+        "y": 5.39
       },
       "prevControl": {
-        "x": 1.8281249999999998,
-        "y": 2.9768749999999997
+        "x": 6.1546875,
+        "y": 6.1334375
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "B"
+      "linkedName": "I"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "AUTO SCORING PREP SEQUENCE",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
       "command": null
     },
@@ -55,13 +55,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.49297093908524
+    "rotation": 58.57043438516148
   },
   "reversed": false,
-  "folder": "S2",
+  "folder": "B_S1",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -125.21759296819272
+    "rotation": 1.3639275316028692
   },
   "useDefaultConstraints": true
 }

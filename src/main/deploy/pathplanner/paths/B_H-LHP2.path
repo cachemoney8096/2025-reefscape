@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.166875,
-        "y": 3.8909374999999993
+        "x": 6.1790625,
+        "y": 4.17125
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.019999999995982,
-        "y": 2.318749999997671
+        "x": 7.458749999995946,
+        "y": 5.743437500006032
       },
       "isLocked": false,
-      "linkedName": "G"
+      "linkedName": "H"
     },
     {
       "anchor": {
-        "x": 0.840937499995982,
-        "y": 1.3559374999976705
+        "x": 0.8531249999959464,
+        "y": 6.681875000006032
       },
       "prevControl": {
-        "x": 4.558124999995982,
-        "y": 1.4290624999976707
+        "x": 3.704999999995947,
+        "y": 6.815937500006032
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "RHP2"
+      "linkedName": "LHP2"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "AUTO INTAKE SEQUENCE",
-      "waypointRelativePos": 0.5346412781350482,
+      "waypointRelativePos": 0.5415368770096463,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -49,10 +49,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -125.21759296819272
+    "rotation": 125.21759296819272
   },
   "reversed": false,
-  "folder": "S2",
+  "folder": "B_S2",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

@@ -1,0 +1,67 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.840937499995982,
+        "y": 1.3559374999976705
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.4137499999999998,
+        "y": 2.3675000000000006
+      },
+      "isLocked": false,
+      "linkedName": "RHP2"
+    },
+    {
+      "anchor": {
+        "x": 2.7665625,
+        "y": 3.8299999999999996
+      },
+      "prevControl": {
+        "x": 1.8281249999999996,
+        "y": 2.9768749999999997
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "B"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "AUTO SCORING PREP SEQUENCE",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AUTO SCORING SEQUENCE",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 179.49297093908524
+  },
+  "reversed": false,
+  "folder": "R_S2",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -125.21759296819272
+  },
+  "useDefaultConstraints": true
+}

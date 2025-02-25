@@ -3,9 +3,11 @@
   "robotLength": 0.838,
   "holonomicMode": true,
   "pathFolders": [
-    "S3",
-    "S1",
-    "S2"
+    "B_S1",
+    "B_S2",
+    "R_S1",
+    "R_S2",
+    "S3"
   ],
   "autoFolders": [
     "S3_B",
