@@ -65,7 +65,15 @@ public class Claw extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addBooleanProperty("Beam Break Left Status", this::beamBreakLeft, null);
-    builder.addBooleanProperty("Beam Break Right Status", this::beamBreakRight, null);
-  }
+    builder.addBooleanProperty(
+        "Beam Break Left Status",
+        this::beamBreakLeft,
+        null
+    );
+    builder.addBooleanProperty(
+        "Beam Break Right Status",
+        this::beamBreakRight,
+        null
+    );
+}
 }

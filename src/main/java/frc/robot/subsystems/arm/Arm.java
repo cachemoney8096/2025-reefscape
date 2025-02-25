@@ -139,7 +139,7 @@ public class Arm extends SubsystemBase {
         "Right Motor Angle (Relative) ",
         (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
         null);
-    builder.addDoubleProperty(
+    builder.addDoubleProperty( 
         "Left Motor Angle (Relative) ",
         (() -> armMotorLeft.getPosition().getValueAsDouble() * 360.0),
         null);
