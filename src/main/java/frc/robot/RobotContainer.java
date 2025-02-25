@@ -110,12 +110,12 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
         "AUTO INTAKE SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE")
-            .andThen(new AutoIntakeSequence(elevator, arm, claw)));
+            .andThen(new AutoIntakeSequence(elevator, arm, claw, lights)));
 
     NamedCommands.registerCommand(
         "AUTO SCORING PREP SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE")
-            .andThen(new AutoScoringPrepSequence(elevator, arm, claw)));
+            .andThen(new AutoScoringPrepSequence(elevator, arm, claw, lights)));
 
     NamedCommands.registerCommand(
         "AUTO SCORING SEQUENCE",
@@ -194,7 +194,7 @@ public class RobotContainer implements Sendable {
                         })));
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     /* finish score */
-    driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight));
+    driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight, lights));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     drive.setDefaultCommand(new InstantCommand());
