@@ -31,19 +31,23 @@ public class Elevator extends SubsystemBase {
 
   private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
   DigitalInput limitSwitchHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
-  DigitalInput limitSwitchBelowHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
+  DigitalInput limitSwitchBelowHome =
+      new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
   DigitalInput limitSwitchTop = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
   private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
-  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);;
+  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
+  ;
 
-  private final TrapezoidProfile m_profile_scoring = new TrapezoidProfile(
-    new TrapezoidProfile.Constraints(
-      ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE,
-      ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE));
-  private final TrapezoidProfile m_profile_climbing = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(
-          ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_CLIMB,
-          ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_CLIMB));
+  private final TrapezoidProfile m_profile_scoring =
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE,
+              ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE));
+  private final TrapezoidProfile m_profile_climbing =
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_CLIMB,
+              ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_CLIMB));
 
   private boolean isScoring = true;
   private int currentSlotValue = 0; // 0 is for scoring and 1 is for climbing
@@ -63,7 +67,8 @@ public class Elevator extends SubsystemBase {
     elevatorPositions.put(ElevatorHeight.SCORE_L1, ElevatorCal.POSITION_SCORE_L1_INCHES);
     elevatorPositions.put(ElevatorHeight.SHALLOW_PREP, ElevatorCal.POSITION_SHALLOW_PREP_INCHES);
     elevatorPositions.put(ElevatorHeight.SHALLOW_CLIMB, ElevatorCal.POSITION_SHALLOW_CLIMB_INCHES);
-    elevatorPositions.put(ElevatorHeight.ARM_CLEAR_OF_CLIMB, ElevatorCal.POSITION_ARM_CLEAR_OF_CLIMB_INCHES);
+    elevatorPositions.put(
+        ElevatorHeight.ARM_CLEAR_OF_CLIMB, ElevatorCal.POSITION_ARM_CLEAR_OF_CLIMB_INCHES);
     initTalons();
   }
 
@@ -75,7 +80,8 @@ public class Elevator extends SubsystemBase {
 
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
-    toApply.CurrentLimits.StatorCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
+    toApply.CurrentLimits.StatorCurrentLimit =
+        ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
     // Slot 0 is for Scoring PID values and Slot 1 is for Climbing PID values
     toApply.Slot0.kP = ElevatorCal.ELEVATOR_SCORE_P;
@@ -104,12 +110,14 @@ public class Elevator extends SubsystemBase {
 
   private void controlPosition(double inputPositionInch) {
     final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
-    double rotations = inputPositionInch
-        / ElevatorConstants.DRUM_CIRCUMFERENCE
-        * ElevatorConstants.MOTOR_TO_DRUM_RATIO;
+    double rotations =
+        inputPositionInch
+            / ElevatorConstants.DRUM_CIRCUMFERENCE
+            * ElevatorConstants.MOTOR_TO_DRUM_RATIO;
     m_goal = new TrapezoidProfile.State(rotations, 0.0);
 
-    m_setpoint = (isScoring ? m_profile_scoring : m_profile_climbing).calculate(0.02, m_setpoint, m_goal);
+    m_setpoint =
+        (isScoring ? m_profile_scoring : m_profile_climbing).calculate(0.02, m_setpoint, m_goal);
 
     m_request.Position = m_setpoint.position;
     m_request.Velocity = m_setpoint.velocity;
@@ -119,24 +127,27 @@ public class Elevator extends SubsystemBase {
 
   public boolean atDesiredPosition() {
     return Math.abs(
-        leftMotor.getPosition().getValueAsDouble()
-            - elevatorPositions.get(desiredPosition)
-                / ElevatorConstants.DRUM_CIRCUMFERENCE
-                * ElevatorConstants.MOTOR_TO_DRUM_RATIO) < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
+            leftMotor.getPosition().getValueAsDouble()
+                - elevatorPositions.get(desiredPosition)
+                    / ElevatorConstants.DRUM_CIRCUMFERENCE
+                    * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
+        < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
   }
 
   public boolean atElevatorPosition(ElevatorHeight height) {
     return Math.abs(
-        leftMotor.getPosition().getValueAsDouble()
-            - elevatorPositions.get(height)
-                / ElevatorConstants.DRUM_CIRCUMFERENCE
-                * ElevatorConstants.MOTOR_TO_DRUM_RATIO) < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
+            leftMotor.getPosition().getValueAsDouble()
+                - elevatorPositions.get(height)
+                    / ElevatorConstants.DRUM_CIRCUMFERENCE
+                    * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
+        < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
   }
 
-  public boolean armMovementAllowed(){
-    return leftMotor.getPosition().getValueAsDouble() > elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)
-    / ElevatorConstants.DRUM_CIRCUMFERENCE
-    * ElevatorConstants.MOTOR_TO_DRUM_RATIO; //someone reviewing my work check this please
+  public boolean armMovementAllowed() {
+    return leftMotor.getPosition().getValueAsDouble()
+        > elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)
+            / ElevatorConstants.DRUM_CIRCUMFERENCE
+            * ElevatorConstants.MOTOR_TO_DRUM_RATIO; // someone reviewing my work check this please
   }
 
   /* The limit switches we are using are active low, hence the ! operator */
@@ -163,11 +174,12 @@ public class Elevator extends SubsystemBase {
         ElevatorCal.POSITION_HOME_INCHES
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO);
-    m_setpoint = new TrapezoidProfile.State(
-        ElevatorCal.POSITION_HOME_INCHES
-            / ElevatorConstants.DRUM_CIRCUMFERENCE
-            * ElevatorConstants.MOTOR_TO_DRUM_RATIO,
-        0.0);
+    m_setpoint =
+        new TrapezoidProfile.State(
+            ElevatorCal.POSITION_HOME_INCHES
+                / ElevatorConstants.DRUM_CIRCUMFERENCE
+                * ElevatorConstants.MOTOR_TO_DRUM_RATIO,
+            0.0);
   }
 
   public void setElevatorMovementAllowed(boolean allowed) {
@@ -188,12 +200,14 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("At desired position", this::atDesiredPosition, null);
     builder.addDoubleProperty(
         "Elevator position",
-        () -> (leftMotor.getPosition().getValueAsDouble()
-            * ElevatorConstants.DRUM_CIRCUMFERENCE
-            / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
+        () ->
+            (leftMotor.getPosition().getValueAsDouble()
+                * ElevatorConstants.DRUM_CIRCUMFERENCE
+                / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
         null);
-    builder.addDoubleProperty("Arm Clear of Climb Pos (in)", (() -> elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)), ((newPos) -> elevatorPositions.put(ElevatorHeight.ARM_CLEAR_OF_CLIMB, newPos)));
-
-  } 
-
+    builder.addDoubleProperty(
+        "Arm Clear of Climb Pos (in)",
+        (() -> elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+        ((newPos) -> elevatorPositions.put(ElevatorHeight.ARM_CLEAR_OF_CLIMB, newPos)));
+  }
 }

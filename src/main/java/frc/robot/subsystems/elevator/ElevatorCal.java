@@ -14,12 +14,14 @@ public class ElevatorCal {
       ELEVATOR_CLIMB_I = Constants.PLACEHOLDER_DOUBLE,
       ELEVATOR_CLIMB_D = Constants.PLACEHOLDER_DOUBLE,
       ELEVATOR_CLIMB_FF = Constants.PLACEHOLDER_DOUBLE;
-  public static final double
-      ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
+  public static final double ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0;
   public static final double POSITION_INTAKE_INCHES = 21.75,
       POSITION_HOME_INCHES = 0.0,
-      /** L4 is Absolute Max. We need to test this thoroughly to ensure motors don't stall when approaching max. */
+      /**
+       * L4 is Absolute Max. We need to test this thoroughly to ensure motors don't stall when
+       * approaching max.
+       */
       POSITION_SCORE_L4_INCHES = 32.49,
       POSITION_SCORE_L3_INCHES = 21.75,
       POSITION_SCORE_L2_INCHES = 10.0,

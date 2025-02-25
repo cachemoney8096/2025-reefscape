@@ -20,8 +20,9 @@ public class Arm extends SubsystemBase {
   private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
   // trapezoidal motion profiling to account for large jumps in velocity which result in large error
   private final TrapezoidProfile trapezoidProfile =
-      new TrapezoidProfile(new TrapezoidProfile.Constraints(
-        ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
   private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
   public enum ArmPosition {
@@ -42,7 +43,7 @@ public class Arm extends SubsystemBase {
   private ArmPosition armDesiredPosition = ArmPosition.HOME;
 
   public Arm() {
-  
+
     armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
     armPositions.put(ArmPosition.INTAKE, ArmCal.ARM_POSITION_INTAKE_DEGREES);
     armPositions.put(ArmPosition.DEEP_CLIMB, ArmCal.ARM_POSITION_DEEP_CLIMB_DEGREES);
@@ -117,7 +118,6 @@ public class Arm extends SubsystemBase {
   public void periodic() {
     controlPosition(armPositions.get(this.armDesiredPosition));
   }
-  
 
   @Override
   public void initSendable(SendableBuilder builder) {
@@ -140,6 +140,9 @@ public class Arm extends SubsystemBase {
         (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
         null);
     /** More values for debugging and testing various calibrations. Setters are included. */
-    builder.addDoubleProperty("Deep Climb Pos (Deg)", (() -> armPositions.get(ArmPosition.DEEP_CLIMB)), ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
+    builder.addDoubleProperty(
+        "Deep Climb Pos (Deg)",
+        (() -> armPositions.get(ArmPosition.DEEP_CLIMB)),
+        ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
   }
 }

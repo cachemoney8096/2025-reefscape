@@ -30,10 +30,11 @@ public class Climb extends SubsystemBase {
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
   private boolean allowClimbMovement = false;
   private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
-  private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(
-          ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
-          ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
+  private final TrapezoidProfile trapezoidProfile =
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
+              ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
 
   private int currentSlot = 1;
 
@@ -74,8 +75,9 @@ public class Climb extends SubsystemBase {
 
   public void zeroMotorEncoders() {
     climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
-    tSetpoint = new TrapezoidProfile.State(
-        climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
+    tSetpoint =
+        new TrapezoidProfile.State(
+            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
   }
 
   public void setClimbingPID() {
@@ -87,9 +89,10 @@ public class Climb extends SubsystemBase {
   }
 
   private void controlPosition(double inputPositionDegrees) {
-    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(
-        inputPositionDegrees / 360.0,
-        0); // TODO make sure there isn't a ratio here (there shouldn't be because this is
+    TrapezoidProfile.State tGoal =
+        new TrapezoidProfile.State(
+            inputPositionDegrees / 360.0,
+            0); // TODO make sure there isn't a ratio here (there shouldn't be because this is
     // angular control but good to double check)
 
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(currentSlot);

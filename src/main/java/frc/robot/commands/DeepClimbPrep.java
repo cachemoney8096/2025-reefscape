@@ -1,8 +1,5 @@
 package frc.robot.commands;
 
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -22,57 +19,83 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 public class DeepClimbPrep extends SequentialCommandGroup {
   public static Transform2d robotToTag;
   public static Pose2d targetPose;
 
-  public DeepClimbPrep(Climb climb, Arm arm, ScoringLimelight scoringLimelight,
+  public DeepClimbPrep(
+      Climb climb,
+      Arm arm,
+      ScoringLimelight scoringLimelight,
       RobotContainer.IntakeClimbLocation location,
-      MatchStateUtil msu, DriveSubsystem drive, Elevator elevator) {
+      MatchStateUtil msu,
+      DriveSubsystem drive,
+      Elevator elevator) {
     addRequirements(climb, arm);
 
-    BooleanSupplier checkForTag = () -> {
-      Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
-      if (robotToTagOptional.isPresent()) {
-        robotToTag = robotToTagOptional.get();
-        int id = (int) NetworkTableInstance.getDefault()
-            .getTable("limelight-scoring")
-            .getEntry("tid")
-            .getDouble(0.0);
-        return (id == 14 && !msu.isRed()) || (id == 5 && msu.isRed());
-      }
-      return false;
-    };
-    SequentialCommandGroup deepClimbPrep = new SequentialCommandGroup(
-        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-        new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
-        new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)),
-        new WaitUntilCommand(() -> {return elevator.atDesiredPosition() && arm.atDesiredArmPosition();}),
-        new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
+    BooleanSupplier checkForTag =
+        () -> {
+          Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
+          if (robotToTagOptional.isPresent()) {
+            robotToTag = robotToTagOptional.get();
+            int id =
+                (int)
+                    NetworkTableInstance.getDefault()
+                        .getTable("limelight-scoring")
+                        .getEntry("tid")
+                        .getDouble(0.0);
+            return (id == 14 && !msu.isRed()) || (id == 5 && msu.isRed());
+          }
+          return false;
+        };
+    SequentialCommandGroup deepClimbPrep =
+        new SequentialCommandGroup(
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
+            new WaitUntilCommand(
+                () -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+            new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)),
+            new WaitUntilCommand(
+                () -> {
+                  return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
+                }),
+            new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
 
     addCommands(
         /* fall back on manual if we don't see a tag */
         new ConditionalCommand(
             new SequentialCommandGroup(
                 /* we saw a tag */
-                new InstantCommand(() -> {
-                  // translate as needed
-                  if (location == RobotContainer.IntakeClimbLocation.RIGHT) {
-                    robotToTag = robotToTag.plus(new Transform2d(
-                        ClimbUtil.getClimbTransform(ClimbUtil.CagePosition.RIGHT, msu.isRed()), new Rotation2d()));
-                  } else if (location == RobotContainer.IntakeClimbLocation.LEFT) {
-                    robotToTag = robotToTag.plus(new Transform2d(
-                        ClimbUtil.getClimbTransform(ClimbUtil.CagePosition.LEFT, msu.isRed()), new Rotation2d()));
-                  }
-                  // rotate to face the correct way (the rotation here could end up being 180),
-                  // these rotations are not technically needed, but increase precision
-                  targetPose = drive.getRobotPose().plus(robotToTag);
-                  targetPose = new Pose2d(targetPose.getTranslation(),
-                      msu.isRed() ? new Rotation2d() : new Rotation2d(180.0));
-                }),
-                new InstantCommand(() -> drive.driveToPoint(targetPose))), 
-                // TODO the drive logic here probably won't be the same
+                new InstantCommand(
+                    () -> {
+                      // translate as needed
+                      if (location == RobotContainer.IntakeClimbLocation.RIGHT) {
+                        robotToTag =
+                            robotToTag.plus(
+                                new Transform2d(
+                                    ClimbUtil.getClimbTransform(
+                                        ClimbUtil.CagePosition.RIGHT, msu.isRed()),
+                                    new Rotation2d()));
+                      } else if (location == RobotContainer.IntakeClimbLocation.LEFT) {
+                        robotToTag =
+                            robotToTag.plus(
+                                new Transform2d(
+                                    ClimbUtil.getClimbTransform(
+                                        ClimbUtil.CagePosition.LEFT, msu.isRed()),
+                                    new Rotation2d()));
+                      }
+                      // rotate to face the correct way (the rotation here could end up being 180),
+                      // these rotations are not technically needed, but increase precision
+                      targetPose = drive.getRobotPose().plus(robotToTag);
+                      targetPose =
+                          new Pose2d(
+                              targetPose.getTranslation(),
+                              msu.isRed() ? new Rotation2d() : new Rotation2d(180.0));
+                    }),
+                new InstantCommand(() -> drive.driveToPoint(targetPose))),
+            // TODO the drive logic here probably won't be the same
             new InstantCommand(),
             checkForTag),
         deepClimbPrep);

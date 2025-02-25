@@ -141,7 +141,7 @@ public class ScoringLimelight extends SubsystemBase {
   }
 
   /**
-   * @return Optional<Transform2d> of how to get to the tag 
+   * @return Optional<Transform2d> of how to get to the tag
    */
   public Optional<Transform2d> checkForTag() {
     // if 0 (no target found) or -1 (m_simDevice is null)
@@ -158,7 +158,9 @@ public class ScoringLimelight extends SubsystemBase {
 
     System.out.println("robotToTag: " + robotToTag);
 
-    return Optional.of(robotToTag); //don't include the offset here because it is variable and we will modify it later
+    return Optional.of(
+        robotToTag); // don't include the offset here because it is variable and we will modify it
+    // later
   }
 
   public double getLatencySeconds() {

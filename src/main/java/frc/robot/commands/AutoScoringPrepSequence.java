@@ -14,7 +14,11 @@ public class AutoScoringPrepSequence extends SequentialCommandGroup {
     addRequirements(elevator, arm, claw);
     addCommands(
         new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)),
-        new WaitUntilCommand(elevator::armMovementAllowed), //do it like this so we don't encounter errors with the encoder missing a tick and never triggering this, also allows us to click the button again if there is an issue and not encounter any problems
+        new WaitUntilCommand(
+            elevator::armMovementAllowed), // do it like this so we don't encounter errors with the
+        // encoder missing a tick and never triggering this, also
+        // allows us to click the button again if there is an issue
+        // and not encounter any problems
         new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L4)));
   }
 }
