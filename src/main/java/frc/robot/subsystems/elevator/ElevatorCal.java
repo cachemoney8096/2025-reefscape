@@ -40,5 +40,5 @@ public class ElevatorCal {
   public static final double MAX_VELOCITY_IN_PER_SECOND_CLIMB = Constants.PLACEHOLDER_DOUBLE,
       MAX_ACCELERATION_IN_PER_SECOND_SQUARED_CLIMB = Constants.PLACEHOLDER_DOUBLE;
 
-    public static final double AT_CLEAR_POSITION_MARGIN = 0.5;
+  public static final double AT_CLEAR_POSITION_MARGIN = 0.5;
 }

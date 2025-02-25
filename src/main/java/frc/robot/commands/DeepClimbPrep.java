@@ -53,7 +53,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
         };
     SequentialCommandGroup deepClimbPrep =
         new SequentialCommandGroup(
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+            new InstantCommand(
+                () -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
             new WaitUntilCommand(elevator::armMovementAllowed),
             new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)),
             new WaitUntilCommand(arm::atDesiredArmPosition),
