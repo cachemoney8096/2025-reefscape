@@ -15,6 +15,8 @@ import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
 import java.util.Optional;
@@ -30,7 +32,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
       ScoringLimelight scoringLimelight,
       RobotContainer.IntakeClimbLocation location,
       MatchStateUtil msu,
-      DriveSubsystem drive) {
+      DriveSubsystem drive,
+      Elevator elevator) {
     addRequirements(climb, arm);
 
     BooleanSupplier checkForTag =
@@ -41,7 +44,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
             int id =
                 (int)
                     NetworkTableInstance.getDefault()
-                        .getTable("limelight-intake")
+                        .getTable("limelight-scoring")
                         .getEntry("tid")
                         .getDouble(0.0);
             return (id == 14 && !msu.isRed()) || (id == 5 && msu.isRed());
@@ -50,16 +53,12 @@ public class DeepClimbPrep extends SequentialCommandGroup {
         };
     SequentialCommandGroup deepClimbPrep =
         new SequentialCommandGroup(
-            /* interferance zones */
-            new ConditionalCommand(
-                new InstantCommand(),
-                new SequentialCommandGroup(
-                    new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)),
-                    new WaitUntilCommand(() -> arm.atDesiredArmPosition())),
-                () -> {
-                  return !arm.isArmInInterferenceZone();
-                }),
-            /* now we can definitely move the climb */
+            new InstantCommand(
+                () -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+            new WaitUntilCommand(elevator::armMovementAllowed),
+            new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)),
+            new WaitUntilCommand(arm::atDesiredArmPosition),
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
             new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
 
     addCommands(
@@ -93,10 +92,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                               targetPose.getTranslation(),
                               msu.isRed() ? new Rotation2d() : new Rotation2d(180.0));
                     }),
-                new InstantCommand(
-                    () ->
-                        drive.driveToPoint(
-                            targetPose))), // TODO the drive logic here probably won't be the same
+                new InstantCommand(() -> drive.driveToPoint(targetPose))),
+            // TODO the drive logic here probably won't be the same
             new InstantCommand(),
             checkForTag),
         deepClimbPrep);

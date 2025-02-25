@@ -67,6 +67,7 @@ public final class Constants {
       SCORING_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
   public static final double INTAKE_LIMELIGHT_PITCH_DEG = Constants.PLACEHOLDER_DOUBLE,
       INTAKE_LIMELIGHT_HEIGHT_M = Constants.PLACEHOLDER_DOUBLE;
+
   // found using specifications from this website: https://www.revrobotics.com/rev-11-1271/
   public static final double DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE = 0.0439453125;
 }

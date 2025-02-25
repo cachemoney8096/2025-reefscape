@@ -14,7 +14,6 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
@@ -34,18 +33,12 @@ public class IntakeSequence extends SequentialCommandGroup {
       Climb climb,
       RobotContainer.IntakeClimbLocation location,
       DriveSubsystem drive) {
-    /* mechanical intake sequence - slightly modified version of what ruben had previously */
+    /* mechanical intake sequence */
     SequentialCommandGroup moveArmElevatorClaw =
         new SequentialCommandGroup(
-            new ConditionalCommand(
-                new SequentialCommandGroup(
-                    new InstantCommand(
-                        () -> climb.setDesiredClimbPosition(ClimbPosition.CLEAR_OF_ARM)),
-                    new WaitUntilCommand(() -> climb.atDesiredPosition())),
-                new InstantCommand(),
-                () -> !arm.isArmInInterferenceZone()),
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.INTAKE)),
+            new WaitUntilCommand(elevator::armMovementAllowed),
             new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
             new WaitUntilCommand(
                 () -> {
                   return elevator.atDesiredPosition() && arm.atDesiredArmPosition();

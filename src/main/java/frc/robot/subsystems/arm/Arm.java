@@ -32,7 +32,7 @@ public class Arm extends SubsystemBase {
   public enum ArmPosition {
     HOME,
     INTAKE,
-    DEEP_CLIMB, // TODO determine if this position is even necessary (could just be home)
+    DEEP_CLIMB,
     L1,
     L2,
     L3,
@@ -47,13 +47,14 @@ public class Arm extends SubsystemBase {
   private ArmPosition armDesiredPosition = ArmPosition.HOME;
 
   public Arm() {
+
     armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
     armPositions.put(ArmPosition.INTAKE, ArmCal.ARM_POSITION_INTAKE_DEGREES);
+    armPositions.put(ArmPosition.DEEP_CLIMB, ArmCal.ARM_POSITION_DEEP_CLIMB_DEGREES);
     armPositions.put(ArmPosition.L1, ArmCal.ARM_POSITION_L1_DEGREES);
     armPositions.put(ArmPosition.L2, ArmCal.ARM_POSITION_L2_DEGREES);
     armPositions.put(ArmPosition.L3, ArmCal.ARM_POSITION_L3_DEGREES);
     armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
-
     initArmTalons();
     armLeftEncoderAbs.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
   }
@@ -78,11 +79,6 @@ public class Arm extends SubsystemBase {
 
   public void setDesiredPosition(ArmPosition armPosition) {
     this.armDesiredPosition = armPosition;
-  }
-
-  public boolean isArmMoveable() {
-    // return opposite of whether or not arm is in interference zone
-    return !isArmInInterferenceZone();
   }
 
   public void rezeroArm() {
@@ -114,21 +110,15 @@ public class Arm extends SubsystemBase {
     double checkPositionDeg = armPositions.get(pos);
     double currentPositionDeg = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
 
-    return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_AT_POSITION_MARGIN_DEGREES;
+    return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_MARGIN_DEGREES;
   }
 
   public boolean atDesiredArmPosition() {
     return atArmPosition(armDesiredPosition);
   }
 
-  public boolean isArmInInterferenceZone() {
-    double currentPosition = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
-    return currentPosition <= ArmCal.ARM_INTERFERENCE_THRESHOLD_MAX_DEGREES
-        && currentPosition >= ArmCal.ARM_INTERFERENCE_THRESHOLD_MIN_DEGREES;
-  }
-
   public void stopArmMovement() {
-    // left motor follows right motor, so armMotorLeft is not necessary here
+    // left motor follows right motor, so armMotorRight is not necessary here
     armMotorLeft.setVoltage(0.0);
   }
 
@@ -145,7 +135,6 @@ public class Arm extends SubsystemBase {
     builder.addDoubleProperty(
         "Desired Setpoint Velocity (Deg/Sec)", (() -> desiredSetpointVelocityDegPerSec), null);
     builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
-    builder.addBooleanProperty("Is Arm In Interference Zone", this::isArmInInterferenceZone, null);
     builder.addDoubleProperty(
         "Right Motor Angle (Relative) ",
         (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
@@ -159,5 +148,10 @@ public class Arm extends SubsystemBase {
         // (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
         (() -> armLeftEncoderAbs.getDistance() * 360.0),
         null);
+    /** More values for debugging and testing various calibrations. Setters are included. */
+    builder.addDoubleProperty(
+        "Deep Climb Pos (Deg)",
+        (() -> armPositions.get(ArmPosition.DEEP_CLIMB)),
+        ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
   }
 }

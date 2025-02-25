@@ -26,7 +26,6 @@ public class Climb extends SubsystemBase {
     CLIMBING_PREP,
     CLIMBING,
     STOWED,
-    CLEAR_OF_ARM
   }
 
   private TreeMap<ClimbPosition, Double> climbPositionMap;
@@ -49,7 +48,6 @@ public class Climb extends SubsystemBase {
     climbPositionMap.put(ClimbPosition.CLIMBING, ClimbCal.CLIMB_CLIMBING_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.STOWED, ClimbCal.CLIMB_STOWED_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.CLIMBING_PREP, ClimbCal.CLIMB_CLIMBING_PREP_DEGREES);
-    climbPositionMap.put(ClimbPosition.CLEAR_OF_ARM, ClimbCal.CLIMB_CLEAR_OF_ARM_DEGREES);
   }
 
   private void initClimbTalons() {
@@ -122,24 +120,11 @@ public class Climb extends SubsystemBase {
     this.allowClimbMovement = false;
   }
 
-  public boolean isClimbMovable() {
-    // return opposite of whether or not arm is in interference zone
-    return !isClimbInInterferenceZone();
-  }
-
-  public boolean isClimbInInterferenceZone() {
-    double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
-
-    return currentPosition <= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MAX_DEGREES
-        && currentPosition >= ClimbCal.CLIMB_INTERFERENCE_THRESHOLD_MIN_DEGREES;
-  }
-
   public boolean atClimbPosition(ClimbPosition checkPos) {
     double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
     double checkPosDegrees = climbPositionMap.get(checkPos);
 
-    return Math.abs(currentPosition - checkPosDegrees)
-        <= ClimbCal.CLIMB_DESIRED_POSITION_ERROR_MARGIN_DEG;
+    return Math.abs(currentPosition - checkPosDegrees) <= ClimbCal.CLIMB_MARGIN_DEGREES;
   }
 
   public boolean atDesiredPosition() {
@@ -158,7 +143,6 @@ public class Climb extends SubsystemBase {
     super.initSendable(builder);
     builder.addStringProperty("Desired Position", (() -> desiredPosition.toString()), null);
     builder.addBooleanProperty("At Desired Position", this::atDesiredPosition, null);
-    builder.addBooleanProperty("Climb in Interference Zone", this::isClimbInInterferenceZone, null);
     builder.addDoubleProperty(
         "Desired Position (Deg)", (() -> climbPositionMap.get(desiredPosition)), null);
     builder.addDoubleProperty(

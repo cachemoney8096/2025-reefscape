@@ -120,7 +120,7 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
         "AUTO SCORING SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE")
-            .andThen(new AutoScoringSequence(claw)));
+            .andThen(new AutoScoringSequence(arm, elevator, claw)));
 
     /* Configure controller bindings */
     configureDriverBindings();
@@ -172,9 +172,10 @@ public class RobotContainer implements Sendable {
     driverController
         .back()
         .onTrue(
-            new DeepClimbPrep(climb, arm, scoringLimelight, preppedLocation, matchState, drive));
+            new DeepClimbPrep(
+                climb, arm, scoringLimelight, preppedLocation, matchState, drive, elevator));
     /* climb */
-    driverController.start().onTrue(new DeepClimbScoringSequence(climb));
+    driverController.start().onTrue(new DeepClimbScoringSequence(arm, climb));
     /* intake */
     driverController
         .leftTrigger()
