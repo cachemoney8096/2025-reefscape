@@ -229,7 +229,7 @@ public class RobotContainer implements Sendable {
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.LEFT));
     operatorController
-        .leftBumper()
+        .rightBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
