@@ -145,7 +145,7 @@ public class Elevator extends SubsystemBase {
 
   public boolean armMovementAllowed() {
     return leftMotor.getPosition().getValueAsDouble()
-        > elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)
+        > (elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)-ElevatorCal.AT_CLEAR_POSITION_MARGIN)
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO; // someone reviewing my work check this please
   }
