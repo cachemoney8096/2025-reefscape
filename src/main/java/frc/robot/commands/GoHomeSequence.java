@@ -26,7 +26,8 @@ public class GoHomeSequence extends SequentialCommandGroup {
         new WaitUntilCommand(arm::atDesiredArmPosition),
         new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)),
         new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)),
-        new WaitUntilCommand(climb::atDesiredPosition)
+        new WaitUntilCommand(climb::atDesiredPosition),
+        new WaitUntilCommand(elevator::atDesiredPosition)
     );
   }
 }
