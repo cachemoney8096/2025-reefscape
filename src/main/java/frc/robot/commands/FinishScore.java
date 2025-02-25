@@ -33,6 +33,6 @@ public class FinishScore extends SequentialCommandGroup {
             () -> claw.runMotorsScoring()), // TODO might have to change for scoring L4
         new WaitCommand(1.0),
         new InstantCommand(() -> claw.stopMotors()),
-        new InstantCommand(() -> lights.setLEDColor(LightCode.HOME)));
+        new InstantCommand(() -> lights.setLEDColor(LightCode.OFF)));
   }
 }
