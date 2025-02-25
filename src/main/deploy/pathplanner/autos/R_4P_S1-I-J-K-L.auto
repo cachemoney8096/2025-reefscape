@@ -7,49 +7,49 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S3-F"
+            "pathName": "S1-I"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "F-RHP1"
+            "pathName": "I-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RHP1-E"
+            "pathName": "LHP1-J"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "E-RHP1"
+            "pathName": "J-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RHP1-D"
+            "pathName": "LHP1-K"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "D-RHP1"
+            "pathName": "K-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RHP1-C"
+            "pathName": "LHP1-L"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S3",
+  "folder": "S1_R",
   "choreoAuto": false
 }

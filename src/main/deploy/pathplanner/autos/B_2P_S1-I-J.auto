@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S1-I"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "I-LHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LHP1-J"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "S1_B",
+  "choreoAuto": false
+}

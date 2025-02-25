@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S3-F"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F-RHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RHP1-E"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "E-RHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RHP1-D"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "D-RHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RHP1-C"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "S3_B",
+  "choreoAuto": false
+}
