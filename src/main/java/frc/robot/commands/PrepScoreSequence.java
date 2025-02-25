@@ -18,6 +18,8 @@ import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.ReefAngleCalcUtil;
 import java.util.Optional;
@@ -36,7 +38,8 @@ public class PrepScoreSequence extends SequentialCommandGroup {
       ElevatorHeight height,
       RobotContainer.ScoringLocation location,
       DriveSubsystem drive,
-      MatchStateUtil msu) {
+      MatchStateUtil msu,
+      Lights lights) {
     addRequirements(arm, elevator, scoringLimelight);
 
     final ArmPosition p;
@@ -57,6 +60,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
             new InstantCommand(() -> arm.setDesiredPosition(p)));
 
     addCommands(
+        new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
         /* check for a tag first so we can start driving. fall back onto manual driving */
         new ConditionalCommand(
             new SequentialCommandGroup(new InstantCommand(() -> drive.driveToPoint(targetPose))),
@@ -139,6 +143,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
               }
               return false;
             }),
-        setPositions);
+        setPositions,
+        new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_SCORE)));
   }
 }

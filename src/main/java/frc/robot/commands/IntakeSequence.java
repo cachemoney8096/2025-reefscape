@@ -17,6 +17,8 @@ import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.HPUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -32,7 +34,8 @@ public class IntakeSequence extends SequentialCommandGroup {
       Elevator elevator,
       Climb climb,
       RobotContainer.IntakeClimbLocation location,
-      DriveSubsystem drive) {
+      DriveSubsystem drive,
+      Lights lights) {
     /* mechanical intake sequence */
     SequentialCommandGroup moveArmElevatorClaw =
         new SequentialCommandGroup(
