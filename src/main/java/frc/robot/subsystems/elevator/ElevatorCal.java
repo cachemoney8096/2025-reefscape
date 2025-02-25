@@ -26,7 +26,7 @@ public class ElevatorCal {
       POSITION_SCORE_L3_INCHES = 21.75,
       POSITION_SCORE_L2_INCHES = 10.0,
       POSITION_SCORE_L1_INCHES = 10.0,
-      POSITION_ARM_CLEAR_OF_CLIMB_INCHES = 7.25,
+      POSITION_ARM_CLEAR_OF_CLIMB_INCHES = 7.75,
 
       // TODO: determine if shallow climb is truly being implemented or not (most likely not)
       POSITION_SHALLOW_PREP_INCHES = Constants.PLACEHOLDER_DOUBLE,
@@ -40,5 +40,5 @@ public class ElevatorCal {
   public static final double MAX_VELOCITY_IN_PER_SECOND_CLIMB = Constants.PLACEHOLDER_DOUBLE,
       MAX_ACCELERATION_IN_PER_SECOND_SQUARED_CLIMB = Constants.PLACEHOLDER_DOUBLE;
 
-    public static final double AT_CLEAR_POSITION_MARGIN = 0.25;
+    public static final double AT_CLEAR_POSITION_MARGIN = 0.5;
 }
