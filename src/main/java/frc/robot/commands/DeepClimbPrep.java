@@ -53,14 +53,11 @@ public class DeepClimbPrep extends SequentialCommandGroup {
         };
     SequentialCommandGroup deepClimbPrep =
         new SequentialCommandGroup(
-            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-            new WaitUntilCommand(
-                () -> elevator.atElevatorPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.CLEAR_OF_CLIMB)),
+            new WaitUntilCommand(elevator::armMovementAllowed),
             new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)),
-            new WaitUntilCommand(
-                () -> {
-                  return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
-                }),
+            new WaitUntilCommand(arm::atDesiredArmPosition),
+            new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
             new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
 
     addCommands(
@@ -88,7 +85,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                       }
                       // rotate to face the correct way (the rotation here could end up being 180),
                       // these rotations are not technically needed, but increase precision
-                      targetPose = drive.getRobotPose().plus(robotToTag);
+                      targetPose = drive.getPose().plus(robotToTag);
                       targetPose =
                           new Pose2d(
                               targetPose.getTranslation(),

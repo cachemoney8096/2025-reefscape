@@ -93,7 +93,7 @@ public class RobotContainer implements Sendable {
     arm = new Arm();
     claw = new Claw();
     climb = new Climb();
-    drive = new DriveSubsystem();
+    drive = new DriveSubsystem(ms);
     elevator = new Elevator();
     lights = new Lights();
     scoringLimelight =

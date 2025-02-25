@@ -3,13 +3,14 @@ package frc.robot.subsystems.arm;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotMap;
 import java.util.TreeMap;
 
@@ -17,7 +18,10 @@ public class Arm extends SubsystemBase {
   private final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID);
   private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID);
 
-  private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
+  // private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
+  private final Encoder armLeftEncoderAbs =
+      new Encoder(RobotMap.ARM_ABS_ENCODER_DIO_A, RobotMap.ARM_ABS_ENCODER_DIO_B);
+
   // trapezoidal motion profiling to account for large jumps in velocity which result in large error
   private final TrapezoidProfile trapezoidProfile =
       new TrapezoidProfile(
@@ -52,6 +56,7 @@ public class Arm extends SubsystemBase {
     armPositions.put(ArmPosition.L3, ArmCal.ARM_POSITION_L3_DEGREES);
     armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
     initArmTalons();
+    armLeftEncoderAbs.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
   }
 
   private void initArmTalons() {
@@ -77,9 +82,12 @@ public class Arm extends SubsystemBase {
   }
 
   public void rezeroArm() {
-    armMotorLeft.setPosition(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble());
+    // armMotorLeft.setPosition(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble());
+    armMotorLeft.setPosition(armLeftEncoderAbs.getDistance());
     tSetpoint =
-        new TrapezoidProfile.State(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(), 0.0);
+        // new TrapezoidProfile.State(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(),
+        // 0.0);
+        new TrapezoidProfile.State(armLeftEncoderAbs.getDistance(), 0.0);
   }
 
   // Account for PID when setting position of our arm
@@ -137,7 +145,8 @@ public class Arm extends SubsystemBase {
         null);
     builder.addDoubleProperty(
         "Left Motor Angle (Absolute) ",
-        (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
+        // (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
+        (() -> armLeftEncoderAbs.getDistance() * 360.0),
         null);
     /** More values for debugging and testing various calibrations. Setters are included. */
     builder.addDoubleProperty(
