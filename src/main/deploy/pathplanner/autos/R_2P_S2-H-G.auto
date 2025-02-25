@@ -7,37 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S3-F"
+            "pathName": "S2-H"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "F-RHP1"
+            "pathName": "H-LHP2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RHP1-E"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "E-RHP1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RHP1-D"
+            "pathName": "LHP2-G"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S3",
+  "folder": "S2_R",
   "choreoAuto": false
 }

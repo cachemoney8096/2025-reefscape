@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S2-G"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "G-RHP2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RHP2-H"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "S2_B",
+  "choreoAuto": false
+}

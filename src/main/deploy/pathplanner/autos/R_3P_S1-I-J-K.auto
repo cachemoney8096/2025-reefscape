@@ -7,7 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S1-J"
+            "pathName": "S1-I"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "I-LHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LHP1-J"
           }
         },
         {
@@ -19,13 +31,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LHP1-I"
+            "pathName": "LHP1-K"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S1",
+  "folder": "S1_R",
   "choreoAuto": false
 }

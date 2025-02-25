@@ -7,37 +7,49 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S3-E"
+            "pathName": "S1-J"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "E-RHP1"
+            "pathName": "J-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RHP1-F"
+            "pathName": "LHP1-I"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "F-RHP1"
+            "pathName": "I-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RHP1-D"
+            "pathName": "LHP1-K"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "K-LHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LHP1-L"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S3",
+  "folder": "S1_B",
   "choreoAuto": false
 }

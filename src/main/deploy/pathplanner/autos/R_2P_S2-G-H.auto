@@ -21,23 +21,11 @@
           "data": {
             "pathName": "RHP2-H"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "H-RHP2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RHP2-B"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S2",
+  "folder": "S2_R",
   "choreoAuto": false
 }

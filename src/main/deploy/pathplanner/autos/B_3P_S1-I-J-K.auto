@@ -33,23 +33,11 @@
           "data": {
             "pathName": "LHP1-K"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "K-LHP1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LHP1-L"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S1",
+  "folder": "S1_B",
   "choreoAuto": false
 }

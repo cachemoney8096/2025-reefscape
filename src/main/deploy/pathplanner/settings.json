@@ -8,9 +8,12 @@
     "S2"
   ],
   "autoFolders": [
-    "S3",
-    "S1",
-    "S2"
+    "S3_B",
+    "S1_B",
+    "S1_R",
+    "S2_B",
+    "S2_R",
+    "S3_R"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
