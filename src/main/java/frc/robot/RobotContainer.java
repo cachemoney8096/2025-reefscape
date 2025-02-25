@@ -184,7 +184,7 @@ public class RobotContainer implements Sendable {
                 new IntakeSequence(
                     claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive),
                 new RunCommand(() -> claw.runMotorsIntaking())
-                    .until(claw::beamBreakSeesObject)
+                    .until(claw::beamBreakSeesObject).withTimeout(Constants.PLACEHOLDER_TIMEOUT)
                     .andThen(
                         () -> {
                           new InstantCommand(() -> claw.stopMotors());
