@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -190,7 +191,7 @@ public class RobotContainer implements Sendable {
                     .andThen(
                         () -> {
                           new InstantCommand(() -> claw.stopMotors());
-                          lights.setLEDColor(LightCode.HAS_CORAL);
+                          new ConditionalCommand(new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)), new InstantCommand(), claw::beamBreakSeesObject);
                         })));
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     /* finish score */
