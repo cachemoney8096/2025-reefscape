@@ -242,7 +242,7 @@ public class RobotContainer implements Sendable {
     operatorController.back().onTrue(new InstantCommand());
 
     operatorController
-    .a()
+    .povDown() /* TODO: CHANGE THIS */
     .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.ALGAE));
 
   }
