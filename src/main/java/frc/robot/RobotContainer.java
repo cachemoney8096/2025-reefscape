@@ -30,6 +30,7 @@ import frc.robot.commands.IntakeSequence;
 import frc.robot.commands.PrepScoreSequence;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
 import frc.robot.commands.autos.S1.P2_S1_J_I;
+import frc.robot.commands.autos.S1.P3_S1_I_J_K;
 import frc.robot.commands.autos.S1.P3_S1_J_I_K;
 import frc.robot.commands.autos.S1.P4_S1_I_J_K_L;
 import frc.robot.commands.autos.S1.P4_S1_J_I_K_L;
@@ -160,21 +161,26 @@ public class RobotContainer implements Sendable {
     autonChooser.addOption("P2_S1_I_J",
         new Pair<Command, String>(
             new P2_S1_I_J(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+
     autonChooser.addOption("P2_S1_J_I",
         new Pair<Command, String>(
             new P2_S1_J_I(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+
     autonChooser.addOption("P3_S1_I_J_K",
         new Pair<Command, String>(
-            new P2_S1_J_I(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P3_S1_I_J_K(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+
     autonChooser.addOption("P3_S1_J_I_K",
         new Pair<Command, String>(
             new P3_S1_J_I_K(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+
     autonChooser.addOption("P4_S1_I_J_K_L",
         new Pair<Command, String>(
-            new P2_S1_J_I(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P4_S1_I_J_K_L",
+            new P4_S1_I_J_K_L(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+
+    autonChooser.addOption("P4_S1_J_I_K_L",
         new Pair<Command, String>(
-            new P4_S1_I_J_K_L(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            new P4_S1_J_I_K_L(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
             null));
     // starting location 2
     autonChooser.addOption("P1_S2_G",
@@ -185,14 +191,15 @@ public class RobotContainer implements Sendable {
             new P1_S2_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
     autonChooser.addOption("P2_S2_G_H",
         new Pair<Command, String>(
-            new P1_S2_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P2_S2_G_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
     autonChooser.addOption("P2_S2_H_G",
         new Pair<Command, String>(
-            new P1_S2_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P2_S2_H_G(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+
     autonChooser.addOption("P2_S2_G_H_B", new Pair<Command, String>(
-        new P1_S2_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+        new P2_S2_G_H_B(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
     autonChooser.addOption("P2_S2_H_G_A", new Pair<Command, String>(
-        new P1_S2_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+        new P2_S2_H_G_A(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
     // starting location 3
     autonChooser.addOption("P2_S3_F_E", new Pair<Command, String>(
         new P2_S3_F_E(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
