@@ -229,6 +229,26 @@ public class RobotContainer implements Sendable {
     operatorController
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
+    /* Testing code for climb, arm, and elevator
+    operatorController
+        .y()
+        .onTrue(new InstantCommand(() -> arm.testArmMovementUp()));
+    operatorController
+        .a()
+        .onTrue(new InstantCommand(() -> arm.testArmMovementDown()));
+    operatorController
+        .povUp()
+        .onTrue(new InstantCommand(() -> climb.testClimbMovementUp()));
+    operatorController
+        .povDown()
+        .onTrue(new InstantCommand(() -> climb.testClimbMovementDown()));
+    operatorController
+        .povRight()
+        .onTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));
+    operatorController
+        .povLeft()
+        .onTrue(new InstantCommand(() -> elevator.testElevatorMovementDown()));
+    */
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
     operatorController.back().onTrue(new InstantCommand());
