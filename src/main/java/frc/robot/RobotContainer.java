@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -110,12 +111,12 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
         "AUTO INTAKE SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE")
-            .andThen(new AutoIntakeSequence(elevator, arm, claw)));
+            .andThen(new AutoIntakeSequence(elevator, arm, claw, lights)));
 
     NamedCommands.registerCommand(
         "AUTO SCORING PREP SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE")
-            .andThen(new AutoScoringPrepSequence(elevator, arm, claw)));
+            .andThen(new AutoScoringPrepSequence(elevator, arm, claw, lights)));
 
     NamedCommands.registerCommand(
         "AUTO SCORING SEQUENCE",
@@ -167,32 +168,46 @@ public class RobotContainer implements Sendable {
                 preppedHeight,
                 preppedScoringLocation,
                 drive,
-                matchState));
+                matchState,
+                lights));
     /* climb prep */
     driverController
         .back()
         .onTrue(
             new DeepClimbPrep(
-                climb, arm, scoringLimelight, preppedLocation, matchState, drive, elevator));
+                climb,
+                arm,
+                scoringLimelight,
+                preppedLocation,
+                matchState,
+                drive,
+                elevator,
+                lights));
     /* climb */
-    driverController.start().onTrue(new DeepClimbScoringSequence(arm, climb));
+    driverController.start().onTrue(new DeepClimbScoringSequence(arm, climb, lights));
     /* intake */
     driverController
         .leftTrigger()
         .whileTrue(
             new SequentialCommandGroup(
                 new IntakeSequence(
-                    claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive),
+                    claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive, lights),
+                new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_INTAKE)),
                 new RunCommand(() -> claw.runMotorsIntaking())
                     .until(claw::beamBreakSeesObject)
                     .andThen(
                         () -> {
                           new InstantCommand(() -> claw.stopMotors());
-                          lights.setLEDColor(LightCode.READY_TO_SCORE);
+                          new ConditionalCommand(
+                              new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
+                              new InstantCommand(),
+                              claw::beamBreakSeesObject);
                         })));
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     /* finish score */
-    driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight));
+    driverController
+        .rightTrigger()
+        .onTrue(new FinishScore(claw, elevator, arm, preppedHeight, lights));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     drive.setDefaultCommand(new InstantCommand());
@@ -227,7 +242,7 @@ public class RobotContainer implements Sendable {
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.LEFT));
     operatorController
-        .leftBumper()
+        .rightBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
