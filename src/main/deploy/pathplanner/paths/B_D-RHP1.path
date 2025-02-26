@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.56,
-        "y": 0.8440625
+        "x": 3.8146875,
+        "y": 2.440625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.56,
-        "y": 0.8440624999999997
+        "x": 2.9128124999999994,
+        "y": 1.4534375000000002
       },
       "isLocked": false,
-      "linkedName": "RHP1"
+      "linkedName": "D"
     },
     {
       "anchor": {
-        "x": 5.4721875,
-        "y": 2.6478125
+        "x": 1.56,
+        "y": 0.8440625
       },
       "prevControl": {
-        "x": 5.143125,
-        "y": 1.5021875
+        "x": 2.5959375,
+        "y": 1.4046875
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "F"
+      "linkedName": "RHP1"
     }
   ],
   "rotationTargets": [],
@@ -33,14 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "AUTO SCORING PREP SEQUENCE",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "AUTO SCORING SEQUENCE",
-      "waypointRelativePos": 1.0,
+      "name": "AUTO INTAKE SEQUENCE",
+      "waypointRelativePos": 0.5496445438102894,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.9314171781375
+    "rotation": -128.3455749539934
   },
   "reversed": false,
-  "folder": "S3",
+  "folder": "S3_B",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -128.3455749539934
+    "rotation": -121.18497465873838
   },
   "useDefaultConstraints": true
 }
