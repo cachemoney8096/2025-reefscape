@@ -14,6 +14,7 @@ public class DeepClimbScoringSequence extends SequentialCommandGroup {
     addRequirements(climb);
     addCommands(
         new WaitUntilCommand(() -> climb.atClimbPosition(ClimbPosition.CLIMBING_PREP)),
+        new InstantCommand(() -> climb.setServoLocked(true)),
         new InstantCommand(() -> lights.setLEDColor(LightCode.CLIMBING)),
         new InstantCommand(() -> climb.setClimbingPID()),
         new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)),

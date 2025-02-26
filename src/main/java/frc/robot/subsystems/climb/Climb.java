@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
@@ -21,6 +22,7 @@ public class Climb extends SubsystemBase {
   // private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID);
   private final Encoder climbAbsoluteEncoder =
       new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
+  private final Servo climbServo = new Servo(RobotMap.CLIMBING_SERVO_CAN_ID);
 
   public enum ClimbPosition {
     CLIMBING_PREP,
@@ -114,6 +116,14 @@ public class Climb extends SubsystemBase {
   public void setDesiredClimbPosition(ClimbPosition pos) {
     this.desiredPosition = pos;
     this.allowClimbMovement = true;
+  }
+
+  public void setServoLocked(boolean lockServo) {
+    if (lockServo) {
+      climbServo.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+    } else {
+      climbServo.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+    }
   }
 
   public void doNotAllowClimbMovement() {
