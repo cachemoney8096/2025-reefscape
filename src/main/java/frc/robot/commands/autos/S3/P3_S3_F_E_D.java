@@ -1,7 +1,6 @@
 package frc.robot.commands.autos.S3;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
@@ -12,22 +11,20 @@ import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class P3_S3_F_E_D extends SequentialCommandGroup {
-    public P3_S3_F_E_D (
-        DriveSubsystem drive,
-        Arm arm,
-        Claw claw,
-        Elevator elevator,
-        IntakeLimelight intakelimelight,
-        ScoringLimelight scoringlimelight,
-        boolean isRed) {
-        
-        addRequirements(drive, arm, claw, elevator, 
-                        intakelimelight, scoringlimelight);
-        addCommands(
-            new ConditionalCommand(
-                new PathPlannerAuto("R_3P-S3-F-E-D"), 
-                new PathPlannerAuto("B_3P-S3-F-E-D"), 
-                () -> isRed)
-        );
-    }
+  public P3_S3_F_E_D(
+      DriveSubsystem drive,
+      Arm arm,
+      Claw claw,
+      Elevator elevator,
+      IntakeLimelight intakelimelight,
+      ScoringLimelight scoringlimelight,
+      boolean isRed) {
+
+    addRequirements(drive, arm, claw, elevator, intakelimelight, scoringlimelight);
+    addCommands(
+        new ConditionalCommand(
+            new PathPlannerAuto("R_3P-S3-F-E-D"),
+            new PathPlannerAuto("B_3P-S3-F-E-D"),
+            () -> isRed));
+  }
 }

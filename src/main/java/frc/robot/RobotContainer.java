@@ -58,21 +58,18 @@ import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer implements Sendable {
   private MatchStateUtil matchState;
 
-  private final CommandXboxController driverController = new CommandXboxController(
-      OperatorConstants.DRIVER_CONTROLLER_PORT);
-  private final CommandXboxController operatorController = new CommandXboxController(
-      OperatorConstants.OPERATOR_CONTROLLER_PORT);
+  private final CommandXboxController driverController =
+      new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private final CommandXboxController operatorController =
+      new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
   /* Pair of the command for an auto and its name */
   private SendableChooser<Pair<Command, String>> autonChooser = new SendableChooser<>();
@@ -105,9 +102,7 @@ public class RobotContainer implements Sendable {
   public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
   public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
     matchState = ms;
 
@@ -118,12 +113,14 @@ public class RobotContainer implements Sendable {
     drive = new DriveSubsystem(ms);
     elevator = new Elevator();
     lights = new Lights();
-    scoringLimelight = new ScoringLimelight(
-        Constants.SCORING_LIMELIGHT_PITCH_DEG,
-        Constants.SCORING_LIMELIGHT_HEIGHT_M,
-        0.0); // TODO add placeholders in constants
-    intakeLimelight = new IntakeLimelight(
-        Constants.INTAKE_LIMELIGHT_PITCH_DEG, Constants.INTAKE_LIMELIGHT_HEIGHT_M, 0.0); // ""
+    scoringLimelight =
+        new ScoringLimelight(
+            Constants.SCORING_LIMELIGHT_PITCH_DEG,
+            Constants.SCORING_LIMELIGHT_HEIGHT_M,
+            0.0); // TODO add placeholders in constants
+    intakeLimelight =
+        new IntakeLimelight(
+            Constants.INTAKE_LIMELIGHT_PITCH_DEG, Constants.INTAKE_LIMELIGHT_HEIGHT_M, 0.0); // ""
 
     /* Named commands here */
 
@@ -158,75 +155,127 @@ public class RobotContainer implements Sendable {
 
     /* Autonchooser config */
     // scoring location 1
-    autonChooser.addOption("P2_S1_I_J",
+    autonChooser.addOption(
+        "P2_S1_I_J",
         new Pair<Command, String>(
-            new P2_S1_I_J(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P2_S1_I_J(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
 
-    autonChooser.addOption("P2_S1_J_I",
+    autonChooser.addOption(
+        "P2_S1_J_I",
         new Pair<Command, String>(
-            new P2_S1_J_I(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P2_S1_J_I(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
 
-    autonChooser.addOption("P3_S1_I_J_K",
+    autonChooser.addOption(
+        "P3_S1_I_J_K",
         new Pair<Command, String>(
-            new P3_S1_I_J_K(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P3_S1_I_J_K(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
 
-    autonChooser.addOption("P3_S1_J_I_K",
+    autonChooser.addOption(
+        "P3_S1_J_I_K",
         new Pair<Command, String>(
-            new P3_S1_J_I_K(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P3_S1_J_I_K(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
 
-    autonChooser.addOption("P4_S1_I_J_K_L",
+    autonChooser.addOption(
+        "P4_S1_I_J_K_L",
         new Pair<Command, String>(
-            new P4_S1_I_J_K_L(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P4_S1_I_J_K_L(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
 
-    autonChooser.addOption("P4_S1_J_I_K_L",
+    autonChooser.addOption(
+        "P4_S1_J_I_K_L",
         new Pair<Command, String>(
-            new P4_S1_J_I_K_L(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            new P4_S1_J_I_K_L(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
             null));
     // starting location 2
-    autonChooser.addOption("P1_S2_G",
+    autonChooser.addOption(
+        "P1_S2_G",
         new Pair<Command, String>(
-            new P1_S2_G(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P1_S2_H",
+            new P1_S2_G(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P1_S2_H",
         new Pair<Command, String>(
-            new P1_S2_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P2_S2_G_H",
+            new P1_S2_H(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P2_S2_G_H",
         new Pair<Command, String>(
-            new P2_S2_G_H(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P2_S2_H_G",
+            new P2_S2_G_H(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P2_S2_H_G",
         new Pair<Command, String>(
-            new P2_S2_H_G(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+            new P2_S2_H_G(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
 
-    autonChooser.addOption("P3_S2_G_H_B", new Pair<Command, String>(
-        new P3_S2_G_H_B(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P3_S2_H_G_A", new Pair<Command, String>(
-        new P3_S2_H_G_A(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+    autonChooser.addOption(
+        "P3_S2_G_H_B",
+        new Pair<Command, String>(
+            new P3_S2_G_H_B(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P3_S2_H_G_A",
+        new Pair<Command, String>(
+            new P3_S2_H_G_A(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
     // starting location 3
-    autonChooser.addOption("P2_S3_F_E", new Pair<Command, String>(
-        new P2_S3_F_E(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P3_S3_E_F_D", new Pair<Command, String>(
-        new P3_S3_E_F_D(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P3_S3_F_E_D", new Pair<Command, String>(
-        new P3_S3_F_E_D(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P4_S3_E_F_D_C", new Pair<Command, String>(
-        new P4_S3_E_F_D_C(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P4_S3_F_E_D_C", new Pair<Command, String>(
-        new P4_S3_F_E_D_C(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+    autonChooser.addOption(
+        "P2_S3_F_E",
+        new Pair<Command, String>(
+            new P2_S3_F_E(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P3_S3_E_F_D",
+        new Pair<Command, String>(
+            new P3_S3_E_F_D(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P3_S3_F_E_D",
+        new Pair<Command, String>(
+            new P3_S3_F_E_D(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P4_S3_E_F_D_C",
+        new Pair<Command, String>(
+            new P4_S3_E_F_D_C(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P4_S3_F_E_D_C",
+        new Pair<Command, String>(
+            new P4_S3_F_E_D_C(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
 
     SmartDashboard.putData(autonChooser);
   }
 
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary
+   * Use this method to define your trigger->command mappings. Triggers can be created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
    * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link
-   * CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
+   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
   private void configureDriverBindings() {
