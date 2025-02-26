@@ -98,8 +98,7 @@ public class Climb extends SubsystemBase {
     TrapezoidProfile.State tGoal =
         new TrapezoidProfile.State(
             inputPositionDegrees / 360.0,
-            0); // TODO make sure there isn't a ratio here (there shouldn't be because this is
-    // angular control but good to double check)
+            0);
 
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(currentSlot);
     // set next setpoint, where t = periodic interval (20ms)

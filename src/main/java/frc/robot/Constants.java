@@ -24,7 +24,7 @@ public final class Constants {
   public static final boolean PLACEHOLDER_BOOLEAN = false;
 
   public static final double HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES =
-      10.6; // TODO check these values
+      10.6;
   public static final double HP_INTAKE_TAG_LOCATION_OFFSET_Y_INCHES = 14.6;
   public static final double CLIMB_CAGE_LOCATION_OFFSET_INCHES = 42.9;
   public static final double KRAKEN_FREE_SPEED_RPM = Constants.PLACEHOLDER_DOUBLE;

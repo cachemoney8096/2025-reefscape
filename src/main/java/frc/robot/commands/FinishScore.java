@@ -28,9 +28,9 @@ public class FinishScore extends SequentialCommandGroup {
         new WaitUntilCommand(
             () -> {
               return elevator.atElevatorPosition(height) && arm.atArmPosition(p);
-            }), // TODO consider adding a timeout here?
+            }),
         new InstantCommand(
-            () -> claw.runMotorsScoring()), // TODO might have to change for scoring L4
+            () -> claw.runMotorsScoring()),
         new WaitCommand(1.0),
         new InstantCommand(() -> claw.stopMotors()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.OFF)));

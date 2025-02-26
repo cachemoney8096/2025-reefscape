@@ -26,7 +26,7 @@ public class IntakeLimelight extends SubsystemBase {
   private final double kCameraPitchAngleDegrees;
   private final double kCameraHeight;
   private final double kTargetHeight;
-  private final double kImageCaptureLatency = 11.0; // TODO from last year
+  private final double kImageCaptureLatency = 11.0;
 
   // Simulation functions
   private SimDevice m_simDevice;
@@ -105,7 +105,7 @@ public class IntakeLimelight extends SubsystemBase {
     Translation2d translation =
         new Translation2d(botPoseTargetSpace.getZ(), botPoseTargetSpace.getX());
     Rotation2d rot =
-        Rotation2d.fromDegrees(-botPoseTargetSpace.getRotation().getY()); // TODO why pitch?
+        Rotation2d.fromDegrees(-botPoseTargetSpace.getRotation().getY()); // TODO why pitch? if something isn't working, it could be this
 
     System.out.println("Tag at " + -botPoseTargetSpace.getRotation().getY() + " deg");
     return new Transform2d(translation, rot);

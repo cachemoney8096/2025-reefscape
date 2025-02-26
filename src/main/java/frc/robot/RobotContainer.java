@@ -118,7 +118,7 @@ public class RobotContainer implements Sendable {
         new ScoringLimelight(
             Constants.SCORING_LIMELIGHT_PITCH_DEG,
             Constants.SCORING_LIMELIGHT_HEIGHT_M,
-            0.0); // TODO add placeholders in constants
+            0.0);
     intakeLimelight =
         new IntakeLimelight(
             Constants.INTAKE_LIMELIGHT_PITCH_DEG, Constants.INTAKE_LIMELIGHT_HEIGHT_M, 0.0); // ""

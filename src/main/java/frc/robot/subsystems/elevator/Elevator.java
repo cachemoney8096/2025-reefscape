@@ -76,6 +76,7 @@ public class Elevator extends SubsystemBase {
     TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
+    // TODO change this accordingly
     toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -83,13 +84,12 @@ public class Elevator extends SubsystemBase {
     toApply.CurrentLimits.StatorCurrentLimit =
         ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-    // Slot 0 is for Scoring PID values and Slot 1 is for Climbing PID values
+    // Slot 0 is for Scoring PID values and Slot 1 is for Shallow Climbing PID values
     toApply.Slot0.kP = ElevatorCal.ELEVATOR_SCORE_P;
     toApply.Slot0.kI = ElevatorCal.ELEVATOR_SCORE_I;
     toApply.Slot0.kD = ElevatorCal.ELEVATOR_SCORE_D;
     toApply.Slot0.kV = ElevatorCal.ELEVATOR_SCORE_FF;
-    // TODO: determine if shallow climb is truly being implemented or not (most
-    // likely not)
+    
     toApply.Slot1.kP = ElevatorCal.ELEVATOR_CLIMB_P;
     toApply.Slot1.kI = ElevatorCal.ELEVATOR_CLIMB_I;
     toApply.Slot1.kD = ElevatorCal.ELEVATOR_CLIMB_D;
