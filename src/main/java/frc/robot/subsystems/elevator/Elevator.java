@@ -202,25 +202,35 @@ public class Elevator extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-
-    builder.addIntegerProperty("Currrent slot value", () -> currentSlotValue, null);
-    builder.addDoubleProperty("Left Motor Speed", () -> leftMotor.get(), null);
-    builder.addDoubleProperty("Right Motor Speed", () -> rightMotor.get(), null);
     builder.addBooleanProperty("Boolean isClimbing", () -> !isScoring, null);
+    builder.addIntegerProperty("Currrent slot value", () -> currentSlotValue, null);
     builder.addStringProperty("Desired Position", () -> desiredPosition.toString(), null);
+    builder.addBooleanProperty("Limit Switch Home ", () -> getLimitSwitchHome(), null);
+    builder.addBooleanProperty("Limit Switch Below Home", () -> getLimitSwitchBelowHome(), null);
+    builder.addBooleanProperty("Limit Switch Switch Top ", () -> getLimitSwitchTop(), null);
+    builder.addDoubleProperty(
+        "Current Left Motor Position (Deg)",
+        () -> leftMotor.getPosition().getValueAsDouble() * 360.0,
+        null);
+    builder.addDoubleProperty(
+        "Current Right Motor Position (Deg)",
+        () -> rightMotor.getPosition().getValueAsDouble() * 360.0,
+        null);
+    builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
+    builder.addDoubleProperty(
+        "Trapezoid Setpoint Position (revs)", () -> m_setpoint.position, null);
+    builder.addDoubleProperty(
+        "Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
+
     builder.addDoubleProperty(
         "Desired position inches", () -> elevatorPositions.get(desiredPosition), null);
-    builder.addBooleanProperty("At desired position", this::atDesiredPosition, null);
+    builder.addBooleanProperty("At desired position ", this::atDesiredPosition, null);
     builder.addDoubleProperty(
-        "Elevator position",
+        "Current position",
         () ->
             (leftMotor.getPosition().getValueAsDouble()
                 * ElevatorConstants.DRUM_CIRCUMFERENCE
                 / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
         null);
-    builder.addDoubleProperty(
-        "Arm Clear of Climb Pos (in)",
-        (() -> elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
-        ((newPos) -> elevatorPositions.put(ElevatorHeight.ARM_CLEAR_OF_CLIMB, newPos)));
   }
 }

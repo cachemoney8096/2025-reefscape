@@ -153,10 +153,10 @@ public class Climb extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addStringProperty("Desired Position", (() -> desiredPosition.toString()), null);
+    builder.addStringProperty("Desired Position", () -> desiredPosition.toString(), null);
     builder.addBooleanProperty("At Desired Position", this::atDesiredPosition, null);
     builder.addDoubleProperty(
-        "Desired Position (Deg)", (() -> climbPositionMap.get(desiredPosition)), null);
+        "Desired Position (Deg)", () -> climbPositionMap.get(desiredPosition), null);
     builder.addDoubleProperty(
         "Current Left Motor Position (Deg)",
         () -> climbTalonLeft.getPosition().getValueAsDouble() * 360.0,
@@ -165,5 +165,12 @@ public class Climb extends SubsystemBase {
         "Current Right Motor Position (Deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
+    builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
+    builder.addDoubleProperty(
+        "Absolute Encoder Distance (Deg)", () -> climbAbsoluteEncoder.getDistance() * 360, null);
+    builder.addDoubleProperty("Current Slot", () -> currentSlot, null);
+    builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
+    builder.addDoubleProperty(
+        "Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
   }
 }
