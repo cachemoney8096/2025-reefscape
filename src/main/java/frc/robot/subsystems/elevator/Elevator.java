@@ -170,15 +170,15 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  public void stopElevatorMovement(){
+  public void stopElevatorMovement() {
     leftMotor.setVoltage(0.0);
   }
-  
-  public void testElevatorMovementUp(){
+
+  public void testElevatorMovementUp() {
     leftMotor.setVoltage(ElevatorCal.TEST_ELEVATOR_MOVEMENT_VOLTAGE);
   }
 
-  public void testElevatorMovementDown(){
+  public void testElevatorMovementDown() {
     leftMotor.setVoltage(-1 * ElevatorCal.TEST_ELEVATOR_MOVEMENT_VOLTAGE);
   }
 

@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
-
 import java.util.TreeMap;
 
 public class Climb extends SubsystemBase {
@@ -136,12 +135,14 @@ public class Climb extends SubsystemBase {
     climbTalonLeft.setVoltage(0.0);
   }
 
-  public void testClimbMovementUp(){
+  public void testClimbMovementUp() {
     climbTalonLeft.setVoltage(ClimbCal.TEST_CLIMB_MOVEMENT_VOLTAGE);
   }
-  public void testClimbMovementDown(){
+
+  public void testClimbMovementDown() {
     climbTalonLeft.setVoltage(-1 * ClimbCal.TEST_CLIMB_MOVEMENT_VOLTAGE);
   }
+
   @Override
   public void periodic() {
     if (allowClimbMovement) {
