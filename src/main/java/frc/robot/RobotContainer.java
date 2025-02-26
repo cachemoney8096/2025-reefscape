@@ -157,10 +157,6 @@ public class RobotContainer implements Sendable {
     operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
 
     /* Autonchooser config */
-    autonChooser.setDefaultOption(
-        "default option no autos yet",
-        new Pair<Command, String>(new InstantCommand(), "PATH NAME"));
-
     // scoring location 1
     autonChooser.addOption("P2_S1_I_J",
         new Pair<Command, String>(
