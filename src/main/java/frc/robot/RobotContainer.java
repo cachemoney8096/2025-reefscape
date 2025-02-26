@@ -155,7 +155,6 @@ public class RobotContainer implements Sendable {
     autonChooser.setDefaultOption(
         "default option no autos yet",
         new Pair<Command, String>(new InstantCommand(), "PATH NAME"));
-    SmartDashboard.putData(autonChooser);
 
     // scoring location 1
     autonChooser.addOption("P2_S1_I_J",
