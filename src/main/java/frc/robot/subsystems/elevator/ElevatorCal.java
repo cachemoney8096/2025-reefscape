@@ -33,6 +33,7 @@ public class ElevatorCal {
       POSITION_SHALLOW_CLIMB_INCHES = Constants.PLACEHOLDER_DOUBLE;
 
   public static final double ELEVATOR_MARGIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
+  public static final double TEST_ELEVATOR_MOVEMENT_VOLTAGE = Constants.PLACEHOLDER_DOUBLE;
 
   // Trapezoid Motion Profiling
   public static final double MAX_VELOCITY_IN_PER_SECOND_SCORE = 40.0,

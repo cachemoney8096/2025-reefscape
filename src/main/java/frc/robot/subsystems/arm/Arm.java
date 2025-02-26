@@ -122,6 +122,14 @@ public class Arm extends SubsystemBase {
     armMotorLeft.setVoltage(0.0);
   }
 
+  public void testArmMovementUp() {
+    armMotorLeft.setVoltage(ArmCal.TEST_ARM_MOVEMENT_VOLTAGE);
+  }
+
+  public void testArmMovementDown() {
+    armMotorLeft.setVoltage(-1 * ArmCal.TEST_ARM_MOVEMENT_VOLTAGE);
+  }
+
   @Override
   public void periodic() {
     controlPosition(armPositions.get(this.armDesiredPosition));

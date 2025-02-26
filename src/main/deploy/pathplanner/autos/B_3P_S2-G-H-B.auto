@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_S2-G"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_G-RHP2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_RHP2-H"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_H-RHP2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_RHP2-B"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "B_S2",
+  "choreoAuto": false
+}

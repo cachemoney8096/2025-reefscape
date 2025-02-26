@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_S1-J"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_J-LHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_LHP1-I"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_I-LHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_LHP1-K"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_K-LHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_LHP1-L"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "B_S1",
+  "choreoAuto": false
+}

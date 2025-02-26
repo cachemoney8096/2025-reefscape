@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_S3-F"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_F-RHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_RHP1-E"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "R_S3",
+  "choreoAuto": false
+}

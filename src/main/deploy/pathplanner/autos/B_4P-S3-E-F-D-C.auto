@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_S3-E"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_E-RHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_RHP1-F"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_F-RHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_RHP1-D"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_D-RHP1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_RHP1-C"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "B_S3",
+  "choreoAuto": false
+}

@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -28,6 +29,23 @@ import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.IntakeSequence;
 import frc.robot.commands.PrepScoreSequence;
+import frc.robot.commands.autos.S1.P2_S1_I_J;
+import frc.robot.commands.autos.S1.P2_S1_J_I;
+import frc.robot.commands.autos.S1.P3_S1_I_J_K;
+import frc.robot.commands.autos.S1.P3_S1_J_I_K;
+import frc.robot.commands.autos.S1.P4_S1_I_J_K_L;
+import frc.robot.commands.autos.S1.P4_S1_J_I_K_L;
+import frc.robot.commands.autos.S2.P1_S2_G;
+import frc.robot.commands.autos.S2.P1_S2_H;
+import frc.robot.commands.autos.S2.P2_S2_G_H;
+import frc.robot.commands.autos.S2.P2_S2_H_G;
+import frc.robot.commands.autos.S2.P3_S2_G_H_B;
+import frc.robot.commands.autos.S2.P3_S2_H_G_A;
+import frc.robot.commands.autos.S3.P2_S3_F_E;
+import frc.robot.commands.autos.S3.P3_S3_E_F_D;
+import frc.robot.commands.autos.S3.P3_S3_F_E_D;
+import frc.robot.commands.autos.S3.P4_S3_E_F_D_C;
+import frc.robot.commands.autos.S3.P4_S3_F_E_D_C;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
@@ -69,7 +87,7 @@ public class RobotContainer implements Sendable {
 
   public String pathCmd = "";
 
-  /* Prep states*/
+  /* Prep states */
   public enum IntakeClimbLocation {
     LEFT,
     CENTER,
@@ -110,12 +128,12 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
         "AUTO INTAKE SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE")
-            .andThen(new AutoIntakeSequence(elevator, arm, claw)));
+            .andThen(new AutoIntakeSequence(elevator, arm, claw, lights)));
 
     NamedCommands.registerCommand(
         "AUTO SCORING PREP SEQUENCE",
         new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE")
-            .andThen(new AutoScoringPrepSequence(elevator, arm, claw)));
+            .andThen(new AutoScoringPrepSequence(elevator, arm, claw, lights)));
 
     NamedCommands.registerCommand(
         "AUTO SCORING SEQUENCE",
@@ -137,9 +155,118 @@ public class RobotContainer implements Sendable {
     operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
 
     /* Autonchooser config */
-    autonChooser.setDefaultOption(
-        "default option no autos yet",
-        new Pair<Command, String>(new InstantCommand(), "PATH NAME"));
+    // scoring location 1
+    autonChooser.addOption(
+        "P2_S1_I_J",
+        new Pair<Command, String>(
+            new P2_S1_I_J(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "P2_S1_J_I",
+        new Pair<Command, String>(
+            new P2_S1_J_I(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "P3_S1_I_J_K",
+        new Pair<Command, String>(
+            new P3_S1_I_J_K(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "P3_S1_J_I_K",
+        new Pair<Command, String>(
+            new P3_S1_J_I_K(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "P4_S1_I_J_K_L",
+        new Pair<Command, String>(
+            new P4_S1_I_J_K_L(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "P4_S1_J_I_K_L",
+        new Pair<Command, String>(
+            new P4_S1_J_I_K_L(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    // starting location 2
+    autonChooser.addOption(
+        "P1_S2_G",
+        new Pair<Command, String>(
+            new P1_S2_G(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P1_S2_H",
+        new Pair<Command, String>(
+            new P1_S2_H(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P2_S2_G_H",
+        new Pair<Command, String>(
+            new P2_S2_G_H(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P2_S2_H_G",
+        new Pair<Command, String>(
+            new P2_S2_H_G(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "P3_S2_G_H_B",
+        new Pair<Command, String>(
+            new P3_S2_G_H_B(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P3_S2_H_G_A",
+        new Pair<Command, String>(
+            new P3_S2_H_G_A(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    // starting location 3
+    autonChooser.addOption(
+        "P2_S3_F_E",
+        new Pair<Command, String>(
+            new P2_S3_F_E(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P3_S3_E_F_D",
+        new Pair<Command, String>(
+            new P3_S3_E_F_D(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P3_S3_F_E_D",
+        new Pair<Command, String>(
+            new P3_S3_F_E_D(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P4_S3_E_F_D_C",
+        new Pair<Command, String>(
+            new P4_S3_E_F_D_C(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+    autonChooser.addOption(
+        "P4_S3_F_E_D_C",
+        new Pair<Command, String>(
+            new P4_S3_F_E_D_C(
+                drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()),
+            null));
+
     SmartDashboard.putData(autonChooser);
   }
 
@@ -167,13 +294,21 @@ public class RobotContainer implements Sendable {
                 preppedHeight,
                 preppedScoringLocation,
                 drive,
-                matchState));
+                matchState,
+                lights));
     /* climb prep */
     driverController
         .back()
         .onTrue(
             new DeepClimbPrep(
-                climb, arm, scoringLimelight, preppedLocation, matchState, drive, elevator));
+                climb,
+                arm,
+                scoringLimelight,
+                preppedLocation,
+                matchState,
+                drive,
+                elevator,
+                lights));
     /* climb */
     driverController.start().onTrue(new DeepClimbScoringSequence(climb, elevator));
     /* intake */
@@ -182,17 +317,23 @@ public class RobotContainer implements Sendable {
         .whileTrue(
             new SequentialCommandGroup(
                 new IntakeSequence(
-                    claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive),
+                    claw, intakeLimelight, arm, elevator, climb, preppedLocation, drive, lights),
+                new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_INTAKE)),
                 new RunCommand(() -> claw.runMotorsIntaking())
                     .until(claw::beamBreakSeesObject)
                     .andThen(
                         () -> {
                           new InstantCommand(() -> claw.stopMotors());
-                          lights.setLEDColor(LightCode.READY_TO_SCORE);
+                          new ConditionalCommand(
+                              new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
+                              new InstantCommand(),
+                              claw::beamBreakSeesObject);
                         })));
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     /* finish score */
-    driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight));
+    driverController
+        .rightTrigger()
+        .onTrue(new FinishScore(claw, elevator, arm, preppedHeight, lights));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     drive.setDefaultCommand(new InstantCommand());
@@ -227,8 +368,46 @@ public class RobotContainer implements Sendable {
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.LEFT));
     operatorController
-        .leftBumper()
+        .rightBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
+    /* Testing code for climb, arm, and elevator
+    operatorController
+        .y()
+        .whileTrue(new RunCommand(() -> arm.testArmMovementUp()));
+    operatorController
+        .y()
+        .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+    operatorController
+        .a()
+        .whileTrue(new RunCommand(() -> arm.testArmMovementDown()));
+    operatorController
+        .a()
+        .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+    operatorController
+        .povUp()
+        .whileTrue(new RunCommand(() -> climb.testClimbMovementUp()));
+    operatorController
+        .povUp()
+        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+    operatorController
+        .povDown()
+        .whileTrue(new RunCommand(() -> climb.testClimbMovementDown()));
+    operatorController
+        .povDown()
+        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+    operatorController
+        .povRight()
+        .whileTrue(new RunCommand(() -> elevator.testElevatorMovementUp()));
+    operatorController
+        .povRight()
+        .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
+    operatorController
+        .povLeft()
+        .whileTrue(new RunCommand(() -> elevator.testElevatorMovementDown()));
+    operatorController
+        .povLeft()
+        .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
+    */
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
     operatorController.back().onTrue(new InstantCommand());
