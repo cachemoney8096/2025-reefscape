@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AlgaeKnockoff;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.AutoScoringSequence;
@@ -195,6 +196,11 @@ public class RobotContainer implements Sendable {
     driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
+
+    driverController
+        .b()
+        .onTrue(new AlgaeKnockoff(elevator, drive));
+        
     drive.setDefaultCommand(new InstantCommand());
   }
 
@@ -219,9 +225,7 @@ public class RobotContainer implements Sendable {
     operatorController
         .x()
         .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2));
-    operatorController
-        .y()
-        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
+
     /* Left and right for scoring */
     operatorController
         .leftBumper()
@@ -232,6 +236,11 @@ public class RobotContainer implements Sendable {
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
     operatorController.back().onTrue(new InstantCommand());
+
+    operatorController
+    .a()
+    .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.ALGAE));
+
   }
 
   /**
