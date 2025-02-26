@@ -310,7 +310,7 @@ public class RobotContainer implements Sendable {
                 elevator,
                 lights));
     /* climb */
-    driverController.start().onTrue(new DeepClimbScoringSequence(climb, elevator));
+    driverController.start().onTrue(new DeepClimbScoringSequence(climb, elevator, lights));
     /* intake */
     driverController
         .leftTrigger()
