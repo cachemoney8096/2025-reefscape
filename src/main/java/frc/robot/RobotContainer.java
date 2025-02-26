@@ -36,6 +36,10 @@ import frc.robot.commands.autos.S1.P4_S1_I_J_K_L;
 import frc.robot.commands.autos.S1.P4_S1_J_I_K_L;
 import frc.robot.commands.autos.S2.P1_S2_G;
 import frc.robot.commands.autos.S2.P1_S2_H;
+import frc.robot.commands.autos.S2.P2_S2_G_H;
+import frc.robot.commands.autos.S2.P2_S2_H_G;
+import frc.robot.commands.autos.S2.P3_S2_G_H_B;
+import frc.robot.commands.autos.S2.P3_S2_H_G_A;
 import frc.robot.commands.autos.S3.P2_S3_F_E;
 import frc.robot.commands.autos.S3.P3_S3_E_F_D;
 import frc.robot.commands.autos.S3.P3_S3_F_E_D;
@@ -196,10 +200,10 @@ public class RobotContainer implements Sendable {
         new Pair<Command, String>(
             new P2_S2_H_G(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
 
-    autonChooser.addOption("P2_S2_G_H_B", new Pair<Command, String>(
-        new P2_S2_G_H_B(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
-    autonChooser.addOption("P2_S2_H_G_A", new Pair<Command, String>(
-        new P2_S2_H_G_A(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+    autonChooser.addOption("P3_S2_G_H_B", new Pair<Command, String>(
+        new P3_S2_G_H_B(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
+    autonChooser.addOption("P3_S2_H_G_A", new Pair<Command, String>(
+        new P3_S2_H_G_A(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
     // starting location 3
     autonChooser.addOption("P2_S3_F_E", new Pair<Command, String>(
         new P2_S3_F_E(drive, arm, claw, elevator, intakeLimelight, scoringLimelight, matchState.isRed()), null));
