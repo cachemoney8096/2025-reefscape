@@ -27,6 +27,7 @@ public class ElevatorCal {
       POSITION_SCORE_L2_INCHES = 10.0,
       POSITION_SCORE_L1_INCHES = 10.0,
       POSITION_ARM_CLEAR_OF_CLIMB_INCHES = 7.75,
+      POSITION_ALGAE_INCHES = Constants.PLACEHOLDER_DOUBLE,
 
       // TODO: determine if shallow climb is truly being implemented or not (most likely not)
       POSITION_SHALLOW_PREP_INCHES = Constants.PLACEHOLDER_DOUBLE,

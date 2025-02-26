@@ -3,9 +3,9 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.Constants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.claw.ClawConstants;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class AutoIntakeSequence extends SequentialCommandGroup {
@@ -19,7 +19,7 @@ public class AutoIntakeSequence extends SequentialCommandGroup {
               return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
             }),
         new InstantCommand(() -> claw.runMotorsIntaking()),
-        new WaitUntilCommand(claw::beamBreakSeesObject).withTimeout(Constants.PLACEHOLDER_TIMEOUT),
+        new WaitUntilCommand(claw::beamBreakSeesObject).withTimeout(ClawConstants.INTAKE_TIMEOUT),
         new InstantCommand(() -> claw.stopMotors()));
   }
 }

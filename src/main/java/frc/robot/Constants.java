@@ -22,8 +22,7 @@ public final class Constants {
   public static final int PLACEHOLDER_INT = 0;
   public static final double PLACEHOLDER_DOUBLE = 0.0;
   public static final boolean PLACEHOLDER_BOOLEAN = false;
-  public static final double PLACEHOLDER_TIMEOUT = 0.0;
-
+  
   public static final double HP_INTAKE_TAG_LOCATION_OFFSET_X_INCHES =
       10.6; // TODO check these values
   public static final double HP_INTAKE_TAG_LOCATION_OFFSET_Y_INCHES = 14.6;

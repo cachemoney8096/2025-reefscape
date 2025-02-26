@@ -199,7 +199,7 @@ public class RobotContainer implements Sendable {
 
     driverController
         .b()
-        .onTrue(new AlgaeKnockoff(elevator, drive));
+        .onTrue(new AlgaeKnockoff(elevator));
 
     drive.setDefaultCommand(new InstantCommand());
   }
