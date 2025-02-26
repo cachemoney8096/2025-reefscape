@@ -205,8 +205,8 @@ public class Elevator extends SubsystemBase {
 
 
     builder.addDoubleProperty(
-        "Desired position (deg)", () -> elevatorPositions.get(desiredPosition), null);
-    builder.addBooleanProperty("At desired position", this::atDesiredPosition, null);
+        "Desired position inches", () -> elevatorPositions.get(desiredPosition), null);
+    builder.addBooleanProperty("At desired position ", this::atDesiredPosition, null);
     builder.addDoubleProperty(
         "Current position",
         () ->
