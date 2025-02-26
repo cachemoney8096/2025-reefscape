@@ -131,6 +131,18 @@ public class Climb extends SubsystemBase {
     return atClimbPosition(desiredPosition);
   }
 
+  public void stopClimbMovement() {
+    climbTalonLeft.setVoltage(0.0);
+  }
+
+  public void testClimbMovementUp() {
+    climbTalonLeft.setVoltage(ClimbCal.TEST_CLIMB_MOVEMENT_VOLTAGE);
+  }
+
+  public void testClimbMovementDown() {
+    climbTalonLeft.setVoltage(-1 * ClimbCal.TEST_CLIMB_MOVEMENT_VOLTAGE);
+  }
+
   @Override
   public void periodic() {
     if (allowClimbMovement) {

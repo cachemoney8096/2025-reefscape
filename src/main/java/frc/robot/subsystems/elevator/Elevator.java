@@ -170,6 +170,18 @@ public class Elevator extends SubsystemBase {
     }
   }
 
+  public void stopElevatorMovement() {
+    leftMotor.setVoltage(0.0);
+  }
+
+  public void testElevatorMovementUp() {
+    leftMotor.setVoltage(ElevatorCal.TEST_ELEVATOR_MOVEMENT_VOLTAGE);
+  }
+
+  public void testElevatorMovementDown() {
+    leftMotor.setVoltage(-1 * ElevatorCal.TEST_ELEVATOR_MOVEMENT_VOLTAGE);
+  }
+
   public void zeroElevatorToHome() {
     leftMotor.setPosition(
         ElevatorCal.POSITION_HOME_INCHES

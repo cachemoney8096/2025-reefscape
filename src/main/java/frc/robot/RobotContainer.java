@@ -244,6 +244,44 @@ public class RobotContainer implements Sendable {
     operatorController
         .rightBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
+    /* Testing code for climb, arm, and elevator
+    operatorController
+        .y()
+        .whileTrue(new RunCommand(() -> arm.testArmMovementUp()));
+    operatorController
+        .y()
+        .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+    operatorController
+        .a()
+        .whileTrue(new RunCommand(() -> arm.testArmMovementDown()));
+    operatorController
+        .a()
+        .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+    operatorController
+        .povUp()
+        .whileTrue(new RunCommand(() -> climb.testClimbMovementUp()));
+    operatorController
+        .povUp()
+        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+    operatorController
+        .povDown()
+        .whileTrue(new RunCommand(() -> climb.testClimbMovementDown()));
+    operatorController
+        .povDown()
+        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+    operatorController
+        .povRight()
+        .whileTrue(new RunCommand(() -> elevator.testElevatorMovementUp()));
+    operatorController
+        .povRight()
+        .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
+    operatorController
+        .povLeft()
+        .whileTrue(new RunCommand(() -> elevator.testElevatorMovementDown()));
+    operatorController
+        .povLeft()
+        .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
+    */
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
     operatorController.back().onTrue(new InstantCommand());
