@@ -24,12 +24,10 @@ import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.AutoScoringSequence;
 import frc.robot.commands.DeepClimbPrep;
-import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.IntakeSequence;
 import frc.robot.commands.PrepScoreSequence;
-import frc.robot.commands.ShallowUnclimb;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
@@ -236,11 +234,6 @@ public class RobotContainer implements Sendable {
     operatorController
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
-
-    /* Unclimb */
-    operatorController
-        .start()
-        .onTrue(new ShallowUnclimb(elevator));
 
     /* TODO: ZERO ROTATION ODOMETRY */
     operatorController.back().onTrue(new InstantCommand());
