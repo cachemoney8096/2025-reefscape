@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S2-H"
+            "pathName": "B_S2-H"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "H-LHP2"
+            "pathName": "B_H-LHP2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LHP2-G"
+            "pathName": "B_LHP2-G"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S2_B",
+  "folder": "B_S2",
   "choreoAuto": false
 }

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.5928125,
-        "y": 4.037187499999999
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 6.800531255546681,
-        "y": 4.037187499999999
-      },
-      "isLocked": false,
-      "linkedName": "S2"
-    },
-    {
-      "anchor": {
         "x": 6.166875,
         "y": 3.8909374999999993
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.275312500000581,
+        "y": 6.291875000000016
+      },
+      "isLocked": false,
+      "linkedName": "G"
+    },
+    {
+      "anchor": {
+        "x": 0.8531249999959464,
+        "y": 6.681875000006032
+      },
       "prevControl": {
-        "x": 6.899748198445679,
-        "y": 3.8909374999999993
+        "x": 1.8531249999959463,
+        "y": 6.681875000006032
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "G"
+      "linkedName": "LHP2"
     }
   ],
   "rotationTargets": [],
@@ -33,14 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "AUTO SCORING PREP SEQUENCE",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "AUTO SCORING SEQUENCE",
-      "waypointRelativePos": 1.0,
+      "name": "AUTO INTAKE SEQUENCE",
+      "waypointRelativePos": 0.5392446241961414,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,10 +49,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 125.21759296819272
   },
   "reversed": false,
-  "folder": "S2",
+  "folder": "B_S2",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

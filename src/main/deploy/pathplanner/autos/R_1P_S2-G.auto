@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S2-G"
+            "pathName": "R_S2-G"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S2_R",
+  "folder": "R_S2",
   "choreoAuto": false
 }
