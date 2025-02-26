@@ -23,5 +23,6 @@ public class AutoIntakeSequence extends SequentialCommandGroup {
         new WaitUntilCommand(claw::beamBreakSeesObject).withTimeout(3.0),
         new InstantCommand(() -> claw.stopMotors()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)));
-  };
+  }
+  ;
 }

@@ -11,8 +11,8 @@ public class ShallowClimbPrep extends SequentialCommandGroup {
   public ShallowClimbPrep(Elevator elevator, Lights lights) {
     addRequirements(elevator);
     addCommands(
-      new InstantCommand(() -> lights.setLEDColor(LightCode.CLIMB_PREP_SHALLOW)),
-      new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SHALLOW_PREP)),
-      new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_CLIMB)));
+        new InstantCommand(() -> lights.setLEDColor(LightCode.CLIMB_PREP_SHALLOW)),
+        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SHALLOW_PREP)),
+        new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_CLIMB)));
   }
 }

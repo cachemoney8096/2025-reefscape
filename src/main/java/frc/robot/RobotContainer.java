@@ -175,7 +175,14 @@ public class RobotContainer implements Sendable {
         .back()
         .onTrue(
             new DeepClimbPrep(
-                climb, arm, scoringLimelight, preppedLocation, matchState, drive, elevator, lights));
+                climb,
+                arm,
+                scoringLimelight,
+                preppedLocation,
+                matchState,
+                drive,
+                elevator,
+                lights));
     /* climb */
     driverController.start().onTrue(new DeepClimbScoringSequence(arm, climb, lights));
     /* intake */
@@ -191,11 +198,16 @@ public class RobotContainer implements Sendable {
                     .andThen(
                         () -> {
                           new InstantCommand(() -> claw.stopMotors());
-                          new ConditionalCommand(new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)), new InstantCommand(), claw::beamBreakSeesObject);
+                          new ConditionalCommand(
+                              new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
+                              new InstantCommand(),
+                              claw::beamBreakSeesObject);
                         })));
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     /* finish score */
-    driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight, lights));
+    driverController
+        .rightTrigger()
+        .onTrue(new FinishScore(claw, elevator, arm, preppedHeight, lights));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     drive.setDefaultCommand(new InstantCommand());

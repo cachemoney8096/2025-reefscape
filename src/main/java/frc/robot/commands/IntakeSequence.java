@@ -18,7 +18,6 @@ import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
-import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.HPUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
