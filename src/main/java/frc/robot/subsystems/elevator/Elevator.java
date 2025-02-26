@@ -195,14 +195,20 @@ public class Elevator extends SubsystemBase {
     builder.addStringProperty("Desired Position", () -> desiredPosition.toString(), null);
     builder.addBooleanProperty("Limit Switch Home ", () -> getLimitSwitchHome(), null);
     builder.addBooleanProperty("Limit Switch Below Home", () -> getLimitSwitchBelowHome(), null);
-    builder.addBooleanProperty("Limit Switch Switch Top ",() -> getLimitSwitchTop(), null);
-    builder.addDoubleProperty("Current Left Motor Position (Deg)", () -> leftMotor.getPosition().getValueAsDouble() * 360.0, null);
-    builder.addDoubleProperty("Current Right Motor Position (Deg)", () -> rightMotor.getPosition().getValueAsDouble() * 360.0, null);
+    builder.addBooleanProperty("Limit Switch Switch Top ", () -> getLimitSwitchTop(), null);
+    builder.addDoubleProperty(
+        "Current Left Motor Position (Deg)",
+        () -> leftMotor.getPosition().getValueAsDouble() * 360.0,
+        null);
+    builder.addDoubleProperty(
+        "Current Right Motor Position (Deg)",
+        () -> rightMotor.getPosition().getValueAsDouble() * 360.0,
+        null);
     builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
-    builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> m_setpoint.position, null);
-    builder.addDoubleProperty("Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
-
-
+    builder.addDoubleProperty(
+        "Trapezoid Setpoint Position (revs)", () -> m_setpoint.position, null);
+    builder.addDoubleProperty(
+        "Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
 
     builder.addDoubleProperty(
         "Desired position inches", () -> elevatorPositions.get(desiredPosition), null);
@@ -214,6 +220,5 @@ public class Elevator extends SubsystemBase {
                 * ElevatorConstants.DRUM_CIRCUMFERENCE
                 / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
         null);
-   
   }
 }

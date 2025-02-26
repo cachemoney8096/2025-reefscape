@@ -140,7 +140,7 @@ public class Arm extends SubsystemBase {
         "Right Motor Angle ((Relative) (degree)) ",
         (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
         null);
-    builder.addDoubleProperty( 
+    builder.addDoubleProperty(
         "Left Motor Angle ((Relative)(degree)) ",
         (() -> armMotorLeft.getPosition().getValueAsDouble() * 360.0),
         null);
@@ -150,6 +150,7 @@ public class Arm extends SubsystemBase {
         (() -> armLeftEncoderAbs.getDistance() * 360.0),
         null);
     builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
-    builder.addDoubleProperty("Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
+    builder.addDoubleProperty(
+        "Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
   }
 }

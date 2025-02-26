@@ -401,5 +401,5 @@ public class IntakeLimelight extends SubsystemBase {
     builder.addDoubleProperty("Last Y", () -> m_lastY, null);
     builder.addStringProperty("Pipeline", () -> getPipeline().toString(), null);
     builder.addBooleanProperty("Has Tag", () -> checkForTag().isPresent(), null);
-}
+  }
 }
