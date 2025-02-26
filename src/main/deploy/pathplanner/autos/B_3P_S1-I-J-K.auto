@@ -7,31 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R_S1-I"
+            "pathName": "B_S1-I"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R_I-LHP1"
+            "pathName": "B_I-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R_LHP1-J"
+            "pathName": "B_LHP1-J"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R_J-LHP1"
+            "pathName": "B_J-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R_LHP1-K"
+            "pathName": "B_LHP1-K"
           }
         }
       ]
