@@ -50,6 +50,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "S3_R",
+  "folder": "R_S3",
   "choreoAuto": false
 }

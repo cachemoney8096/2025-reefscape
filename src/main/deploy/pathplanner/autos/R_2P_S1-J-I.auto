@@ -26,6 +26,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "S1_R",
+  "folder": "R_S1",
   "choreoAuto": false
 }

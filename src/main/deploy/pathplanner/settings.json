@@ -11,12 +11,12 @@
     "S3_R"
   ],
   "autoFolders": [
-    "S3_B",
-    "S1_B",
-    "S1_R",
-    "S2_B",
-    "S2_R",
-    "S3_R"
+    "B_S1",
+    "R_S1",
+    "B_S2",
+    "R_S2",
+    "B_S3",
+    "R_S3"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
