@@ -232,22 +232,43 @@ public class RobotContainer implements Sendable {
     /* Testing code for climb, arm, and elevator
     operatorController
         .y()
-        .onTrue(new InstantCommand(() -> arm.testArmMovementUp()));
+        .whileTrue(new RunCommand(() -> arm.testArmMovementUp()));
+    operatorController
+        .y()
+        .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
     operatorController
         .a()
-        .onTrue(new InstantCommand(() -> arm.testArmMovementDown()));
+        .whileTrue(new RunCommand(() -> arm.testArmMovementDown()));
+    operatorController
+        .a()
+        .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
     operatorController
         .povUp()
-        .onTrue(new InstantCommand(() -> climb.testClimbMovementUp()));
+        .whileTrue(new RunCommand(() -> climb.testClimbMovementUp()));
+    operatorController
+        .povUp()
+        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+    operatorController
+        .povUp()
+        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
     operatorController
         .povDown()
-        .onTrue(new InstantCommand(() -> climb.testClimbMovementDown()));
+        .whileTrue(new RunCommand(() -> climb.testClimbMovementDown()));
+    operatorController
+        .povDown()
+        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
     operatorController
         .povRight()
-        .onTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));
+        .whileTrue(new RunCommand(() -> elevator.testElevatorMovementUp()));
+    operatorController
+        .povRight()
+        .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
     operatorController
         .povLeft()
-        .onTrue(new InstantCommand(() -> elevator.testElevatorMovementDown()));
+        .whileTrue(new RunCommand(() -> elevator.testElevatorMovementDown()));
+    operatorController
+        .povLeft()
+        .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
     */
     /* TODO: ZERO ROTATION ODOMETRY */
     /* TODO: RESET YAW */
