@@ -64,7 +64,9 @@ public class Claw extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
+
     super.initSendable(builder);
+    builder.addBooleanProperty("Beam Break Sees Object", () -> beamBreakSeesObject(), null);
     builder.addBooleanProperty(
         "Beam Break Left Status",
         this::beamBreakLeft,
@@ -75,5 +77,6 @@ public class Claw extends SubsystemBase {
         this::beamBreakRight,
         null
     );
+    builder.addDoubleProperty("Current speed (percent)", () -> rollerMotor.get(), null);
 }
 }

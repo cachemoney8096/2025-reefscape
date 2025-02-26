@@ -390,7 +390,7 @@ public class ScoringLimelight extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addDoubleProperty("Latency", this::getLatency, null);
+    builder.addDoubleProperty("ImageCaptureLatency (ms)", this::getLatency, null);
     builder.addDoubleProperty("Tx", this::getOffSetX, null);
     builder.addDoubleProperty("Ty", this::getOffSetY, null);
     builder.addBooleanProperty("Valid Target", this::isValidTarget, null);

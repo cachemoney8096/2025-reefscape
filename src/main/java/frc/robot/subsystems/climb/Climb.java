@@ -147,7 +147,7 @@ public void initSendable(SendableBuilder builder) {
     builder.addDoubleProperty("Current Left Motor Position (Deg)", () -> climbTalonLeft.getPosition().getValueAsDouble() * 360.0, null);
     builder.addDoubleProperty("Current Right Motor Position (Deg)", () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0, null);
     builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
-    builder.addDoubleProperty("Absolute Encoder Distance (Deg)", () -> climbAbsoluteEncoder.getDistance(), null);
+    builder.addDoubleProperty("Absolute Encoder Distance (Deg)", () -> climbAbsoluteEncoder.getDistance() * 360, null);
     builder.addDoubleProperty("Current Slot", () -> currentSlot, null);
     builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
     builder.addDoubleProperty("Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);

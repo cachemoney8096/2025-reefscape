@@ -130,28 +130,26 @@ public class Arm extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
+    builder.addStringProperty("Desired Position", () -> armDesiredPosition.toString(), null);
     builder.addDoubleProperty(
         "Desired Setpoint Position (Deg)", (() -> armPositions.get(armDesiredPosition)), null);
     builder.addDoubleProperty(
         "Desired Setpoint Velocity (Deg/Sec)", (() -> desiredSetpointVelocityDegPerSec), null);
     builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
     builder.addDoubleProperty(
-        "Right Motor Angle (Relative) ",
+        "Right Motor Angle ((Relative) (degree)) ",
         (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
         null);
     builder.addDoubleProperty( 
-        "Left Motor Angle (Relative) ",
+        "Left Motor Angle ((Relative)(degree)) ",
         (() -> armMotorLeft.getPosition().getValueAsDouble() * 360.0),
         null);
     builder.addDoubleProperty(
-        "Left Motor Angle (Absolute) ",
+        "Left Motor Angle ((Absolute) (degree)) ",
         // (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
         (() -> armLeftEncoderAbs.getDistance() * 360.0),
         null);
-    /** More values for debugging and testing various calibrations. Setters are included. */
-    builder.addDoubleProperty(
-        "Deep Climb Pos (Deg)",
-        (() -> armPositions.get(ArmPosition.DEEP_CLIMB)),
-        ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
+    builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
+    builder.addDoubleProperty("Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
   }
 }
