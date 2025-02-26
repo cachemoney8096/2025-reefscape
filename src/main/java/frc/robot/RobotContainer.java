@@ -249,9 +249,6 @@ public class RobotContainer implements Sendable {
         .povUp()
         .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
     operatorController
-        .povUp()
-        .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
-    operatorController
         .povDown()
         .whileTrue(new RunCommand(() -> climb.testClimbMovementDown()));
     operatorController
