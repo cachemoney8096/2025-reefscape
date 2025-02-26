@@ -29,6 +29,7 @@ import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.IntakeSequence;
 import frc.robot.commands.PrepScoreSequence;
+import frc.robot.commands.ShallowUnclimb;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
@@ -175,8 +176,6 @@ public class RobotContainer implements Sendable {
         .onTrue(
             new DeepClimbPrep(
                 climb, arm, scoringLimelight, preppedLocation, matchState, drive, elevator));
-    /* climb */
-    driverController.start().onTrue(new DeepClimbScoringSequence(arm, climb));
     /* intake */
     driverController
         .leftTrigger()
@@ -199,7 +198,7 @@ public class RobotContainer implements Sendable {
     /* TODO: CHANGE BINDING LATER */
 
     driverController
-        .b()
+        .povRight()
         .onTrue(new AlgaeKnockoff(elevator));
 
     drive.setDefaultCommand(new InstantCommand());
@@ -237,14 +236,14 @@ public class RobotContainer implements Sendable {
     operatorController
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
-    /* TODO: ZERO ROTATION ODOMETRY */
-    /* TODO: RESET YAW */
-    operatorController.back().onTrue(new InstantCommand());
 
+    /* Unclimb */
     operatorController
-    .povDown() /* TODO: CHANGE THIS */
-    .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.ALGAE));
+        .start()
+        .onTrue(new ShallowUnclimb(elevator));
 
+    /* TODO: ZERO ROTATION ODOMETRY */
+    operatorController.back().onTrue(new InstantCommand());
   }
 
   /**
