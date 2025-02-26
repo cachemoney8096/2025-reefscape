@@ -196,6 +196,7 @@ public class RobotContainer implements Sendable {
     driverController.rightTrigger().onTrue(new FinishScore(claw, elevator, arm, preppedHeight));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
+    /* TODO: CHANGE BINDING LATER */
 
     driverController
         .b()
@@ -225,6 +226,9 @@ public class RobotContainer implements Sendable {
     operatorController
         .x()
         .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2));
+    operatorController
+        .y()
+        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
 
     /* Left and right for scoring */
     operatorController
