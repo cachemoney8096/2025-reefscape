@@ -93,10 +93,7 @@ public class Climb extends SubsystemBase {
   }
 
   private void controlPosition(double inputPositionDegrees) {
-    TrapezoidProfile.State tGoal =
-        new TrapezoidProfile.State(
-            inputPositionDegrees / 360.0,
-            0);
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
 
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(currentSlot);
     // set next setpoint, where t = periodic interval (20ms)

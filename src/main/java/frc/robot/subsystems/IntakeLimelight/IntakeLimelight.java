@@ -42,7 +42,8 @@ public class IntakeLimelight extends SubsystemBase {
   private double m_lastX = 0.0;
   private double m_lastY = 0.0;
 
-  NetworkTable table = NetworkTableInstance.getDefault().getTable(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME);
+  NetworkTable table =
+      NetworkTableInstance.getDefault().getTable(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME);
   NetworkTableEntry tx = table.getEntry("tx");
   NetworkTableEntry ty = table.getEntry("ty");
   NetworkTableEntry ta = table.getEntry("ta");
@@ -105,7 +106,10 @@ public class IntakeLimelight extends SubsystemBase {
     Translation2d translation =
         new Translation2d(botPoseTargetSpace.getZ(), botPoseTargetSpace.getX());
     Rotation2d rot =
-        Rotation2d.fromDegrees(-botPoseTargetSpace.getRotation().getY()); // TODO why pitch? if something isn't working, it could be this
+        Rotation2d.fromDegrees(
+            -botPoseTargetSpace
+                .getRotation()
+                .getY()); // TODO why pitch? if something isn't working, it could be this
 
     System.out.println("Tag at " + -botPoseTargetSpace.getRotation().getY() + " deg");
     return new Transform2d(translation, rot);

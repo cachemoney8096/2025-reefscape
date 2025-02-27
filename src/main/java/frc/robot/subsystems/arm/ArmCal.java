@@ -1,7 +1,5 @@
 package frc.robot.subsystems.arm;
 
-import frc.robot.Constants;
-
 public class ArmCal {
   public static final double ARM_POSITION_INTAKE_DEGREES = 0.0,
       ARM_POSITION_HOME_DEGREES = 57.0,

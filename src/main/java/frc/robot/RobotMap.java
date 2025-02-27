@@ -10,7 +10,6 @@ public class RobotMap {
   public static final int ARM_ABS_ENCODER_CAN_ID = Constants.PLACEHOLDER_INT;
   public static final int ARM_ABS_ENCODER_DIO_A = Constants.PLACEHOLDER_INT,
       ARM_ABS_ENCODER_DIO_B = Constants.PLACEHOLDER_INT;
-
   public static final int CLIMBING_LEFT_MOTOR_CAN_ID = Constants.PLACEHOLDER_INT,
       CLIMBING_RIGHT_MOTOR_CAN_ID = Constants.PLACEHOLDER_INT;
   public static final int CLIMB_ABS_ENCODER_CAN_ID = Constants.PLACEHOLDER_INT;
@@ -24,7 +23,6 @@ public class RobotMap {
   public static final int ELEVATOR_LIMIT_SWITCH_DIO_HOME = Constants.PLACEHOLDER_INT,
       ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME = Constants.PLACEHOLDER_INT,
       ELEVATOR_LIMIT_SWITCH_DIO_TOP = Constants.PLACEHOLDER_INT;
-
   public static final int FRONT_LEFT_DRIVING_CAN_ID = Constants.PLACEHOLDER_INT,
       FRONT_LEFT_TURNING_CAN_ID = Constants.PLACEHOLDER_INT,
       FRONT_RIGHT_DRIVING_CAN_ID = Constants.PLACEHOLDER_INT,

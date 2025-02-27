@@ -90,7 +90,7 @@ public class Elevator extends SubsystemBase {
     toApply.Slot0.kI = ElevatorCal.ELEVATOR_SCORE_I;
     toApply.Slot0.kD = ElevatorCal.ELEVATOR_SCORE_D;
     toApply.Slot0.kV = ElevatorCal.ELEVATOR_SCORE_FF;
-    
+
     toApply.Slot1.kP = ElevatorCal.ELEVATOR_CLIMB_P;
     toApply.Slot1.kI = ElevatorCal.ELEVATOR_CLIMB_I;
     toApply.Slot1.kD = ElevatorCal.ELEVATOR_CLIMB_D;
@@ -118,7 +118,8 @@ public class Elevator extends SubsystemBase {
     m_goal = new TrapezoidProfile.State(rotations, 0.0);
 
     m_setpoint =
-        (isScoring ? m_profile_scoring : m_profile_climbing).calculate(Constants.PERIOD_TIME_SECONDS, m_setpoint, m_goal);
+        (isScoring ? m_profile_scoring : m_profile_climbing)
+            .calculate(Constants.PERIOD_TIME_SECONDS, m_setpoint, m_goal);
 
     m_request.Position = m_setpoint.position;
     m_request.Velocity = m_setpoint.velocity;

@@ -29,8 +29,7 @@ public class FinishScore extends SequentialCommandGroup {
             () -> {
               return elevator.atElevatorPosition(height) && arm.atArmPosition(p);
             }),
-        new InstantCommand(
-            () -> claw.runMotorsScoring()),
+        new InstantCommand(() -> claw.runMotorsScoring()),
         new WaitCommand(1.0),
         new InstantCommand(() -> claw.stopMotors()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.OFF)));

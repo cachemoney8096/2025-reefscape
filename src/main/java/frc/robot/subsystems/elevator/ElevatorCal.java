@@ -7,15 +7,12 @@ public class ElevatorCal {
       ELEVATOR_SCORE_I = 0.0,
       ELEVATOR_SCORE_D = 0.0,
       ELEVATOR_SCORE_FF = 0.001;
-    
   public static final double ELEVATOR_CLIMB_P = 1.0,
       ELEVATOR_CLIMB_I = 0.0,
       ELEVATOR_CLIMB_D = 0.0,
       ELEVATOR_CLIMB_FF = 0.001;
-
   public static final double ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0;
-
   public static final double POSITION_INTAKE_INCHES = 21.75,
       POSITION_HOME_INCHES = 0.0,
       POSITION_SCORE_L4_INCHES = 32.49,
@@ -25,15 +22,12 @@ public class ElevatorCal {
       POSITION_ARM_CLEAR_OF_CLIMB_INCHES = 7.75,
       POSITION_SHALLOW_PREP_INCHES = Constants.PLACEHOLDER_DOUBLE,
       POSITION_SHALLOW_CLIMB_INCHES = Constants.PLACEHOLDER_DOUBLE;
-
-  public static final double ELEVATOR_MARGIN_INCHES = 0.5,
-      AT_CLEAR_POSITION_MARGIN = 0.5;
+  public static final double ELEVATOR_MARGIN_INCHES = 0.5, AT_CLEAR_POSITION_MARGIN = 0.5;
 
   public static final double TEST_ELEVATOR_MOVEMENT_VOLTAGE = 5.0;
 
   public static final double MAX_VELOCITY_IN_PER_SECOND_SCORE = 8.0,
       MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE = 10.0;
-
   public static final double MAX_VELOCITY_IN_PER_SECOND_CLIMB = 2.0,
       MAX_ACCELERATION_IN_PER_SECOND_SQUARED_CLIMB = 3.5;
 }
