@@ -23,10 +23,8 @@ public class Claw extends SubsystemBase {
   private void initTalons() {
     TalonFXConfigurator cfg = rollerMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
-    toApply.MotorOutput.Inverted =
-        InvertedValue.Clockwise_Positive; // TODO change this to make run intake methods work
-    toApply.MotorOutput.NeutralMode =
-        NeutralModeValue.Coast; // TODO change this based on how tight the compression is
+    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO change this accordingly
+    toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.CurrentLimits.SupplyCurrentLimit = ClawCal.CLAW_ROLLERS_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit =
         ClawCal.CLAW_ROLLERS_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
@@ -64,8 +62,11 @@ public class Claw extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
+
     super.initSendable(builder);
+    builder.addBooleanProperty("Beam Break Sees Object", () -> beamBreakSeesObject(), null);
     builder.addBooleanProperty("Beam Break Left Status", this::beamBreakLeft, null);
     builder.addBooleanProperty("Beam Break Right Status", this::beamBreakRight, null);
+    builder.addDoubleProperty("Current speed (percent)", () -> rollerMotor.get(), null);
   }
 }
