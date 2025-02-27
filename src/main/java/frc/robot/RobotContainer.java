@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.TreeMap;
+
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.util.sendable.Sendable;
@@ -89,6 +91,12 @@ public class RobotContainer implements Sendable {
 
   public String pathCmd = "";
 
+  public enum PrepState {
+    OFF,
+    SCORE,
+    CLIMB
+  }
+
   /* Prep states */
   public enum IntakeClimbLocation {
     LEFT,
@@ -101,6 +109,7 @@ public class RobotContainer implements Sendable {
     RIGHT
   }
 
+  public PrepState prepState = PrepState.OFF;
   public IntakeClimbLocation preppedLocation = IntakeClimbLocation.LEFT;
   public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
   public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
@@ -330,10 +339,18 @@ public class RobotContainer implements Sendable {
                               claw::beamBreakSeesObject);
                         })));
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
+
+    TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
+    selectCommandMap.put(
+        PrepState.SCORE,
+        new FinishScore(claw, elevator, arm, preppedHeight, lights));
+    selectCommandMap.put(
+        PrepState.CLIMB,
+        new DeepClimbScoringSequence(climb, elevator, lights));
     /* finish score */
-    driverController
-        .rightTrigger()
-        .onTrue(new FinishScore(claw, elevator, arm, preppedHeight, lights));
+    // driverController
+    //     .rightTrigger()
+    //     .onTrue(new ConditionalCommand(new RunCommand(() -> claw.runMotorsScoring())));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     /* TODO: CHANGE BINDING LATER */
