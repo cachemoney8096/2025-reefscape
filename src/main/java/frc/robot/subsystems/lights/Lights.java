@@ -6,6 +6,7 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
 import frc.robot.RobotMap;
+import frc.robot.subsystems.lights.Lights.LightCode;
 import java.util.TreeMap;
 
 public class Lights {

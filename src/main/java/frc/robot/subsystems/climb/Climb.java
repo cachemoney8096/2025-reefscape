@@ -73,8 +73,6 @@ public class Climb extends SubsystemBase {
 
     cfgLeft.apply(toApply);
 
-    climbTalonLeft.getDutyCycle().setUpdateFrequency(ClimbCal.CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ);
-
     Follower master = new Follower(climbTalonLeft.getDeviceID(), true);
     climbTalonRight.setControl(master);
   }
@@ -97,11 +95,7 @@ public class Climb extends SubsystemBase {
   }
 
   private void controlPosition(double inputPositionDegrees) {
-    TrapezoidProfile.State tGoal =
-        new TrapezoidProfile.State(
-            inputPositionDegrees / 360.0,
-            0); // TODO make sure there isn't a ratio here (there shouldn't be because this is
-    // angular control but good to double check)
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
 
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(currentSlot);
     // set next setpoint, where t = periodic interval (20ms)
@@ -163,10 +157,10 @@ public class Climb extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addStringProperty("Desired Position", (() -> desiredPosition.toString()), null);
+    builder.addStringProperty("Desired Position", () -> desiredPosition.toString(), null);
     builder.addBooleanProperty("At Desired Position", this::atDesiredPosition, null);
     builder.addDoubleProperty(
-        "Desired Position (Deg)", (() -> climbPositionMap.get(desiredPosition)), null);
+        "Desired Position (Deg)", () -> climbPositionMap.get(desiredPosition), null);
     builder.addDoubleProperty(
         "Current Left Motor Position (Deg)",
         () -> climbTalonLeft.getPosition().getValueAsDouble() * 360.0,
@@ -175,5 +169,12 @@ public class Climb extends SubsystemBase {
         "Current Right Motor Position (Deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
+    builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
+    builder.addDoubleProperty(
+        "Absolute Encoder Distance (Deg)", () -> climbAbsoluteEncoder.getDistance() * 360, null);
+    builder.addDoubleProperty("Current Slot", () -> currentSlot, null);
+    builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
+    builder.addDoubleProperty(
+        "Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
   }
 }
