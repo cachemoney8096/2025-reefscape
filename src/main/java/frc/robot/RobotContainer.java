@@ -350,13 +350,13 @@ public class RobotContainer implements Sendable {
         PrepState.CLIMB,
         new DeepClimbScoringSequence(climb, elevator, lights));
 
-    SelectCommand<PrepState> driverLeftTriggerCommand =
+    SelectCommand<PrepState> driverRightTriggerCommand =
         new SelectCommand<PrepState>(selectCommandMap, ()->{PrepState h = prepState; prepState = PrepState.OFF; return h;});
     /* finish score */
      driverController
          .rightTrigger()
          .onTrue(new ConditionalCommand(new InstantCommand(() -> claw.runMotorsScoring()), 
-         driverLeftTriggerCommand, 
+         driverRightTriggerCommand, 
          ()->prepState==PrepState.OFF));
 
     driverController
