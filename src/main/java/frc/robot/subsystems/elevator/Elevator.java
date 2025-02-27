@@ -25,7 +25,8 @@ public class Elevator extends SubsystemBase {
     SCORE_L1,
     SHALLOW_PREP,
     SHALLOW_CLIMB,
-    ARM_CLEAR_OF_CLIMB;
+    ARM_CLEAR_OF_CLIMB,
+    ALGAE;
   }
 
   private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
@@ -70,6 +71,7 @@ public class Elevator extends SubsystemBase {
     elevatorPositions.put(ElevatorHeight.SHALLOW_CLIMB, ElevatorCal.POSITION_SHALLOW_CLIMB_INCHES);
     elevatorPositions.put(
         ElevatorHeight.ARM_CLEAR_OF_CLIMB, ElevatorCal.POSITION_ARM_CLEAR_OF_CLIMB_INCHES);
+    elevatorPositions.put(ElevatorHeight.ALGAE, ElevatorCal.POSITION_ALGAE_INCHES);
     initTalons();
   }
 

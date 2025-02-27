@@ -284,8 +284,6 @@ public class RobotContainer implements Sendable {
    * joysticks}.
    */
   private void configureDriverBindings() {
-    /* Go home */
-    driverController.leftBumper().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
     /* prep score */
     driverController
         .rightBumper()
@@ -313,8 +311,6 @@ public class RobotContainer implements Sendable {
                 drive,
                 elevator,
                 lights));
-    /* climb */
-    driverController.start().onTrue(new DeepClimbScoringSequence(climb, elevator, lights));
     /* intake */
     driverController
         .leftTrigger()
@@ -340,6 +336,21 @@ public class RobotContainer implements Sendable {
         .onTrue(new FinishScore(claw, elevator, arm, preppedHeight, lights));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
+    /* TODO: CHANGE BINDING LATER */
+
+    // driverController
+    //     .povRight()
+    //     .onTrue(new AlgaeKnockoff(elevator));
+
+    /*
+     * povUp = top left back button
+     * povRight = bottom left back button
+     * povDown = top right back button
+     * povLeft = bottom right back button
+     */
+    /* Go home */
+    driverController.povLeft().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
+
     drive.setDefaultCommand(new InstantCommand());
   }
 
@@ -367,6 +378,7 @@ public class RobotContainer implements Sendable {
     operatorController
         .y()
         .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
+
     /* Left and right for scoring */
     operatorController
         .leftBumper()
@@ -413,8 +425,8 @@ public class RobotContainer implements Sendable {
         .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
     */
     /* TODO: ZERO ROTATION ODOMETRY */
-    /* TODO: RESET YAW */
-    operatorController.back().onTrue(new InstantCommand());
+
+    operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
   }
 
   /**
