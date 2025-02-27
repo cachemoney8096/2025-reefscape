@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.TreeMap;
-
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.util.sendable.Sendable;
@@ -62,6 +60,7 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
+import java.util.TreeMap;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -299,28 +298,30 @@ public class RobotContainer implements Sendable {
         .rightBumper()
         .onTrue(
             new PrepScoreSequence(
-                arm,
-                elevator,
-                scoringLimelight,
-                climb,
-                preppedHeight,
-                preppedScoringLocation,
-                drive,
-                matchState,
-                lights).beforeStarting(() -> prepState = PrepState.SCORE));
+                    arm,
+                    elevator,
+                    scoringLimelight,
+                    climb,
+                    preppedHeight,
+                    preppedScoringLocation,
+                    drive,
+                    matchState,
+                    lights)
+                .beforeStarting(() -> prepState = PrepState.SCORE));
     /* climb prep */
     driverController
         .back()
         .onTrue(
             new DeepClimbPrep(
-                climb,
-                arm,
-                scoringLimelight,
-                preppedLocation,
-                matchState,
-                drive,
-                elevator,
-                lights).beforeStarting(() -> prepState = PrepState.CLIMB));
+                    climb,
+                    arm,
+                    scoringLimelight,
+                    preppedLocation,
+                    matchState,
+                    drive,
+                    elevator,
+                    lights)
+                .beforeStarting(() -> prepState = PrepState.CLIMB));
     /* intake */
     driverController
         .leftTrigger()
@@ -342,28 +343,35 @@ public class RobotContainer implements Sendable {
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
     TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
-    
+
     selectCommandMap.put(
-        PrepState.SCORE,
-        new FinishScore(claw, elevator, arm, preppedHeight, lights));
-    selectCommandMap.put(
-        PrepState.CLIMB,
-        new DeepClimbScoringSequence(climb, elevator, lights));
+        PrepState.SCORE, new FinishScore(claw, elevator, arm, preppedHeight, lights));
+    selectCommandMap.put(PrepState.CLIMB, new DeepClimbScoringSequence(climb, elevator, lights));
 
     SelectCommand<PrepState> driverRightTriggerCommand =
-        new SelectCommand<PrepState>(selectCommandMap, ()->{PrepState h = prepState; prepState = PrepState.OFF; return h;});
+        new SelectCommand<PrepState>(
+            selectCommandMap,
+            () -> {
+              PrepState h = prepState;
+              prepState = PrepState.OFF;
+              return h;
+            });
     /* finish score */
-     driverController
-         .rightTrigger()
-         .onTrue(new ConditionalCommand(new InstantCommand(() -> claw.runMotorsScoring()), 
-         driverRightTriggerCommand, 
-         ()->prepState==PrepState.OFF));
+    driverController
+        .rightTrigger()
+        .onTrue(
+            new ConditionalCommand(
+                new InstantCommand(() -> claw.runMotorsScoring()),
+                driverRightTriggerCommand,
+                () -> prepState == PrepState.OFF));
 
     driverController
-         .rightTrigger()
-         .onFalse(new ConditionalCommand(new InstantCommand(() -> claw.stopMotors()), 
-         new InstantCommand(), 
-         ()->prepState==PrepState.OFF));
+        .rightTrigger()
+        .onFalse(
+            new ConditionalCommand(
+                new InstantCommand(() -> claw.stopMotors()),
+                new InstantCommand(),
+                () -> prepState == PrepState.OFF));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     /* TODO: CHANGE BINDING LATER */
@@ -379,7 +387,11 @@ public class RobotContainer implements Sendable {
      * povLeft = bottom right back button
      */
     /* Go home */
-    driverController.povLeft().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights).beforeStarting(() -> prepState = PrepState.OFF));
+    driverController
+        .povLeft()
+        .onTrue(
+            new GoHomeSequence(climb, elevator, arm, claw, lights)
+                .beforeStarting(() -> prepState = PrepState.OFF));
 
     drive.setDefaultCommand(new InstantCommand());
   }
