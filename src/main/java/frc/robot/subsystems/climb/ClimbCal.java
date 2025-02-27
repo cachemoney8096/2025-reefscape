@@ -21,6 +21,4 @@ public class ClimbCal {
       CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS = 80.0;
 
   public static final double CLIMB_MARGIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
-
-  public static final double CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ = 50.0;
 }
