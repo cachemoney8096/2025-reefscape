@@ -9,6 +9,5 @@ public class AlgaeKnockoff extends SequentialCommandGroup {
     addRequirements(elevator);
     addCommands(
         new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.ALGAE)));
-    
   }
 }
