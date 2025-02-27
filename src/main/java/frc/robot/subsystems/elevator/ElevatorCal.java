@@ -3,15 +3,15 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants;
 
 public class ElevatorCal {
-  public static final double ELEVATOR_SCORE_P = Constants.PLACEHOLDER_DOUBLE,
-      ELEVATOR_SCORE_I = Constants.PLACEHOLDER_DOUBLE,
-      ELEVATOR_SCORE_D = Constants.PLACEHOLDER_DOUBLE,
-      ELEVATOR_SCORE_FF = Constants.PLACEHOLDER_DOUBLE;
+  public static final double ELEVATOR_SCORE_P = 1.0,
+      ELEVATOR_SCORE_I = 0.0,
+      ELEVATOR_SCORE_D = 0.0,
+      ELEVATOR_SCORE_FF = 0.001;
     
-  public static final double ELEVATOR_CLIMB_P = Constants.PLACEHOLDER_DOUBLE,
-      ELEVATOR_CLIMB_I = Constants.PLACEHOLDER_DOUBLE,
-      ELEVATOR_CLIMB_D = Constants.PLACEHOLDER_DOUBLE,
-      ELEVATOR_CLIMB_FF = Constants.PLACEHOLDER_DOUBLE;
+  public static final double ELEVATOR_CLIMB_P = 1.0,
+      ELEVATOR_CLIMB_I = 0.0,
+      ELEVATOR_CLIMB_D = 0.0,
+      ELEVATOR_CLIMB_FF = 0.001;
 
   public static final double ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0;
