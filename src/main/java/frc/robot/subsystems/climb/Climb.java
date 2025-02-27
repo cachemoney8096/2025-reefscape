@@ -73,8 +73,6 @@ public class Climb extends SubsystemBase {
 
     cfgLeft.apply(toApply);
 
-    climbTalonLeft.getDutyCycle().setUpdateFrequency(ClimbCal.CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ);
-
     Follower master = new Follower(climbTalonLeft.getDeviceID(), true);
     climbTalonRight.setControl(master);
   }

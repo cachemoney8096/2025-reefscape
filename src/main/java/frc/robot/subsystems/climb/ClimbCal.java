@@ -25,6 +25,4 @@ public class ClimbCal {
 
     public static final double CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE,
             CLIMBING_SERVO_LOCKED_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE;
-
-    public static final double CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ = 50.0;
 }
