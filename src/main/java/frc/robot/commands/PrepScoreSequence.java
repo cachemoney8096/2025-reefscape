@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
+import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
@@ -72,7 +73,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                 int id =
                     (int)
                         NetworkTableInstance.getDefault()
-                            .getTable("limelight-scoring")
+                            .getTable(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME)
                             .getEntry("tid")
                             .getDouble(0);
                 /* map of id -> pair<util tag position id, robot heading> */

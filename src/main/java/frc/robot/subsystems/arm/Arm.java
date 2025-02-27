@@ -39,8 +39,6 @@ public class Arm extends SubsystemBase {
     L4
   }
 
-  private double desiredSetpointVelocityDegPerSec = 0.0;
-
   /** Map each of our arm positions to an actual position on our arm (degrees) */
   public final TreeMap<ArmPosition, Double> armPositions = new TreeMap<ArmPosition, Double>();
 
@@ -95,14 +93,12 @@ public class Arm extends SubsystemBase {
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
     TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
     // set next setpoint, where t = periodic interval (20ms)
-    tSetpoint = trapezoidProfile.calculate(0.02, tSetpoint, tGoal);
+    tSetpoint = trapezoidProfile.calculate(Constants.PERIOD_TIME_SECONDS, tSetpoint, tGoal);
 
     tRequest.Position = tSetpoint.position;
     tRequest.Velocity = tSetpoint.velocity;
 
     armMotorLeft.setControl(tRequest);
-
-    this.desiredSetpointVelocityDegPerSec = tRequest.Velocity * 360.0;
   }
 
   public boolean atArmPosition(ArmPosition pos) {
@@ -140,8 +136,6 @@ public class Arm extends SubsystemBase {
     builder.addStringProperty("Desired Position", () -> armDesiredPosition.toString(), null);
     builder.addDoubleProperty(
         "Desired Setpoint Position (Deg)", (() -> armPositions.get(armDesiredPosition)), null);
-    builder.addDoubleProperty(
-        "Desired Setpoint Velocity (Deg/Sec)", (() -> desiredSetpointVelocityDegPerSec), null);
     builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
     builder.addDoubleProperty(
         "Right Motor Angle ((Relative) (degree)) ",

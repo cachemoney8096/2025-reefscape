@@ -11,6 +11,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotMap;
 import java.util.TreeMap;
 
@@ -30,10 +31,10 @@ public class Elevator extends SubsystemBase {
   private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
 
   private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-  DigitalInput limitSwitchHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
+  DigitalInput limitSwitchHome = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
   DigitalInput limitSwitchBelowHome =
-      new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
-  DigitalInput limitSwitchTop = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
+      new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
+  DigitalInput limitSwitchTop = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
   private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
   private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
   ;
@@ -117,7 +118,7 @@ public class Elevator extends SubsystemBase {
     m_goal = new TrapezoidProfile.State(rotations, 0.0);
 
     m_setpoint =
-        (isScoring ? m_profile_scoring : m_profile_climbing).calculate(0.02, m_setpoint, m_goal);
+        (isScoring ? m_profile_scoring : m_profile_climbing).calculate(Constants.PERIOD_TIME_SECONDS, m_setpoint, m_goal);
 
     m_request.Position = m_setpoint.position;
     m_request.Velocity = m_setpoint.velocity;
@@ -131,7 +132,7 @@ public class Elevator extends SubsystemBase {
                 - elevatorPositions.get(desiredPosition)
                     / ElevatorConstants.DRUM_CIRCUMFERENCE
                     * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
-        < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
+        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean atElevatorPosition(ElevatorHeight height) {
@@ -140,7 +141,7 @@ public class Elevator extends SubsystemBase {
                 - elevatorPositions.get(height)
                     / ElevatorConstants.DRUM_CIRCUMFERENCE
                     * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
-        < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
+        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean armMovementAllowed() {

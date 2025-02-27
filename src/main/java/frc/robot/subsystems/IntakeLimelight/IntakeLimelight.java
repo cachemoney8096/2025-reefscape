@@ -42,7 +42,7 @@ public class IntakeLimelight extends SubsystemBase {
   private double m_lastX = 0.0;
   private double m_lastY = 0.0;
 
-  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-intake");
+  NetworkTable table = NetworkTableInstance.getDefault().getTable(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME);
   NetworkTableEntry tx = table.getEntry("tx");
   NetworkTableEntry ty = table.getEntry("ty");
   NetworkTableEntry ta = table.getEntry("ta");
@@ -70,7 +70,7 @@ public class IntakeLimelight extends SubsystemBase {
         Constants.limelightCamMode.VISION_PROCESSING,
         Constants.limelightPipeline.TAG_PIPELINE);
 
-    m_simDevice = SimDevice.create("limelight-intake");
+    m_simDevice = SimDevice.create(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME);
     if (m_simDevice != null) {
       m_targetArea = m_simDevice.createDouble("Target Area", Direction.kBidir, 0.0);
       m_skew = m_simDevice.createDouble("Skew", Direction.kBidir, 0.0);
