@@ -24,6 +24,7 @@ import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.AutoScoringSequence;
 import frc.robot.commands.DeepClimbPrep;
+import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.IntakeSequence;
@@ -310,8 +311,6 @@ public class RobotContainer implements Sendable {
                 drive,
                 elevator,
                 lights));
-    /* climb */
-    driverController.start().onTrue(new DeepClimbScoringSequence(climb, elevator, lights));
     /* intake */
     driverController
         .leftTrigger()
