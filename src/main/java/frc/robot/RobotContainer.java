@@ -153,8 +153,6 @@ public class RobotContainer implements Sendable {
    * joysticks}.
    */
   private void configureDriverBindings() {
-    /* Go home */
-    driverController.leftBumper().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
     /* prep score */
     driverController
         .rightBumper()
@@ -195,9 +193,12 @@ public class RobotContainer implements Sendable {
     /* TODO: DRIVE CODE */
     /* TODO: CHANGE BINDING LATER */
 
-    driverController
-        .povRight()
-        .onTrue(new AlgaeKnockoff(elevator));
+    // driverController
+    //     .povRight()
+    //     .onTrue(new AlgaeKnockoff(elevator));
+
+    /* Go home */
+    driverController.povLeft().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
 
     drive.setDefaultCommand(new InstantCommand());
   }
@@ -232,11 +233,12 @@ public class RobotContainer implements Sendable {
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.LEFT));
     operatorController
-        .leftBumper()
+        .rightBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
 
     /* TODO: ZERO ROTATION ODOMETRY */
-    operatorController.back().onTrue(new InstantCommand());
+
+    operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
   }
 
   /**
