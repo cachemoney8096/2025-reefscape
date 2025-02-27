@@ -23,7 +23,9 @@ public class ClimbCal {
 
   public static final double CLIMB_MARGIN_DEGREES = 0.5;
   public static final double TEST_CLIMB_MOVEMENT_VOLTAGE = 4.0;
-  
-  public static final double CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE,
-            CLIMBING_SERVO_LOCKED_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE; //TODO get these values
+
+  public static final double
+      CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE,
+      CLIMBING_SERVO_LOCKED_POSITION_DEGREES =
+          Constants.PLACEHOLDER_DOUBLE; // TODO get these values
 }
