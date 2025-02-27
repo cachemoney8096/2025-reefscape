@@ -11,6 +11,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotMap;
 import java.util.TreeMap;
 
@@ -30,10 +31,10 @@ public class Elevator extends SubsystemBase {
   private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
 
   private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-  DigitalInput limitSwitchHome = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
+  DigitalInput limitSwitchHome = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
   DigitalInput limitSwitchBelowHome =
-      new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
-  DigitalInput limitSwitchTop = new DigitalInput(ElevatorCal.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
+      new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
+  DigitalInput limitSwitchTop = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
   private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
   private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
   ;
@@ -76,6 +77,7 @@ public class Elevator extends SubsystemBase {
     TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
+    // TODO change this accordingly
     toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -83,13 +85,12 @@ public class Elevator extends SubsystemBase {
     toApply.CurrentLimits.StatorCurrentLimit =
         ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-    // Slot 0 is for Scoring PID values and Slot 1 is for Climbing PID values
+    // Slot 0 is for Scoring PID values and Slot 1 is for Shallow Climbing PID values
     toApply.Slot0.kP = ElevatorCal.ELEVATOR_SCORE_P;
     toApply.Slot0.kI = ElevatorCal.ELEVATOR_SCORE_I;
     toApply.Slot0.kD = ElevatorCal.ELEVATOR_SCORE_D;
     toApply.Slot0.kV = ElevatorCal.ELEVATOR_SCORE_FF;
-    // TODO: determine if shallow climb is truly being implemented or not (most
-    // likely not)
+
     toApply.Slot1.kP = ElevatorCal.ELEVATOR_CLIMB_P;
     toApply.Slot1.kI = ElevatorCal.ELEVATOR_CLIMB_I;
     toApply.Slot1.kD = ElevatorCal.ELEVATOR_CLIMB_D;
@@ -117,7 +118,8 @@ public class Elevator extends SubsystemBase {
     m_goal = new TrapezoidProfile.State(rotations, 0.0);
 
     m_setpoint =
-        (isScoring ? m_profile_scoring : m_profile_climbing).calculate(0.02, m_setpoint, m_goal);
+        (isScoring ? m_profile_scoring : m_profile_climbing)
+            .calculate(Constants.PERIOD_TIME_SECONDS, m_setpoint, m_goal);
 
     m_request.Position = m_setpoint.position;
     m_request.Velocity = m_setpoint.velocity;
@@ -131,7 +133,7 @@ public class Elevator extends SubsystemBase {
                 - elevatorPositions.get(desiredPosition)
                     / ElevatorConstants.DRUM_CIRCUMFERENCE
                     * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
-        < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
+        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean atElevatorPosition(ElevatorHeight height) {
@@ -140,7 +142,7 @@ public class Elevator extends SubsystemBase {
                 - elevatorPositions.get(height)
                     / ElevatorConstants.DRUM_CIRCUMFERENCE
                     * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
-        < ElevatorCal.ELEVATOR_MARGIN_DEGREES;
+        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean armMovementAllowed() {

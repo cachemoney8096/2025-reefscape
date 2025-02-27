@@ -71,8 +71,6 @@ public class Climb extends SubsystemBase {
 
     cfgLeft.apply(toApply);
 
-    climbTalonLeft.getDutyCycle().setUpdateFrequency(ClimbCal.CLIMB_DUTY_CYCLE_UPDATE_FREQ_HZ);
-
     Follower master = new Follower(climbTalonLeft.getDeviceID(), true);
     climbTalonRight.setControl(master);
   }
@@ -95,11 +93,7 @@ public class Climb extends SubsystemBase {
   }
 
   private void controlPosition(double inputPositionDegrees) {
-    TrapezoidProfile.State tGoal =
-        new TrapezoidProfile.State(
-            inputPositionDegrees / 360.0,
-            0); // TODO make sure there isn't a ratio here (there shouldn't be because this is
-    // angular control but good to double check)
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
 
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(currentSlot);
     // set next setpoint, where t = periodic interval (20ms)

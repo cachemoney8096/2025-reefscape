@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
+import frc.robot.subsystems.IntakeLimelight.IntakeLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
@@ -68,7 +69,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                       int id =
                           (int)
                               NetworkTableInstance.getDefault()
-                                  .getTable("limelight-intake")
+                                  .getTable(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME)
                                   .getEntry("tid")
                                   .getDouble(0.0);
                       HPUtil.Position pos =

@@ -47,7 +47,9 @@ import frc.robot.commands.autos.S3.P3_S3_F_E_D;
 import frc.robot.commands.autos.S3.P4_S3_E_F_D_C;
 import frc.robot.commands.autos.S3.P4_S3_F_E_D_C;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
+import frc.robot.subsystems.IntakeLimelight.IntakeLimelightConstants;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
+import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
@@ -116,12 +118,14 @@ public class RobotContainer implements Sendable {
     lights = new Lights();
     scoringLimelight =
         new ScoringLimelight(
-            Constants.SCORING_LIMELIGHT_PITCH_DEG,
-            Constants.SCORING_LIMELIGHT_HEIGHT_M,
-            0.0); // TODO add placeholders in constants
+            ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,
+            ScoringLimelightConstants.SCORING_LIMELIGHT_HEIGHT_METERS,
+            0.0);
     intakeLimelight =
         new IntakeLimelight(
-            Constants.INTAKE_LIMELIGHT_PITCH_DEG, Constants.INTAKE_LIMELIGHT_HEIGHT_M, 0.0); // ""
+            IntakeLimelightConstants.INTAKE_LIMELIGHT_PITCH_DEGREES,
+            IntakeLimelightConstants.INTAKE_LIMELIGHT_HEIGHT_METERS,
+            0.0); // ""
 
     /* Named commands here */
 
