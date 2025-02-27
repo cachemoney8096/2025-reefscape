@@ -1,0 +1,67 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.8531249999959464,
+        "y": 6.681875000006032
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.4125000000000005,
+        "y": 7.461875
+      },
+      "isLocked": false,
+      "linkedName": "LHP2"
+    },
+    {
+      "anchor": {
+        "x": 6.166875,
+        "y": 3.8909374999999993
+      },
+      "prevControl": {
+        "x": 8.3728125,
+        "y": 8.144375
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "G"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "AUTO SCORING PREP SEQUENCE",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AUTO SCORING SEQUENCE",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "B_S2",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 125.21759296819272
+  },
+  "useDefaultConstraints": true
+}

@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.8146875,
+        "y": 2.440625
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.9128124999999994,
+        "y": 1.4534375000000002
+      },
+      "isLocked": false,
+      "linkedName": "D"
+    },
+    {
+      "anchor": {
+        "x": 1.56,
+        "y": 0.8440625
+      },
+      "prevControl": {
+        "x": 2.5959375,
+        "y": 1.4046875
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "RHP1"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "AUTO INTAKE SEQUENCE",
+      "waypointRelativePos": 0.5496445438102894,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -128.3455749539934
+  },
+  "reversed": false,
+  "folder": "S3_B",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -121.18497465873838
+  },
+  "useDefaultConstraints": true
+}

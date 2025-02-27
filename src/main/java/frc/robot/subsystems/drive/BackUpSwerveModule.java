@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.utils.AbsoluteEncoderChecker;
 import frc.robot.utils.SparkMaxUtils;
 
@@ -200,7 +201,7 @@ public class BackUpSwerveModule implements Sendable {
 
     // If the change is less than the max accel, allow it
     final double maxAccelMpss = 15.0;
-    final double loopTimeS = 0.02;
+    final double loopTimeS = Constants.PERIOD_TIME_SECONDS;
     final double maxVelChangeMps = maxAccelMpss * loopTimeS;
     final double velChangeMps = inputVelocityMps - prevDesiredVelocityMps;
     if (Math.abs(velChangeMps) < maxVelChangeMps) {

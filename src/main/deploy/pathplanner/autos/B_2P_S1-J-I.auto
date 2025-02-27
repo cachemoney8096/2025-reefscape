@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S1-J"
+            "pathName": "B_S1-J"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "J-LHP1"
+            "pathName": "B_J-LHP1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LHP1-I"
+            "pathName": "B_LHP1-I"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "S1_B",
+  "folder": "B_S1",
   "choreoAuto": false
 }

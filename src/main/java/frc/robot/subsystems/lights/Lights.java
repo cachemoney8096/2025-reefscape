@@ -6,6 +6,7 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
 import frc.robot.RobotMap;
+import frc.robot.subsystems.lights.Lights.LightCode;
 import java.util.TreeMap;
 
 public class Lights {
@@ -20,9 +21,9 @@ public class Lights {
   private LightCode currentLightStatus = LightCode.OFF;
 
   public enum LightCode {
-    OFF, // Black
+    OFF, // BLACK
     DISABLED, // ORANGE
-    READY_TO_INTAKE, // Blink RED
+    READY_TO_INTAKE, // BLINK RED
     HAS_CORAL, // GREEN
     SCORE_PREP, // BLUE
     READY_TO_SCORE, // RAINBOW
@@ -31,7 +32,7 @@ public class Lights {
     READY_TO_CLIMB, // RAINBOW
     CLIMBING, // BLINK BLUE
     PARTY_MODE, // RAINBOW ANIMATION
-    HOME // red
+    HOME // RED
   }
 
   public Lights() {

@@ -26,7 +26,7 @@ public class ScoringLimelight extends SubsystemBase {
   private final double kCameraPitchAngleDegrees;
   private final double kCameraHeight;
   private final double kTargetHeight;
-  private final double kImageCaptureLatency = 11.0; // TODO from last year
+  private final double kImageCaptureLatency = 11.0;
 
   // Simulation functions
   private SimDevice m_simDevice;
@@ -42,7 +42,8 @@ public class ScoringLimelight extends SubsystemBase {
   private double m_lastX = 0.0;
   private double m_lastY = 0.0;
 
-  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-scoring");
+  NetworkTable table =
+      NetworkTableInstance.getDefault().getTable(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
   NetworkTableEntry tx = table.getEntry("tx");
   NetworkTableEntry ty = table.getEntry("ty");
   NetworkTableEntry ta = table.getEntry("ta");
@@ -71,7 +72,7 @@ public class ScoringLimelight extends SubsystemBase {
         Constants.limelightCamMode.VISION_PROCESSING,
         Constants.limelightPipeline.TAG_PIPELINE);
 
-    m_simDevice = SimDevice.create("limelight-scoring");
+    m_simDevice = SimDevice.create(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
     if (m_simDevice != null) {
       m_targetArea = m_simDevice.createDouble("Target Area", Direction.kBidir, 0.0);
       m_skew = m_simDevice.createDouble("Skew", Direction.kBidir, 0.0);
@@ -106,7 +107,10 @@ public class ScoringLimelight extends SubsystemBase {
     Translation2d translation =
         new Translation2d(botPoseTargetSpace.getZ(), botPoseTargetSpace.getX());
     Rotation2d rot =
-        Rotation2d.fromDegrees(-botPoseTargetSpace.getRotation().getY()); // TODO why pitch?
+        Rotation2d.fromDegrees(
+            -botPoseTargetSpace
+                .getRotation()
+                .getY()); // TODO why pitch? if something breaks, could be this
 
     System.out.println("Tag at " + -botPoseTargetSpace.getRotation().getY() + " deg");
     return new Transform2d(translation, rot);
@@ -389,10 +393,21 @@ public class ScoringLimelight extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addDoubleProperty("Latency", () -> getLatency(), null);
-    builder.addDoubleProperty("Tx", () -> getOffSetX(), null);
-    builder.addDoubleProperty("Ty", () -> getOffSetY(), null);
-    builder.addBooleanProperty("Valid Target", () -> isValidTarget(), null);
-    builder.addBooleanProperty("Connected", () -> checkConnection(), null);
+    super.initSendable(builder);
+    builder.addDoubleProperty("Latency", this::getLatency, null);
+    builder.addDoubleProperty("Tx", this::getOffSetX, null);
+    builder.addDoubleProperty("Ty", this::getOffSetY, null);
+    builder.addBooleanProperty("Valid Target", this::isValidTarget, null);
+    builder.addBooleanProperty("Connected", this::checkConnection, null);
+    builder.addDoubleProperty("Target Area", this::getTargetArea, null);
+    builder.addDoubleProperty("Skew", this::getSkew, null);
+    builder.addDoubleProperty("Camera Pitch Angle (Deg)", () -> kCameraPitchAngleDegrees, null);
+    builder.addDoubleProperty("Camera Height (m)", () -> kCameraHeight, null);
+    builder.addDoubleProperty("Target Height (m)", () -> kTargetHeight, null);
+    builder.addDoubleProperty("Last Distance", () -> m_lastDistance, null);
+    builder.addDoubleProperty("Last X", () -> m_lastX, null);
+    builder.addDoubleProperty("Last Y", () -> m_lastY, null);
+    builder.addStringProperty("Pipeline", () -> getPipeline().toString(), null);
+    builder.addBooleanProperty("Has Tag", () -> checkForTag().isPresent(), null);
   }
 }

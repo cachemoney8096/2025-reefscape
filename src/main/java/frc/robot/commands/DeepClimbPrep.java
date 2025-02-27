@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
+import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
@@ -17,6 +18,8 @@ import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
 import java.util.Optional;
@@ -33,7 +36,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
       RobotContainer.IntakeClimbLocation location,
       MatchStateUtil msu,
       DriveSubsystem drive,
-      Elevator elevator) {
+      Elevator elevator,
+      Lights lights) {
     addRequirements(climb, arm);
 
     BooleanSupplier checkForTag =
@@ -44,7 +48,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
             int id =
                 (int)
                     NetworkTableInstance.getDefault()
-                        .getTable("limelight-scoring")
+                        .getTable(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME)
                         .getEntry("tid")
                         .getDouble(0.0);
             return (id == 14 && !msu.isRed()) || (id == 5 && msu.isRed());
@@ -62,6 +66,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
             new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
 
     addCommands(
+        new InstantCommand(() -> lights.setLEDColor(LightCode.CLIMB_PREP_DEEP)),
         /* fall back on manual if we don't see a tag */
         new ConditionalCommand(
             new SequentialCommandGroup(
@@ -96,6 +101,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
             // TODO the drive logic here probably won't be the same
             new InstantCommand(),
             checkForTag),
-        deepClimbPrep);
+        deepClimbPrep,
+        new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_CLIMB)));
   }
 }

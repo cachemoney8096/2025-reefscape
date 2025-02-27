@@ -1,0 +1,67 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.56,
+        "y": 0.8440625
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.535,
+        "y": 1.3559375
+      },
+      "isLocked": false,
+      "linkedName": "RHP1"
+    },
+    {
+      "anchor": {
+        "x": 3.8146875,
+        "y": 2.440625
+      },
+      "prevControl": {
+        "x": 3.241875,
+        "y": 1.660625
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "D"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "AUTO SCORING PREP SEQUENCE",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AUTO SCORING SEQUENCE",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -121.18497465873838
+  },
+  "reversed": false,
+  "folder": "S3_B",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -128.3455749539934
+  },
+  "useDefaultConstraints": true
+}

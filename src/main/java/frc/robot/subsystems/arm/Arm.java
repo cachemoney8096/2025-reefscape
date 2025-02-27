@@ -39,8 +39,6 @@ public class Arm extends SubsystemBase {
     L4
   }
 
-  private double desiredSetpointVelocityDegPerSec = 0.0;
-
   /** Map each of our arm positions to an actual position on our arm (degrees) */
   public final TreeMap<ArmPosition, Double> armPositions = new TreeMap<ArmPosition, Double>();
 
@@ -62,8 +60,7 @@ public class Arm extends SubsystemBase {
   private void initArmTalons() {
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
-    /** TODO: motor output clockwise or counterclockwise */
-    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO change this accordingly
     toApply.CurrentLimits.SupplyCurrentLimit = ArmCal.ARM_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit = ArmCal.ARM_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -96,14 +93,12 @@ public class Arm extends SubsystemBase {
     PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
     TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
     // set next setpoint, where t = periodic interval (20ms)
-    tSetpoint = trapezoidProfile.calculate(0.02, tSetpoint, tGoal);
+    tSetpoint = trapezoidProfile.calculate(Constants.PERIOD_TIME_SECONDS, tSetpoint, tGoal);
 
     tRequest.Position = tSetpoint.position;
     tRequest.Velocity = tSetpoint.velocity;
 
     armMotorLeft.setControl(tRequest);
-
-    this.desiredSetpointVelocityDegPerSec = tRequest.Velocity * 360.0;
   }
 
   public boolean atArmPosition(ArmPosition pos) {
@@ -122,6 +117,14 @@ public class Arm extends SubsystemBase {
     armMotorLeft.setVoltage(0.0);
   }
 
+  public void testArmMovementUp() {
+    armMotorLeft.setVoltage(ArmCal.TEST_ARM_MOVEMENT_VOLTAGE);
+  }
+
+  public void testArmMovementDown() {
+    armMotorLeft.setVoltage(-1 * ArmCal.TEST_ARM_MOVEMENT_VOLTAGE);
+  }
+
   @Override
   public void periodic() {
     controlPosition(armPositions.get(this.armDesiredPosition));
@@ -130,28 +133,25 @@ public class Arm extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
+    builder.addStringProperty("Desired Position", () -> armDesiredPosition.toString(), null);
     builder.addDoubleProperty(
         "Desired Setpoint Position (Deg)", (() -> armPositions.get(armDesiredPosition)), null);
-    builder.addDoubleProperty(
-        "Desired Setpoint Velocity (Deg/Sec)", (() -> desiredSetpointVelocityDegPerSec), null);
     builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
     builder.addDoubleProperty(
-        "Right Motor Angle (Relative) ",
+        "Right Motor Angle ((Relative) (degree)) ",
         (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
         null);
     builder.addDoubleProperty(
-        "Left Motor Angle (Relative) ",
+        "Left Motor Angle ((Relative)(degree)) ",
         (() -> armMotorLeft.getPosition().getValueAsDouble() * 360.0),
         null);
     builder.addDoubleProperty(
-        "Left Motor Angle (Absolute) ",
+        "Left Motor Angle ((Absolute) (degree)) ",
         // (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
         (() -> armLeftEncoderAbs.getDistance() * 360.0),
         null);
-    /** More values for debugging and testing various calibrations. Setters are included. */
+    builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
     builder.addDoubleProperty(
-        "Deep Climb Pos (Deg)",
-        (() -> armPositions.get(ArmPosition.DEEP_CLIMB)),
-        ((newPos) -> armPositions.put(ArmPosition.DEEP_CLIMB, newPos)));
+        "Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
   }
 }

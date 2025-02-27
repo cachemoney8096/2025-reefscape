@@ -1,7 +1,5 @@
 package frc.robot.subsystems.arm;
 
-import frc.robot.Constants;
-
 public class ArmCal {
   public static final double ARM_POSITION_INTAKE_DEGREES = 0.0,
       ARM_POSITION_HOME_DEGREES = 57.0,
@@ -13,15 +11,15 @@ public class ArmCal {
   public static final double ARM_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       ARM_STATOR_CURRENT_LIMIT_AMPS = 80.0;
 
-  public static final double ARM_MARGIN_DEGREES = Constants.PLACEHOLDER_DOUBLE;
+  public static final double ARM_MARGIN_DEGREES = 0.5;
+  public static final double TEST_ARM_MOVEMENT_VOLTAGE = 6.0;
 
-  public static final double ARM_MOTOR_P = Constants.PLACEHOLDER_DOUBLE,
-      ARM_MOTOR_I = Constants.PLACEHOLDER_DOUBLE,
-      ARM_MOTOR_D = Constants.PLACEHOLDER_DOUBLE,
-      ARM_MOTOR_FF = Constants.PLACEHOLDER_DOUBLE;
-  public static final double ARM_INTERFERENCE_THRESHOLD_DEGREES = 17.0;
+  public static final double ARM_MOTOR_P = 3.5,
+      ARM_MOTOR_I = 0.0,
+      ARM_MOTOR_D = 1.0,
+      ARM_MOTOR_FF = 0.001;
 
-  /** Essentially guesstimated values subject to change */
+  // TODO if the arm doesn't work, this could be the cause
   public static final double ARM_MOTOR_MAX_VELOCITY_RPS = 1.0,
       ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED = 2.5;
 }
