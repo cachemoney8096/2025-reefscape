@@ -22,7 +22,7 @@ public class Climb extends SubsystemBase {
   // private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID);
   private final Encoder climbAbsoluteEncoder =
       new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
-  private final Servo climbServo = new Servo(RobotMap.CLIMBING_SERVO_CAN_ID);
+  private final Servo climbServo = new Servo(RobotMap.CLIMBING_SERVO_DIO);
 
   public enum ClimbPosition {
     CLIMBING_PREP,
