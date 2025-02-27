@@ -307,7 +307,7 @@ public class RobotContainer implements Sendable {
                 preppedScoringLocation,
                 drive,
                 matchState,
-                lights));
+                lights).beforeStarting(() -> prepState = PrepState.SCORE));
     /* climb prep */
     driverController
         .back()
@@ -320,7 +320,7 @@ public class RobotContainer implements Sendable {
                 matchState,
                 drive,
                 elevator,
-                lights));
+                lights).beforeStarting(() -> prepState = PrepState.CLIMB));
     /* intake */
     driverController
         .leftTrigger()
@@ -358,6 +358,12 @@ public class RobotContainer implements Sendable {
          .onTrue(new ConditionalCommand(new InstantCommand(() -> claw.runMotorsScoring()), 
          driverLeftTriggerCommand, 
          ()->prepState==PrepState.OFF));
+
+    driverController
+         .rightTrigger()
+         .onFalse(new ConditionalCommand(new InstantCommand(() -> claw.stopMotors()), 
+         new InstantCommand(), 
+         ()->prepState==PrepState.OFF));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     /* TODO: CHANGE BINDING LATER */
@@ -373,7 +379,7 @@ public class RobotContainer implements Sendable {
      * povLeft = bottom right back button
      */
     /* Go home */
-    driverController.povLeft().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
+    driverController.povLeft().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights).beforeStarting(() -> prepState = PrepState.OFF));
 
     drive.setDefaultCommand(new InstantCommand());
   }
