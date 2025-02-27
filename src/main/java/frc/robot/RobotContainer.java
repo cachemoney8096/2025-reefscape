@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -341,16 +342,22 @@ public class RobotContainer implements Sendable {
     driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
     TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
+    
     selectCommandMap.put(
         PrepState.SCORE,
         new FinishScore(claw, elevator, arm, preppedHeight, lights));
     selectCommandMap.put(
         PrepState.CLIMB,
         new DeepClimbScoringSequence(climb, elevator, lights));
+
+    SelectCommand<PrepState> driverLeftTriggerCommand =
+        new SelectCommand<PrepState>(selectCommandMap, ()->{PrepState h = prepState; prepState = PrepState.OFF; return h;});
     /* finish score */
-    // driverController
-    //     .rightTrigger()
-    //     .onTrue(new ConditionalCommand(new RunCommand(() -> claw.runMotorsScoring())));
+     driverController
+         .rightTrigger()
+         .onTrue(new ConditionalCommand(new InstantCommand(() -> claw.runMotorsScoring()), 
+         driverLeftTriggerCommand, 
+         ()->prepState==PrepState.OFF));
     /* TODO: CARDINALS */
     /* TODO: DRIVE CODE */
     /* TODO: CHANGE BINDING LATER */
