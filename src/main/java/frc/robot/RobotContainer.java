@@ -197,6 +197,12 @@ public class RobotContainer implements Sendable {
     //     .povRight()
     //     .onTrue(new AlgaeKnockoff(elevator));
 
+    /*
+     * povUp = top left back button
+     * povRight = bottom left back button
+     * povDown = top right back button
+     * povLeft = bottom right back button
+     */
     /* Go home */
     driverController.povLeft().onTrue(new GoHomeSequence(climb, elevator, arm, claw, lights));
 
