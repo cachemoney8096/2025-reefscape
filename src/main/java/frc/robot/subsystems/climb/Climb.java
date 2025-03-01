@@ -157,24 +157,31 @@ public class Climb extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addStringProperty("Desired Position", () -> desiredPosition.toString(), null);
-    builder.addBooleanProperty("At Desired Position", this::atDesiredPosition, null);
+    
+    builder.addStringProperty("Climb DESIRED Pos", () -> desiredPosition.toString(), null);
     builder.addDoubleProperty(
-        "Desired Position (Deg)", () -> climbPositionMap.get(desiredPosition), null);
+        "Climb DESIRED Pos (Deg)", () -> climbPositionMap.get(desiredPosition), null);
+    builder.addBooleanProperty("Climb at desired", this::atDesiredPosition, null);
+
     builder.addDoubleProperty(
-        "Current Left Motor Position (Deg)",
+        "Climb Left Motor RELATIVE (deg)",
         () -> climbTalonLeft.getPosition().getValueAsDouble() * 360.0,
         null);
     builder.addDoubleProperty(
-        "Current Right Motor Position (Deg)",
+        "Climb Right Motor RELATIVE (deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
-    builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
+        builder.addDoubleProperty(
+          "Climb ABSOLUTE (deg)", () -> climbAbsoluteEncoder.getDistance() * 360, null);
+
+    builder.addDoubleProperty("Climb Trapezoid Setpoint Pos (revs)", () -> tSetpoint.position, null);
     builder.addDoubleProperty(
-        "Absolute Encoder Distance (Deg)", () -> climbAbsoluteEncoder.getDistance() * 360, null);
-    builder.addDoubleProperty("Current Slot", () -> currentSlot, null);
-    builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
-    builder.addDoubleProperty(
-        "Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
+        "Climb Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
+
+        builder.addStringProperty("Climb PID Slot", () -> {return currentSlot == 0 ? "CLIMBING" : "POSITIONING";}, null);
+      
+        // this should theoretically work because getAngle() returns the commanded angle
+        builder.addStringProperty("Servo DESIRED Pos", () -> {return climbServo.getAngle() == ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES ? "UNLOCKED" : "LOCKED";}, null);
+        builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
   }
 }

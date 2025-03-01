@@ -207,35 +207,39 @@ public class Elevator extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addBooleanProperty("Boolean isClimbing", () -> !isScoring, null);
-    builder.addIntegerProperty("Currrent slot value", () -> currentSlotValue, null);
-    builder.addStringProperty("Desired Position", () -> desiredPosition.toString(), null);
-    builder.addBooleanProperty("Limit Switch Home ", () -> getLimitSwitchHome(), null);
-    builder.addBooleanProperty("Limit Switch Below Home", () -> getLimitSwitchBelowHome(), null);
-    builder.addBooleanProperty("Limit Switch Switch Top ", () -> getLimitSwitchTop(), null);
+
+    builder.addStringProperty("Elevator DESIRED Pos", () -> desiredPosition.toString(), null);
     builder.addDoubleProperty(
-        "Current Left Motor Position (Deg)",
+        "Elevator DESIRED Pos (in)", () -> elevatorPositions.get(desiredPosition), null);
+    builder.addBooleanProperty("Elevator at desired", this::atDesiredPosition, null);
+
+    builder.addDoubleProperty(
+        "Elevator Left Motor RELATIVE (deg)",
         () -> leftMotor.getPosition().getValueAsDouble() * 360.0,
         null);
     builder.addDoubleProperty(
-        "Current Right Motor Position (Deg)",
+        "Elevator Right Motor RELATIVE (deg)",
         () -> rightMotor.getPosition().getValueAsDouble() * 360.0,
         null);
-    builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
-    builder.addDoubleProperty(
-        "Trapezoid Setpoint Position (revs)", () -> m_setpoint.position, null);
-    builder.addDoubleProperty(
-        "Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
 
-    builder.addDoubleProperty(
-        "Desired position inches", () -> elevatorPositions.get(desiredPosition), null);
-    builder.addBooleanProperty("At desired position ", this::atDesiredPosition, null);
-    builder.addDoubleProperty(
-        "Current position",
-        () ->
-            (leftMotor.getPosition().getValueAsDouble()
-                * ElevatorConstants.DRUM_CIRCUMFERENCE
-                / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
-        null);
+        builder.addDoubleProperty(
+          "Elevator CURRENT Pos (in)",
+          () ->
+              (leftMotor.getPosition().getValueAsDouble()
+                  * ElevatorConstants.DRUM_CIRCUMFERENCE
+                  / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
+          null);
+
+          builder.addDoubleProperty(
+            "Elevator Trapezoid Setpoint Pos (revs)", () -> m_setpoint.position, null);
+        builder.addDoubleProperty(
+            "Elevator Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
+
+        builder.addStringProperty("Elevator PID Slot", () -> {return currentSlotValue == 0 ? "SCORING" : "CLIMBING";}, null);
+        builder.addBooleanProperty("Elevator Limit Switch HOME ", () -> getLimitSwitchHome(), null);
+        builder.addBooleanProperty("Elevator Limit Switch BELOW HOME", () -> getLimitSwitchBelowHome(), null);
+        builder.addBooleanProperty("Elevator Limit Switch Switch TOP", () -> getLimitSwitchTop(), null);
+
+        builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
   }
 }

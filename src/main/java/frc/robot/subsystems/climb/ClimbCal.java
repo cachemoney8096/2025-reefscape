@@ -25,7 +25,8 @@ public class ClimbCal {
   public static final double TEST_CLIMB_MOVEMENT_VOLTAGE = 4.0;
 
   public static final double
-      CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES = Constants.PLACEHOLDER_DOUBLE,
+      CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES = 90.0,
       CLIMBING_SERVO_LOCKED_POSITION_DEGREES =
-          Constants.PLACEHOLDER_DOUBLE; // TODO get these values
+          70.0; // TODO test these values
+ // if the lock position isn't 70, then test 110; if not 110, then try arbitrary values
 }

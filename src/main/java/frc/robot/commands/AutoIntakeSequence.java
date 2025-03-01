@@ -25,5 +25,4 @@ public class AutoIntakeSequence extends SequentialCommandGroup {
         new InstantCommand(() -> claw.stopMotors()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)));
   }
-  ;
 }
