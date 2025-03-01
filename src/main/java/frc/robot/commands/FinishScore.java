@@ -27,7 +27,7 @@ public class FinishScore extends SequentialCommandGroup {
     addCommands(
         new WaitUntilCommand(
             () -> {
-              return elevator.atElevatorPosition(height) && arm.atArmPosition(p);
+              return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
             }),
         new InstantCommand(() -> claw.runMotorsScoring()),
         new WaitCommand(1.0),
