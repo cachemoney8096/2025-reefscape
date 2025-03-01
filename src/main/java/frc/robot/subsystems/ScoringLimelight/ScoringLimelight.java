@@ -402,7 +402,8 @@ public class ScoringLimelight extends SubsystemBase {
     builder.addBooleanProperty("SCORING Connected", this::checkConnection, null);
     builder.addDoubleProperty("SCORING Target Area", this::getTargetArea, null);
     builder.addDoubleProperty("SCORING Skew", this::getSkew, null);
-    builder.addDoubleProperty("SCORING Camera Pitch Angle (deg)", () -> kCameraPitchAngleDegrees, null);
+    builder.addDoubleProperty(
+        "SCORING Camera Pitch Angle (deg)", () -> kCameraPitchAngleDegrees, null);
     builder.addDoubleProperty("SCORING Camera Height (m)", () -> kCameraHeight, null);
     builder.addDoubleProperty("SCORING Target Height (m)", () -> kTargetHeight, null);
     builder.addDoubleProperty("SCORING Last Distance", () -> m_lastDistance, null);

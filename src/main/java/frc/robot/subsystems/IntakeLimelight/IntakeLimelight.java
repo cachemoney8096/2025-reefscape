@@ -390,7 +390,7 @@ public class IntakeLimelight extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    
+
     builder.addDoubleProperty("INTAKE Latency", this::getLatency, null);
     builder.addDoubleProperty("INTAKE Tx", this::getOffSetX, null);
     builder.addDoubleProperty("INTAKE Ty", this::getOffSetY, null);
@@ -398,7 +398,8 @@ public class IntakeLimelight extends SubsystemBase {
     builder.addBooleanProperty("INTAKE Connected", this::checkConnection, null);
     builder.addDoubleProperty("INTAKE Target Area", this::getTargetArea, null);
     builder.addDoubleProperty("INTAKE Skew", this::getSkew, null);
-    builder.addDoubleProperty("INTAKE Camera Pitch Angle (deg)", () -> kCameraPitchAngleDegrees, null);
+    builder.addDoubleProperty(
+        "INTAKE Camera Pitch Angle (deg)", () -> kCameraPitchAngleDegrees, null);
     builder.addDoubleProperty("INTAKE Camera Height (m)", () -> kCameraHeight, null);
     builder.addDoubleProperty("INTAKE Target Height (m)", () -> kTargetHeight, null);
     builder.addDoubleProperty("INTAKE Last Distance", () -> m_lastDistance, null);

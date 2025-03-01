@@ -157,7 +157,7 @@ public class Climb extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    
+
     builder.addStringProperty("Climb DESIRED Pos", () -> desiredPosition.toString(), null);
     builder.addDoubleProperty(
         "Climb DESIRED Pos (Deg)", () -> climbPositionMap.get(desiredPosition), null);
@@ -171,17 +171,30 @@ public class Climb extends SubsystemBase {
         "Climb Right Motor RELATIVE (deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
-        builder.addDoubleProperty(
-          "Climb ABSOLUTE (deg)", () -> climbAbsoluteEncoder.getDistance() * 360, null);
+    builder.addDoubleProperty(
+        "Climb ABSOLUTE (deg)", () -> climbAbsoluteEncoder.getDistance() * 360, null);
 
-    builder.addDoubleProperty("Climb Trapezoid Setpoint Pos (revs)", () -> tSetpoint.position, null);
+    builder.addDoubleProperty(
+        "Climb Trapezoid Setpoint Pos (revs)", () -> tSetpoint.position, null);
     builder.addDoubleProperty(
         "Climb Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
 
-        builder.addStringProperty("Climb PID Slot", () -> {return currentSlot == 0 ? "CLIMBING" : "POSITIONING";}, null);
-      
-        // this should theoretically work because getAngle() returns the commanded angle
-        builder.addStringProperty("Servo DESIRED Pos", () -> {return climbServo.getAngle() == ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES ? "UNLOCKED" : "LOCKED";}, null);
-        builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
+    builder.addStringProperty(
+        "Climb PID Slot",
+        () -> {
+          return currentSlot == 0 ? "CLIMBING" : "POSITIONING";
+        },
+        null);
+
+    // this should theoretically work because getAngle() returns the commanded angle
+    builder.addStringProperty(
+        "Servo DESIRED Pos",
+        () -> {
+          return climbServo.getAngle() == ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES
+              ? "UNLOCKED"
+              : "LOCKED";
+        },
+        null);
+    builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
   }
 }

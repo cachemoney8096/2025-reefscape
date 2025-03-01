@@ -222,24 +222,30 @@ public class Elevator extends SubsystemBase {
         () -> rightMotor.getPosition().getValueAsDouble() * 360.0,
         null);
 
-        builder.addDoubleProperty(
-          "Elevator CURRENT Pos (in)",
-          () ->
-              (leftMotor.getPosition().getValueAsDouble()
-                  * ElevatorConstants.DRUM_CIRCUMFERENCE
-                  / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
-          null);
+    builder.addDoubleProperty(
+        "Elevator CURRENT Pos (in)",
+        () ->
+            (leftMotor.getPosition().getValueAsDouble()
+                * ElevatorConstants.DRUM_CIRCUMFERENCE
+                / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
+        null);
 
-          builder.addDoubleProperty(
-            "Elevator Trapezoid Setpoint Pos (revs)", () -> m_setpoint.position, null);
-        builder.addDoubleProperty(
-            "Elevator Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
+    builder.addDoubleProperty(
+        "Elevator Trapezoid Setpoint Pos (revs)", () -> m_setpoint.position, null);
+    builder.addDoubleProperty(
+        "Elevator Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
 
-        builder.addStringProperty("Elevator PID Slot", () -> {return currentSlotValue == 0 ? "SCORING" : "CLIMBING";}, null);
-        builder.addBooleanProperty("Elevator Limit Switch HOME ", () -> getLimitSwitchHome(), null);
-        builder.addBooleanProperty("Elevator Limit Switch BELOW HOME", () -> getLimitSwitchBelowHome(), null);
-        builder.addBooleanProperty("Elevator Limit Switch Switch TOP", () -> getLimitSwitchTop(), null);
+    builder.addStringProperty(
+        "Elevator PID Slot",
+        () -> {
+          return currentSlotValue == 0 ? "SCORING" : "CLIMBING";
+        },
+        null);
+    builder.addBooleanProperty("Elevator Limit Switch HOME ", () -> getLimitSwitchHome(), null);
+    builder.addBooleanProperty(
+        "Elevator Limit Switch BELOW HOME", () -> getLimitSwitchBelowHome(), null);
+    builder.addBooleanProperty("Elevator Limit Switch Switch TOP", () -> getLimitSwitchTop(), null);
 
-        builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
+    builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
   }
 }

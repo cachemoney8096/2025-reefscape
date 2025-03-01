@@ -1,7 +1,5 @@
 package frc.robot.subsystems.climb;
 
-import frc.robot.Constants;
-
 public class ClimbCal {
   public static final double CLIMBING_P = 3.5,
       CLIMBING_I = 0.0,
@@ -24,9 +22,7 @@ public class ClimbCal {
   public static final double CLIMB_MARGIN_DEGREES = 0.5;
   public static final double TEST_CLIMB_MOVEMENT_VOLTAGE = 4.0;
 
-  public static final double
-      CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES = 90.0,
-      CLIMBING_SERVO_LOCKED_POSITION_DEGREES =
-          70.0; // TODO test these values
- // if the lock position isn't 70, then test 110; if not 110, then try arbitrary values
+  public static final double CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES = 90.0,
+      CLIMBING_SERVO_LOCKED_POSITION_DEGREES = 70.0; // TODO test these values
+  // if the lock position isn't 70, then test 110; if not 110, then try arbitrary values
 }
