@@ -390,20 +390,22 @@ public class IntakeLimelight extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addDoubleProperty("Latency", this::getLatency, null);
-    builder.addDoubleProperty("Tx", this::getOffSetX, null);
-    builder.addDoubleProperty("Ty", this::getOffSetY, null);
-    builder.addBooleanProperty("Valid Target", this::isValidTarget, null);
-    builder.addBooleanProperty("Connected", this::checkConnection, null);
-    builder.addDoubleProperty("Target Area", this::getTargetArea, null);
-    builder.addDoubleProperty("Skew", this::getSkew, null);
-    builder.addDoubleProperty("Camera Pitch Angle (Deg)", () -> kCameraPitchAngleDegrees, null);
-    builder.addDoubleProperty("Camera Height (m)", () -> kCameraHeight, null);
-    builder.addDoubleProperty("Target Height (m)", () -> kTargetHeight, null);
-    builder.addDoubleProperty("Last Distance", () -> m_lastDistance, null);
-    builder.addDoubleProperty("Last X", () -> m_lastX, null);
-    builder.addDoubleProperty("Last Y", () -> m_lastY, null);
-    builder.addStringProperty("Pipeline", () -> getPipeline().toString(), null);
-    builder.addBooleanProperty("Has Tag", () -> checkForTag().isPresent(), null);
+
+    builder.addDoubleProperty("INTAKE Latency", this::getLatency, null);
+    builder.addDoubleProperty("INTAKE Tx", this::getOffSetX, null);
+    builder.addDoubleProperty("INTAKE Ty", this::getOffSetY, null);
+    builder.addBooleanProperty("INTAKE Valid Target", this::isValidTarget, null);
+    builder.addBooleanProperty("INTAKE Connected", this::checkConnection, null);
+    builder.addDoubleProperty("INTAKE Target Area", this::getTargetArea, null);
+    builder.addDoubleProperty("INTAKE Skew", this::getSkew, null);
+    builder.addDoubleProperty(
+        "INTAKE Camera Pitch Angle (deg)", () -> kCameraPitchAngleDegrees, null);
+    builder.addDoubleProperty("INTAKE Camera Height (m)", () -> kCameraHeight, null);
+    builder.addDoubleProperty("INTAKE Target Height (m)", () -> kTargetHeight, null);
+    builder.addDoubleProperty("INTAKE Last Distance", () -> m_lastDistance, null);
+    builder.addDoubleProperty("INTAKE Last X", () -> m_lastX, null);
+    builder.addDoubleProperty("INTAKE Last Y", () -> m_lastY, null);
+    builder.addStringProperty("INTAKE Pipeline", () -> getPipeline().toString(), null);
+    builder.addBooleanProperty("INTAKE Has Tag", () -> checkForTag().isPresent(), null);
   }
 }

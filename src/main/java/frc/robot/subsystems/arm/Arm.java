@@ -133,25 +133,28 @@ public class Arm extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addStringProperty("Desired Position", () -> armDesiredPosition.toString(), null);
+
+    builder.addStringProperty("Arm DESIRED Pos", () -> armDesiredPosition.toString(), null);
     builder.addDoubleProperty(
-        "Desired Setpoint Position (Deg)", (() -> armPositions.get(armDesiredPosition)), null);
-    builder.addBooleanProperty("At Desired Position?", (() -> atDesiredArmPosition()), null);
+        "Arm DESIRED Pos (deg)", (() -> armPositions.get(armDesiredPosition)), null);
+    builder.addBooleanProperty("Arm at desired", (() -> atDesiredArmPosition()), null);
+
     builder.addDoubleProperty(
-        "Right Motor Angle ((Relative) (degree)) ",
-        (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
-        null);
-    builder.addDoubleProperty(
-        "Left Motor Angle ((Relative)(degree)) ",
+        "Arm Left Motor RELATIVE (deg)",
         (() -> armMotorLeft.getPosition().getValueAsDouble() * 360.0),
         null);
     builder.addDoubleProperty(
-        "Left Motor Angle ((Absolute) (degree)) ",
+        "Arm Right Motor RELATIVE (deg)",
+        (() -> armMotorRight.getPosition().getValueAsDouble() * 360.0),
+        null);
+    builder.addDoubleProperty(
+        "Arm Left Motor ABS (deg)",
         // (() -> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() * 360.0),
         (() -> armLeftEncoderAbs.getDistance() * 360.0),
         null);
-    builder.addDoubleProperty("Trapezoid Setpoint Position (revs)", () -> tSetpoint.position, null);
+
+    builder.addDoubleProperty("Arm Trapezoid Setpoint Pos (revs)", () -> tSetpoint.position, null);
     builder.addDoubleProperty(
-        "Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
+        "Arm Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
   }
 }

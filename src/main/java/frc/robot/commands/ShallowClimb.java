@@ -12,7 +12,7 @@ public class ShallowClimb extends SequentialCommandGroup {
   public ShallowClimb(Elevator elevator, Lights lights) {
     addRequirements(elevator);
     addCommands(
-        new WaitUntilCommand(() -> elevator.atElevatorPosition(ElevatorHeight.SHALLOW_PREP)),
+        new WaitUntilCommand(elevator::atDesiredPosition),
         new InstantCommand(() -> lights.setLEDColor(LightCode.CLIMBING)),
         new InstantCommand(() -> elevator.setControlParams(false)),
         new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SHALLOW_CLIMB)),

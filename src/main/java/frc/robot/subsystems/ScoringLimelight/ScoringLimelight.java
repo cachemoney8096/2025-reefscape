@@ -394,20 +394,22 @@ public class ScoringLimelight extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addDoubleProperty("Latency", this::getLatency, null);
-    builder.addDoubleProperty("Tx", this::getOffSetX, null);
-    builder.addDoubleProperty("Ty", this::getOffSetY, null);
-    builder.addBooleanProperty("Valid Target", this::isValidTarget, null);
-    builder.addBooleanProperty("Connected", this::checkConnection, null);
-    builder.addDoubleProperty("Target Area", this::getTargetArea, null);
-    builder.addDoubleProperty("Skew", this::getSkew, null);
-    builder.addDoubleProperty("Camera Pitch Angle (Deg)", () -> kCameraPitchAngleDegrees, null);
-    builder.addDoubleProperty("Camera Height (m)", () -> kCameraHeight, null);
-    builder.addDoubleProperty("Target Height (m)", () -> kTargetHeight, null);
-    builder.addDoubleProperty("Last Distance", () -> m_lastDistance, null);
-    builder.addDoubleProperty("Last X", () -> m_lastX, null);
-    builder.addDoubleProperty("Last Y", () -> m_lastY, null);
-    builder.addStringProperty("Pipeline", () -> getPipeline().toString(), null);
-    builder.addBooleanProperty("Has Tag", () -> checkForTag().isPresent(), null);
+
+    builder.addDoubleProperty("SCORING Latency", this::getLatency, null);
+    builder.addDoubleProperty("SCORING Tx", this::getOffSetX, null);
+    builder.addDoubleProperty("SCORING Ty", this::getOffSetY, null);
+    builder.addBooleanProperty("SCORING Valid Target", this::isValidTarget, null);
+    builder.addBooleanProperty("SCORING Connected", this::checkConnection, null);
+    builder.addDoubleProperty("SCORING Target Area", this::getTargetArea, null);
+    builder.addDoubleProperty("SCORING Skew", this::getSkew, null);
+    builder.addDoubleProperty(
+        "SCORING Camera Pitch Angle (deg)", () -> kCameraPitchAngleDegrees, null);
+    builder.addDoubleProperty("SCORING Camera Height (m)", () -> kCameraHeight, null);
+    builder.addDoubleProperty("SCORING Target Height (m)", () -> kTargetHeight, null);
+    builder.addDoubleProperty("SCORING Last Distance", () -> m_lastDistance, null);
+    builder.addDoubleProperty("SCORING Last X", () -> m_lastX, null);
+    builder.addDoubleProperty("SCORING Last Y", () -> m_lastY, null);
+    builder.addStringProperty("SCORING Pipeline", () -> getPipeline().toString(), null);
+    builder.addBooleanProperty("SCORING Has Tag", () -> checkForTag().isPresent(), null);
   }
 }
