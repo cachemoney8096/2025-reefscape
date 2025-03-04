@@ -9,10 +9,11 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class P3_S1_J_I_K extends SequentialCommandGroup {
   public P3_S1_J_I_K(
-      DriveSubsystem drive,
+      CommandSwerveDrivetrain drive,
       Arm arm,
       Claw claw,
       Elevator elevator,

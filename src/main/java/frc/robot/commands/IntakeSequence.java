@@ -22,6 +22,7 @@ import frc.robot.subsystems.lights.Lights;
 import frc.robot.utils.HPUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class IntakeSequence extends SequentialCommandGroup {
   public static Transform2d robotToTag;
@@ -34,7 +35,7 @@ public class IntakeSequence extends SequentialCommandGroup {
       Elevator elevator,
       Climb climb,
       RobotContainer.IntakeClimbLocation location,
-      DriveSubsystem drive,
+      CommandSwerveDrivetrain drive,
       Lights lights) {
     /* mechanical intake sequence */
     SequentialCommandGroup moveArmElevatorClaw =
@@ -109,9 +110,9 @@ public class IntakeSequence extends SequentialCommandGroup {
                                       new Rotation2d()));
                           break;
                       }
-                      targetPose = drive.getPose().plus(robotToTag);
+                      // TODO targetPose = drive.getPose().plus(robotToTag);
                     }),
-                new InstantCommand(() -> drive.driveToPoint(targetPose))),
+                new InstantCommand(() -> {}/* TODO drive.driveToPoint(targetPose)*/)),
             new InstantCommand(),
             checkForTag),
         moveArmElevatorClaw);

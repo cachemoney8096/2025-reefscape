@@ -24,6 +24,7 @@ import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class DeepClimbPrep extends SequentialCommandGroup {
   public static Transform2d robotToTag;
@@ -35,7 +36,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
       ScoringLimelight scoringLimelight,
       RobotContainer.IntakeClimbLocation location,
       MatchStateUtil msu,
-      DriveSubsystem drive,
+      CommandSwerveDrivetrain drive,
       Elevator elevator,
       Lights lights) {
     addRequirements(climb, arm);
@@ -91,13 +92,13 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                       }
                       // rotate to face the correct way (the rotation here could end up being 180),
                       // these rotations are not technically needed, but increase precision
-                      targetPose = drive.getPose().plus(robotToTag);
+                      // targetPose = drive.getPose().plus(robotToTag); // TODO
                       targetPose =
                           new Pose2d(
                               targetPose.getTranslation(),
                               msu.isRed() ? new Rotation2d() : new Rotation2d(180.0));
                     }),
-                new InstantCommand(() -> drive.driveToPoint(targetPose))),
+                new InstantCommand(() ->{} /*drive.driveToPoint(targetPose)*/)), // TODO
             // TODO the drive logic here probably won't be the same
             new InstantCommand(),
             checkForTag),
