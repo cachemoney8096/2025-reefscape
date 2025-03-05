@@ -22,6 +22,7 @@ public class RobotMap {
   public static final int ELEVATOR_LIMIT_SWITCH_DIO_HOME = Constants.PLACEHOLDER_INT,
       ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME = Constants.PLACEHOLDER_INT,
       ELEVATOR_LIMIT_SWITCH_DIO_TOP = Constants.PLACEHOLDER_INT;
+  public static final int ELEVATOR_CANRANGE = Constants.PLACEHOLDER_INT;
   public static final int FRONT_LEFT_DRIVING_CAN_ID = 9,
       FRONT_LEFT_TURNING_CAN_ID = 8,
       FRONT_RIGHT_DRIVING_CAN_ID = 14,
