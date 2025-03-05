@@ -112,7 +112,9 @@ public class Elevator extends SubsystemBase {
     cfgLeft.apply(toApply);
     Follower master = new Follower(leftMotor.getDeviceID(), true);
     rightMotor.setControl(master);
+
     zeroElevatorToHome();
+    // zeroElevatorUsingCanrange();
   }
 
   public void setDesiredPosition(ElevatorHeight height) {

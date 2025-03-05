@@ -324,6 +324,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
   }
 
+  Command driveToPoint;
   /** Drive to a point */
   public void driveToPose(Pose2d targetPose) {
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(targetPose);
@@ -332,7 +333,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         new PathPlannerPath(
             waypoints, constraints, null, new GoalEndState(0.0, targetPose.getRotation()));
     path.preventFlipping = true;
-    AutoBuilder.followPath(path).schedule();
+    driveToPoint = AutoBuilder.followPath(path);
+    driveToPoint.schedule();
   }
-  ;
+
+  public void killDriveToPose(){
+    driveToPoint.end(true);
+  }
 }

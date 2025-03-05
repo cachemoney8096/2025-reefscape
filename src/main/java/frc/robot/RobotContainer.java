@@ -570,7 +570,7 @@ public class RobotContainer implements Sendable {
         .povLeft()
         .onTrue(
             new GoHomeSequence(climb, elevator, arm, claw, lights)
-                .beforeStarting(() -> prepState = PrepState.OFF));
+                .beforeStarting(() -> {prepState = PrepState.OFF; drivetrain.killDriveToPose();}));
   }
 
   private void configureOperatorBindings() {
