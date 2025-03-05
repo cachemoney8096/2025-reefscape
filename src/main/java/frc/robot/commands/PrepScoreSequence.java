@@ -65,7 +65,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
         new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
         /* check for a tag first so we can start driving. fall back onto manual driving */
         new ConditionalCommand(
-            new SequentialCommandGroup(new InstantCommand(() ->{}/* TODO drive.driveToPoint(targetPose)*/)),
+            new SequentialCommandGroup(new InstantCommand(() ->{drive.driveToPose(targetPose);})),
             new InstantCommand(),
             () -> {
               Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
@@ -134,7 +134,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                       ReefAngleCalcUtil.translateScorePositionOffset(
                           map.get(id).getFirst(), location == RobotContainer.ScoringLocation.RIGHT);
                   robotToTag = robotToTag.plus(new Transform2d(offset, new Rotation2d()));
-                  // TODO targetPose = drive.getPose().plus(robotToTag);
+                  targetPose = drive.getState().Pose.plus(robotToTag);
                   targetPose =
                       new Pose2d(
                           targetPose.getTranslation(), new Rotation2d(map.get(id).getSecond()));

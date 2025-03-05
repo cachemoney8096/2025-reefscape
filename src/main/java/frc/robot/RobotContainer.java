@@ -412,11 +412,11 @@ public class RobotContainer implements Sendable {
                                 new InstantCommand(),
                                 () -> prepState == PrepState.OFF));
 
-        // TODO these may all be flipped, someone please check them
-        driverController.povUp().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
-        driverController.povRight().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 90 : 270))));
-        driverController.povDown().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 180 : 0))));
-        driverController.povLeft().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 270 : 90))));
+        // TODO check these
+        driverController.a().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
+        driverController.b().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 90 : 270))));
+        driverController.y().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 180 : 0))));
+        driverController.x().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 270 : 90))));
         
         /* TODO: CHANGE BINDINGS LATER */
 

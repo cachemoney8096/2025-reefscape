@@ -110,9 +110,9 @@ public class IntakeSequence extends SequentialCommandGroup {
                                       new Rotation2d()));
                           break;
                       }
-                      // TODO targetPose = drive.getPose().plus(robotToTag);
+                      targetPose = drive.getState().Pose.plus(robotToTag);
                     }),
-                new InstantCommand(() -> {}/* TODO drive.driveToPoint(targetPose)*/)),
+                new InstantCommand(() -> {drive.driveToPose(targetPose);})),
             new InstantCommand(),
             checkForTag),
         moveArmElevatorClaw);
