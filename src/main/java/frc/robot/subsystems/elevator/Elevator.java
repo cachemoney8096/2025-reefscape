@@ -1,20 +1,17 @@
 package frc.robot.subsystems.elevator;
 
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
-import com.ctre.phoenix6.configs.CANrangeConfigurator;
 import com.ctre.phoenix6.configs.FovParamsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.hardware.CANrange;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -80,7 +77,7 @@ public class Elevator extends SubsystemBase {
     elevatorPositions.put(ElevatorHeight.ALGAE, ElevatorCal.POSITION_ALGAE_INCHES);
     initTalons();
 
-    FovParamsConfigs fovCfg =  new FovParamsConfigs();
+    FovParamsConfigs fovCfg = new FovParamsConfigs();
     fovCfg.FOVCenterX = 0.0;
     fovCfg.FOVCenterY = 0.0;
     fovCfg.FOVRangeX = 2.0;
@@ -215,7 +212,10 @@ public class Elevator extends SubsystemBase {
   }
 
   public void zeroElevatorUsingCanrange() {
-    double currentHeightRot = Units.metersToInches(canrange.getDistance().getValueAsDouble()) / ElevatorConstants.DRUM_CIRCUMFERENCE * ElevatorConstants.MOTOR_TO_DRUM_RATIO;
+    double currentHeightRot =
+        Units.metersToInches(canrange.getDistance().getValueAsDouble())
+            / ElevatorConstants.DRUM_CIRCUMFERENCE
+            * ElevatorConstants.MOTOR_TO_DRUM_RATIO;
     leftMotor.setPosition(currentHeightRot);
     m_setpoint = new TrapezoidProfile.State(currentHeightRot, 0.0);
   }

@@ -337,7 +337,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     driveToPoint.schedule();
   }
 
-  public void killDriveToPose(){
+  public void killDriveToPose() {
     driveToPoint.end(true);
   }
 }
