@@ -16,7 +16,7 @@ import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
@@ -25,7 +25,6 @@ import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.ReefAngleCalcUtil;
 import java.util.Optional;
 import java.util.TreeMap;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class PrepScoreSequence extends SequentialCommandGroup {
   public static int tagId = 0;
@@ -65,7 +64,11 @@ public class PrepScoreSequence extends SequentialCommandGroup {
         new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
         /* check for a tag first so we can start driving. fall back onto manual driving */
         new ConditionalCommand(
-            new SequentialCommandGroup(new InstantCommand(() ->{drive.driveToPose(targetPose);})),
+            new SequentialCommandGroup(
+                new InstantCommand(
+                    () -> {
+                      drive.driveToPose(targetPose);
+                    })),
             new InstantCommand(),
             () -> {
               Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();

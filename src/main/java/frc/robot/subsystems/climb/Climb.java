@@ -10,7 +10,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -21,8 +20,8 @@ public class Climb extends SubsystemBase {
   private final TalonFX climbTalonLeft = new TalonFX(RobotMap.CLIMBING_LEFT_MOTOR_CAN_ID);
   private final TalonFX climbTalonRight = new TalonFX(RobotMap.CLIMBING_RIGHT_MOTOR_CAN_ID);
   private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID);
-  //private final Encoder climbAbsoluteEncoder =
-      //new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
+  // private final Encoder climbAbsoluteEncoder =
+  // new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
   private final Servo climbServo = new Servo(RobotMap.CLIMBING_SERVO_DIO);
 
   public enum ClimbPosition {
@@ -45,8 +44,8 @@ public class Climb extends SubsystemBase {
 
   public Climb() {
     initClimbTalons();
-    //climbAbsoluteEncoder.setDistancePerPulse(
-        //Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
+    // climbAbsoluteEncoder.setDistancePerPulse(
+    // Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
     climbPositionMap = new TreeMap<ClimbPosition, Double>();
     climbPositionMap.put(ClimbPosition.CLIMBING, ClimbCal.CLIMB_CLIMBING_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.STOWED, ClimbCal.CLIMB_STOWED_POSITION_DEGREES);
@@ -80,11 +79,11 @@ public class Climb extends SubsystemBase {
 
   public void zeroMotorEncoders() {
     climbTalonLeft.setPosition(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
-    //climbTalonLeft.setPosition(climbAbsoluteEncoder.getDistance());
+    // climbTalonLeft.setPosition(climbAbsoluteEncoder.getDistance());
     tSetpoint =
         new TrapezoidProfile.State(
             climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
-            //climbAbsoluteEncoder.getDistance(), 0.0);
+    // climbAbsoluteEncoder.getDistance(), 0.0);
   }
 
   public void setClimbingPID() {
@@ -173,7 +172,10 @@ public class Climb extends SubsystemBase {
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
     builder.addDoubleProperty(
-        "Climb ABSOLUTE (deg)", () -> /*climbAbsoluteEncoder.getDistance() * 360*/ climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble()*360, null);
+        "Climb ABSOLUTE (deg)",
+        () -> /*climbAbsoluteEncoder.getDistance() * 360*/
+            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+        null);
 
     builder.addDoubleProperty(
         "Climb Trapezoid Setpoint Pos (revs)", () -> tSetpoint.position, null);

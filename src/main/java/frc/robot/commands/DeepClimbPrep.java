@@ -15,7 +15,7 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Climb.ClimbPosition;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
@@ -24,7 +24,6 @@ import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class DeepClimbPrep extends SequentialCommandGroup {
   public static Transform2d robotToTag;
@@ -98,7 +97,10 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                               targetPose.getTranslation(),
                               msu.isRed() ? new Rotation2d() : new Rotation2d(180.0));
                     }),
-                new InstantCommand(() ->{drive.driveToPose(targetPose);})),
+                new InstantCommand(
+                    () -> {
+                      drive.driveToPose(targetPose);
+                    })),
             new InstantCommand(),
             checkForTag),
         deepClimbPrep,

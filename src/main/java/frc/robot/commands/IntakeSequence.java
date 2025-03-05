@@ -15,14 +15,13 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.utils.HPUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class IntakeSequence extends SequentialCommandGroup {
   public static Transform2d robotToTag;
@@ -112,7 +111,10 @@ public class IntakeSequence extends SequentialCommandGroup {
                       }
                       targetPose = drive.getState().Pose.plus(robotToTag);
                     }),
-                new InstantCommand(() -> {drive.driveToPose(targetPose);})),
+                new InstantCommand(
+                    () -> {
+                      drive.driveToPose(targetPose);
+                    })),
             new InstantCommand(),
             checkForTag),
         moveArmElevatorClaw);

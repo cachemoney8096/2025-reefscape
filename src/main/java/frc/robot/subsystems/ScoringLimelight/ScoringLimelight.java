@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightHelpers.RawFiducial;
-import frc.robot.utils.LimelightHelpersOld;
 import frc.robot.utils.LimelightHelpersOld.LimelightTarget_Fiducial;
 import java.util.List;
 import java.util.Optional;
@@ -87,7 +86,7 @@ public class ScoringLimelight extends SubsystemBase {
     }
   }
 
-  public static class NoSuchTargetException extends RuntimeException { //No fiducial fonund
+  public static class NoSuchTargetException extends RuntimeException { // No fiducial fonund
     public NoSuchTargetException(String message) {
       super(message);
     }
@@ -164,9 +163,11 @@ public class ScoringLimelight extends SubsystemBase {
     }
 
     // Pose3d cameraToTag =
-    //     LimelightHelpersOLD.getTargetPoseCameraSpace(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
+    //
+    // LimelightHelpersOLD.getTargetPoseCameraSpace(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
     Pose3d cameraToTag =
-        LimelightHelpers.getTargetPose3d_CameraSpace(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
+        LimelightHelpers.getTargetPose3d_CameraSpace(
+            ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
     Transform2d robotToTag =
         new Transform2d(
             new Translation2d(cameraToTag.getZ(), -cameraToTag.getX()),
@@ -181,33 +182,34 @@ public class ScoringLimelight extends SubsystemBase {
 
   public RawFiducial getClosestFiducial() {
     if (fiducials == null || fiducials.length == 0) {
-        throw new NoSuchTargetException("No fiducials found.");
+      throw new NoSuchTargetException("No fiducials found.");
     }
 
     RawFiducial closest = fiducials[0];
     double minDistance = closest.ta;
-    //Linear search for close
+    // Linear search for close
     for (RawFiducial fiducial : fiducials) {
-        if (fiducial.ta > minDistance) {
-            closest = fiducial;
-            minDistance = fiducial.ta;
-        }
+      if (fiducial.ta > minDistance) {
+        closest = fiducial;
+        minDistance = fiducial.ta;
+      }
     }
     return closest;
   }
 
   public RawFiducial getFiducialWithId(int id) {
-  
+
     for (RawFiducial fiducial : fiducials) {
-        if (fiducial.id == id) {
-            return fiducial;
-        }
+      if (fiducial.id == id) {
+        return fiducial;
+      }
     }
     throw new NoSuchTargetException("Can't find ID: " + id);
   }
 
   public double getLatencySeconds() {
-    // return (LimelightHelpersOLD.getLatency_Capture(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME)
+    // return
+    // (LimelightHelpersOLD.getLatency_Capture(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME)
     //         + LimelightHelpersOLD.getLatency_Pipeline(
     //             ScoringLimelightConstants.SCORING_LIMELIGHT_NAME))
     //     / 1000.0;
