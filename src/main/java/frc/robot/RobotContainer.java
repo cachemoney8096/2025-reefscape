@@ -525,7 +525,7 @@ public class RobotContainer implements Sendable {
 
     // TODO check these
     driverController
-        .a()
+        .y()
         .onTrue(
             drivetrain.applyRequest(
                 () ->
@@ -539,7 +539,7 @@ public class RobotContainer implements Sendable {
                     point.withModuleDirection(
                         Rotation2d.fromDegrees(matchState.isBlue() ? 90 : 270))));
     driverController
-        .y()
+        .a()
         .onTrue(
             drivetrain.applyRequest(
                 () ->
