@@ -23,7 +23,7 @@ public class Claw extends SubsystemBase {
   private void initTalons() {
     TalonFXConfigurator cfg = rollerMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
-    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO change this accordingly
+    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.CurrentLimits.SupplyCurrentLimit = ClawCal.CLAW_ROLLERS_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit =

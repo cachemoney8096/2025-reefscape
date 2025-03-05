@@ -7,12 +7,12 @@ import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class P1_S2_G extends SequentialCommandGroup {
   public P1_S2_G(
-      DriveSubsystem drive,
+      CommandSwerveDrivetrain drive,
       Arm arm,
       Claw claw,
       Elevator elevator,

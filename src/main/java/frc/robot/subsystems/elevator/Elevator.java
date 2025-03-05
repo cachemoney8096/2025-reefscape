@@ -79,8 +79,7 @@ public class Elevator extends SubsystemBase {
     TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
-    // TODO change this accordingly
-    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;

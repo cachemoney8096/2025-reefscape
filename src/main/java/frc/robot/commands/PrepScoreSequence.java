@@ -16,7 +16,7 @@ import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
@@ -38,7 +38,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
       Climb climb,
       ElevatorHeight height,
       RobotContainer.ScoringLocation location,
-      DriveSubsystem drive,
+      CommandSwerveDrivetrain drive,
       MatchStateUtil msu,
       Lights lights) {
     addRequirements(arm, elevator, scoringLimelight);
@@ -64,7 +64,11 @@ public class PrepScoreSequence extends SequentialCommandGroup {
         new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
         /* check for a tag first so we can start driving. fall back onto manual driving */
         new ConditionalCommand(
-            new SequentialCommandGroup(new InstantCommand(() -> drive.driveToPoint(targetPose))),
+            new SequentialCommandGroup(
+                new InstantCommand(
+                    () -> {
+                      drive.driveToPose(targetPose);
+                    })),
             new InstantCommand(),
             () -> {
               Optional<Transform2d> robotToTagOptional = scoringLimelight.checkForTag();
@@ -133,7 +137,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                       ReefAngleCalcUtil.translateScorePositionOffset(
                           map.get(id).getFirst(), location == RobotContainer.ScoringLocation.RIGHT);
                   robotToTag = robotToTag.plus(new Transform2d(offset, new Rotation2d()));
-                  targetPose = drive.getPose().plus(robotToTag);
+                  targetPose = drive.getState().Pose.plus(robotToTag);
                   targetPose =
                       new Pose2d(
                           targetPose.getTranslation(), new Rotation2d(map.get(id).getSecond()));

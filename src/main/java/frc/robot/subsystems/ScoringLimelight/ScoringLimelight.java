@@ -17,12 +17,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.LimelightHelpers.LimelightTarget_Fiducial;
+import frc.robot.utils.LimelightHelpers.RawFiducial;
+import frc.robot.utils.LimelightHelpersOld.LimelightTarget_Fiducial;
 import java.util.List;
 import java.util.Optional;
 
 /** Limelight for identifying April Tags @ Human Player Station Code adapted from Team #3005 */
 public class ScoringLimelight extends SubsystemBase {
+  private RawFiducial[] fiducials;
+
   private final double kCameraPitchAngleDegrees;
   private final double kCameraHeight;
   private final double kTargetHeight;
@@ -80,6 +83,12 @@ public class ScoringLimelight extends SubsystemBase {
       m_tx = m_simDevice.createDouble("Tx", Direction.kBidir, 0.0);
       m_ty = m_simDevice.createDouble("Ty", Direction.kBidir, 0.0);
       m_valid = m_simDevice.createBoolean("Valid", Direction.kBidir, false);
+    }
+  }
+
+  public static class NoSuchTargetException extends RuntimeException { // No fiducial fonund
+    public NoSuchTargetException(String message) {
+      super(message);
     }
   }
 
@@ -153,8 +162,12 @@ public class ScoringLimelight extends SubsystemBase {
       return Optional.empty();
     }
 
+    // Pose3d cameraToTag =
+    //
+    // LimelightHelpersOLD.getTargetPoseCameraSpace(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
     Pose3d cameraToTag =
-        LimelightHelpers.getTargetPoseCameraSpace(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
+        LimelightHelpers.getTargetPose3d_CameraSpace(
+            ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
     Transform2d robotToTag =
         new Transform2d(
             new Translation2d(cameraToTag.getZ(), -cameraToTag.getX()),
@@ -167,7 +180,40 @@ public class ScoringLimelight extends SubsystemBase {
     // later
   }
 
+  public RawFiducial getClosestFiducial() {
+    if (fiducials == null || fiducials.length == 0) {
+      throw new NoSuchTargetException("No fiducials found.");
+    }
+
+    RawFiducial closest = fiducials[0];
+    double minDistance = closest.ta;
+    // Linear search for close
+    for (RawFiducial fiducial : fiducials) {
+      if (fiducial.ta > minDistance) {
+        closest = fiducial;
+        minDistance = fiducial.ta;
+      }
+    }
+    return closest;
+  }
+
+  public RawFiducial getFiducialWithId(int id) {
+
+    for (RawFiducial fiducial : fiducials) {
+      if (fiducial.id == id) {
+        return fiducial;
+      }
+    }
+    throw new NoSuchTargetException("Can't find ID: " + id);
+  }
+
   public double getLatencySeconds() {
+    // return
+    // (LimelightHelpersOLD.getLatency_Capture(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME)
+    //         + LimelightHelpersOLD.getLatency_Pipeline(
+    //             ScoringLimelightConstants.SCORING_LIMELIGHT_NAME))
+    //     / 1000.0;
+
     return (LimelightHelpers.getLatency_Capture(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME)
             + LimelightHelpers.getLatency_Pipeline(
                 ScoringLimelightConstants.SCORING_LIMELIGHT_NAME))
@@ -411,5 +457,10 @@ public class ScoringLimelight extends SubsystemBase {
     builder.addDoubleProperty("SCORING Last Y", () -> m_lastY, null);
     builder.addStringProperty("SCORING Pipeline", () -> getPipeline().toString(), null);
     builder.addBooleanProperty("SCORING Has Tag", () -> checkForTag().isPresent(), null);
+  }
+
+  @Override
+  public void periodic() {
+    fiducials = LimelightHelpers.getRawFiducials(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
   }
 }

@@ -15,7 +15,7 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
@@ -34,7 +34,7 @@ public class IntakeSequence extends SequentialCommandGroup {
       Elevator elevator,
       Climb climb,
       RobotContainer.IntakeClimbLocation location,
-      DriveSubsystem drive,
+      CommandSwerveDrivetrain drive,
       Lights lights) {
     /* mechanical intake sequence */
     SequentialCommandGroup moveArmElevatorClaw =
@@ -109,9 +109,12 @@ public class IntakeSequence extends SequentialCommandGroup {
                                       new Rotation2d()));
                           break;
                       }
-                      targetPose = drive.getPose().plus(robotToTag);
+                      targetPose = drive.getState().Pose.plus(robotToTag);
                     }),
-                new InstantCommand(() -> drive.driveToPoint(targetPose))),
+                new InstantCommand(
+                    () -> {
+                      drive.driveToPose(targetPose);
+                    })),
             new InstantCommand(),
             checkForTag),
         moveArmElevatorClaw);
