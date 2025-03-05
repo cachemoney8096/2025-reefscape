@@ -15,7 +15,6 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Climb.ClimbPosition;
-import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
@@ -98,8 +97,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                               targetPose.getTranslation(),
                               msu.isRed() ? new Rotation2d() : new Rotation2d(180.0));
                     }),
-                new InstantCommand(() ->{} /*drive.driveToPoint(targetPose)*/)), // TODO
-            // TODO the drive logic here probably won't be the same
+                new AlignCommandScoringSide(drive, scoringLimelight, 0)), // TOOD tagID instead of 0
             new InstantCommand(),
             checkForTag),
         deepClimbPrep,
