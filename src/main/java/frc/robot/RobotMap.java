@@ -35,5 +35,8 @@ public class RobotMap {
       REAR_LEFT_CANCODER_CAN_ID = 4,
       REAR_RIGHT_CANCODER_CAN_ID = 19;
 
+  public static final int ARM_ABS_ENCODER_CAN_ID = Constants.PLACEHOLDER_INT; // TODO
+  public static final int CLIMB_ABS_ENCODER_CAN_ID = Constants.PLACEHOLDER_INT; // TODO
+
   public static final int PIGEON_CAN_ID = 1;
 }
