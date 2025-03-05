@@ -60,7 +60,7 @@ public class Climb extends SubsystemBase {
     toApply.CurrentLimits.StatorCurrentLimit = ClimbCal.CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.SupplyCurrentLimitEnable = true;
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     toApply.Slot0.kP = ClimbCal.CLIMBING_P;
     toApply.Slot0.kI = ClimbCal.CLIMBING_I;
     toApply.Slot0.kD = ClimbCal.CLIMBING_D;

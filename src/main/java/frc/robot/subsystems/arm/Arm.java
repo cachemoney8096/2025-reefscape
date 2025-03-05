@@ -60,7 +60,7 @@ public class Arm extends SubsystemBase {
   private void initArmTalons() {
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
-    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO change this accordingly
+    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     toApply.CurrentLimits.SupplyCurrentLimit = ArmCal.ARM_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit = ArmCal.ARM_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;

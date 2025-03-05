@@ -411,9 +411,14 @@ public class RobotContainer implements Sendable {
                                 new InstantCommand(() -> claw.stopMotors()),
                                 new InstantCommand(),
                                 () -> prepState == PrepState.OFF));
-        /* TODO: CARDINALS */
-        /* TODO: DRIVE CODE */
-        /* TODO: CHANGE BINDING LATER */
+
+        // TODO these may all be flipped, someone please check them
+        driverController.povUp().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
+        driverController.povRight().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 90 : 270))));
+        driverController.povDown().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 180 : 0))));
+        driverController.povLeft().onTrue(drivetrain.applyRequest(() -> point.withModuleDirection(Rotation2d.fromDegrees(matchState.isBlue() ? 270 : 90))));
+        
+        /* TODO: CHANGE BINDINGS LATER */
 
         // driverController
         // .povRight()
@@ -505,7 +510,7 @@ public class RobotContainer implements Sendable {
          * .povLeft()
          * .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
         */
-        operatorController.start().onTrue(new InstantCommand(()->drivetrain.resetRotation(Rotation2d.fromDegrees(matchState.isBlue()?0:180)))); // is this correct?
+        operatorController.start().onTrue(new InstantCommand(()->drivetrain.resetRotation(Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
 
         operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
     }
@@ -521,6 +526,7 @@ public class RobotContainer implements Sendable {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        builder.addStringProperty("Prep State", () -> prepState.toString(), null);
         builder.addStringProperty("Prepped Location", () -> preppedLocation.toString(), null);
         builder.addStringProperty("Prepped Height", () -> preppedHeight.toString(), null);
         builder.addStringProperty(
