@@ -15,10 +15,10 @@ import frc.robot.RobotMap;
 import java.util.TreeMap;
 
 public class Arm extends SubsystemBase {
-  private final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID);
-  private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID);
+  private final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID, "rio");
+  private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID, "rio");
 
-  private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
+  private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID, "rio");
   // private final Encoder armLeftEncoderAbs =
   // new Encoder(RobotMap.ARM_ABS_ENCODER_DIO_A, RobotMap.ARM_ABS_ENCODER_DIO_B);
 

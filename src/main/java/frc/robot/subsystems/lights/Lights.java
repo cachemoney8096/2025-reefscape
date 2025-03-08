@@ -16,7 +16,7 @@ public class Lights {
    */
   private TreeMap<LightCode, Integer[]> lightOptionsMap;
 
-  private CANdle candle = new CANdle(RobotMap.CANDLE_CAN_ID);
+  private CANdle candle = new CANdle(RobotMap.CANDLE_CAN_ID, "rio");
   private CANdleConfiguration config = new CANdleConfiguration();
   private LightCode currentLightStatus = LightCode.OFF;
 

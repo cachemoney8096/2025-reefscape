@@ -3,10 +3,10 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants;
 
 public class ElevatorCal {
-  public static final double ELEVATOR_SCORE_P = 1.0,
+  public static final double ELEVATOR_SCORE_P = 0.0001,
       ELEVATOR_SCORE_I = 0.0,
       ELEVATOR_SCORE_D = 0.0,
-      ELEVATOR_SCORE_FF = 0.001;
+      ELEVATOR_SCORE_FF = 0.0;
   public static final double ELEVATOR_CLIMB_P = 1.0,
       ELEVATOR_CLIMB_I = 0.0,
       ELEVATOR_CLIMB_D = 0.0,
@@ -25,7 +25,7 @@ public class ElevatorCal {
       POSITION_SHALLOW_CLIMB_INCHES = Constants.PLACEHOLDER_DOUBLE;
   public static final double ELEVATOR_MARGIN_INCHES = 0.5, AT_CLEAR_POSITION_MARGIN = 0.5;
 
-  public static final double TEST_ELEVATOR_MOVEMENT_VOLTAGE = 5.0;
+  public static final double TEST_ELEVATOR_MOVEMENT_VOLTAGE = 5.5;
 
   public static final double MAX_VELOCITY_IN_PER_SECOND_SCORE = 8.0,
       MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE = 10.0;

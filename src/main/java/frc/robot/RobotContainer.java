@@ -184,7 +184,7 @@ public class RobotContainer implements Sendable {
     configureOperatorBindings();
 
     /* Shuffleboard */
-    Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
+    //Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
     Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
     Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
     Shuffleboard.getTab("Subsystems").add(climb.getName(), climb);
@@ -579,7 +579,7 @@ public class RobotContainer implements Sendable {
 
   private void configureOperatorBindings() {
     /* Left right and center for intake and climb */
-    operatorController
+    /*operatorController
         .povLeft()
         .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.LEFT));
     operatorController
@@ -589,7 +589,7 @@ public class RobotContainer implements Sendable {
         .povRight()
         .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.RIGHT));
     /* Height for scoring */
-    operatorController
+    /*operatorController
         .a()
         .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L4));
     operatorController
@@ -603,52 +603,53 @@ public class RobotContainer implements Sendable {
         .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
 
     /* Left and right for scoring */
-    operatorController
+    /*operatorController
         .leftBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.LEFT));
     operatorController
         .rightBumper()
         .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
     new Rotation2d();
-    /*
-     * Testing code for climb, arm, and elevator
-     * operatorController
-     * .y()
-     * .whileTrue(new RunCommand(() -> arm.testArmMovementUp()));
-     * operatorController
-     * .y()
-     * .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
-     * operatorController
-     * .a()
-     * .whileTrue(new RunCommand(() -> arm.testArmMovementDown()));
-     * operatorController
-     * .a()
-     * .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
-     * operatorController
-     * .povUp()
-     * .whileTrue(new RunCommand(() -> climb.testClimbMovementUp()));
-     * operatorController
-     * .povUp()
-     * .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
-     * operatorController
-     * .povDown()
-     * .whileTrue(new RunCommand(() -> climb.testClimbMovementDown()));
-     * operatorController
-     * .povDown()
-     * .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
-     * operatorController
-     * .povRight()
-     * .whileTrue(new RunCommand(() -> elevator.testElevatorMovementUp()));
-     * operatorController
-     * .povRight()
-     * .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
-     * operatorController
-     * .povLeft()
-     * .whileTrue(new RunCommand(() -> elevator.testElevatorMovementDown()));
-     * operatorController
-     * .povLeft()
-     * .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
-     */
+    */
+     //Testing code for climb, arm, and elevator
+     operatorController
+     .y()
+     .whileTrue(new InstantCommand(() -> arm.testArmMovementUp()));
+      operatorController
+      .y()
+      .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+      operatorController
+      .a()
+      .whileTrue(new InstantCommand(() -> arm.testArmMovementDown()));
+      operatorController
+      .a()
+      .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+      operatorController
+      .povUp()
+      .whileTrue(new InstantCommand(() -> climb.testClimbMovementUp()));
+      operatorController
+      .povUp()
+     .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+      operatorController
+      .povDown()
+      .whileTrue(new InstantCommand(() -> climb.testClimbMovementDown()));
+      operatorController
+      .povDown()
+      .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+      /*operatorController //these are backwards for up and down
+      .povRight()
+      .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));
+      operatorController
+      .povRight()
+      .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
+      operatorController
+      .povLeft()
+      .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementDown()));
+      operatorController
+      .povLeft()
+      .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));*/
+      operatorController.povRight().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
+      operatorController.povLeft().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
     operatorController
         .start()
         .onTrue(
