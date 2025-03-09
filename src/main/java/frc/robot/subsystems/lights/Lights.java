@@ -42,7 +42,7 @@ public class Lights {
 
     lightOptionsMap = new TreeMap<LightCode, Integer[]>();
     lightOptionsMap.put(LightCode.OFF, new Integer[] {0, 0, 0});
-    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 255, 0});
+    lightOptionsMap.put(LightCode.DISABLED, new Integer[] {255, 128, 0});
     lightOptionsMap.put(LightCode.READY_TO_INTAKE, new Integer[] {255, 0, 0}); // blink red
     lightOptionsMap.put(LightCode.HAS_CORAL, new Integer[] {0, 255, 0});
     lightOptionsMap.put(LightCode.SCORE_PREP, new Integer[] {0, 0, 255});
