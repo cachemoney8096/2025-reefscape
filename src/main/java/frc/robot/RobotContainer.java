@@ -57,8 +57,10 @@ import frc.robot.subsystems.IntakeLimelight.IntakeLimelightConstants;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
@@ -612,7 +614,7 @@ public class RobotContainer implements Sendable {
     new Rotation2d();
     */
      //Testing code for climb, arm, and elevator
-     operatorController
+     /*operatorController
      .y()
      .whileTrue(new InstantCommand(() -> arm.testArmMovementUp()));
       operatorController
@@ -635,7 +637,7 @@ public class RobotContainer implements Sendable {
       .whileTrue(new InstantCommand(() -> climb.testClimbMovementDown()));
       operatorController
       .povDown()
-      .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+      .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));*/
       /*operatorController //these are backwards for up and down
       .povRight()
       .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));
@@ -650,6 +652,11 @@ public class RobotContainer implements Sendable {
       .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));*/
       operatorController.povRight().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
       operatorController.povLeft().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
+      operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
+      operatorController.povDown().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
+      operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+      operatorController.b().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+      operatorController.x().onTrue(new InstantCommand(()->claw.runMotorsIntaking()));
     operatorController
         .start()
         .onTrue(
