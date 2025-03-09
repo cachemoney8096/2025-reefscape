@@ -7,7 +7,7 @@ public class ElevatorCal {
       ELEVATOR_SCORE_I = 0.0,
       ELEVATOR_SCORE_D = 0.0,
       ELEVATOR_SCORE_FF = 0.0;
-  public static final double ELEVATOR_CLIMB_P = 1.0,
+  public static final double ELEVATOR_CLIMB_P = 0.0001,
       ELEVATOR_CLIMB_I = 0.0,
       ELEVATOR_CLIMB_D = 0.0,
       ELEVATOR_CLIMB_FF = 0.001;

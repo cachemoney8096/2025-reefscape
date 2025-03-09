@@ -199,5 +199,6 @@ public class Climb extends SubsystemBase {
         },
         null);
     builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
+    builder.addDoubleProperty("Output voltage commanded", ()->climbTalonLeft.getMotorVoltage().getValueAsDouble(), null);
   }
 }

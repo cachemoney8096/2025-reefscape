@@ -72,5 +72,6 @@ public class Claw extends SubsystemBase {
     builder.addBooleanProperty("Claw Beam Break Left Status", this::beamBreakLeft, null);
     builder.addBooleanProperty("Claw Beam Break Right Status", this::beamBreakRight, null);
     builder.addDoubleProperty("Claw current speed (percent)", () -> rollerMotor.get(), null);
+    builder.addDoubleProperty("Output voltage commanded", ()->rollerMotor.getMotorVoltage().getValueAsDouble(), null);
   }
 }

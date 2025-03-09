@@ -155,5 +155,7 @@ public class Arm extends SubsystemBase {
     builder.addDoubleProperty("Arm Trapezoid Setpoint Pos (revs)", () -> tSetpoint.position, null);
     builder.addDoubleProperty(
         "Arm Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
+
+    builder.addDoubleProperty("Output voltage commanded", ()->armMotorLeft.getMotorVoltage().getValueAsDouble(), null);
   }
 }
