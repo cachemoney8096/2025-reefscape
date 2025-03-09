@@ -36,13 +36,13 @@ public class Elevator extends SubsystemBase {
   private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
 
   private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-  DigitalInput limitSwitchHome = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
+  /*DigitalInput limitSwitchHome = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
   DigitalInput limitSwitchBelowHome =
       new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
-  DigitalInput limitSwitchTop = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
-  private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
-  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
-  private CANrange canrange = new CANrange(RobotMap.ELEVATOR_CANRANGE);
+  DigitalInput limitSwitchTop = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_TOP);*/
+  private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID, "rio");
+  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID, "rio");
+  private CANrange canrange = new CANrange(RobotMap.ELEVATOR_CANRANGE, "rio");
 
   private final TrapezoidProfile m_profile_scoring =
       new TrapezoidProfile(
@@ -167,7 +167,7 @@ public class Elevator extends SubsystemBase {
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO; // someone reviewing my work check this please
   }
 
-  /* The limit switches we are using are active low, hence the ! operator */
+  /* The limit switches we are using are active low, hence the ! operator
   public boolean getLimitSwitchHome() {
     return !limitSwitchHome.get();
   }
@@ -178,7 +178,7 @@ public class Elevator extends SubsystemBase {
 
   public boolean getLimitSwitchTop() {
     return !limitSwitchTop.get();
-  }
+  }*/
 
   public void periodic() {
     if (allowElevatorMovement) {
@@ -261,11 +261,13 @@ public class Elevator extends SubsystemBase {
           return currentSlotValue == 0 ? "SCORING" : "CLIMBING";
         },
         null);
-    builder.addBooleanProperty("Elevator Limit Switch HOME ", () -> getLimitSwitchHome(), null);
+    /*builder.addBooleanProperty("Elevator Limit Switch HOME ", () -> getLimitSwitchHome(), null);
     builder.addBooleanProperty(
         "Elevator Limit Switch BELOW HOME", () -> getLimitSwitchBelowHome(), null);
-    builder.addBooleanProperty("Elevator Limit Switch Switch TOP", () -> getLimitSwitchTop(), null);
+    builder.addBooleanProperty("Elevator Limit Switch Switch TOP", () -> getLimitSwitchTop(), null);*/
 
     builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
+    builder.addDoubleProperty("Canrange distance", ()->Units.metersToInches(canrange.getDistance().getValueAsDouble())/ ElevatorConstants.DRUM_CIRCUMFERENCE*ElevatorConstants.MOTOR_TO_DRUM_RATIO, null);
+    builder.addDoubleProperty("Elevator voltage commanded", ()->leftMotor.getMotorVoltage().getValueAsDouble(), null);
   }
 }
