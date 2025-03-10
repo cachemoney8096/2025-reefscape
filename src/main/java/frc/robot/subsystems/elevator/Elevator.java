@@ -61,7 +61,7 @@ public class Elevator extends SubsystemBase {
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
 
-  private boolean allowElevatorMovement = false;
+  private boolean allowElevatorMovement = false; //TODO
 
   public Elevator() {
     elevatorPositions.put(ElevatorHeight.HOME, ElevatorCal.POSITION_HOME_INCHES);
@@ -89,9 +89,9 @@ public class Elevator extends SubsystemBase {
     TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
-    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit =
         ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;

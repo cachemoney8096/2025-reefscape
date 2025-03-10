@@ -64,7 +64,7 @@ public class Arm extends SubsystemBase {
     toApply.CurrentLimits.SupplyCurrentLimit = ArmCal.ARM_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit = ArmCal.ARM_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-    toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     toApply.Slot0.kP = ArmCal.ARM_MOTOR_P;
     toApply.Slot0.kI = ArmCal.ARM_MOTOR_I;
     toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
