@@ -82,8 +82,17 @@ public class Climb extends SubsystemBase {
     // climbTalonLeft.setPosition(climbAbsoluteEncoder.getDistance());
     tSetpoint =
         new TrapezoidProfile.State(
-            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(), 0.0);
+          getPositionRotationsReal(), 0.0);
     // climbAbsoluteEncoder.getDistance(), 0.0);
+  }
+
+  public double getPositionRotationsReal(){
+    if(climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() >= 0){
+      return climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
+    }
+    else{
+      return 1.0 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
+    }
   }
 
   public void setClimbingPID() {
@@ -125,7 +134,7 @@ public class Climb extends SubsystemBase {
   }
 
   public boolean atClimbPosition(ClimbPosition checkPos) {
-    double currentPosition = climbTalonRight.getPosition().getValueAsDouble() * 360.0;
+    double currentPosition = getPositionRotationsReal();
     double checkPosDegrees = climbPositionMap.get(checkPos);
 
     return Math.abs(currentPosition - checkPosDegrees) <= ClimbCal.CLIMB_MARGIN_DEGREES;

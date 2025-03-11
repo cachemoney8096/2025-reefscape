@@ -640,8 +640,7 @@ public class RobotContainer implements Sendable {
       .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));*/
       /*operatorController //these are backwards for up and down
       .povRight()
-      .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));*/
-      /*
+      .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));
       operatorController
       .povRight()
       .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
@@ -651,16 +650,22 @@ public class RobotContainer implements Sendable {
       operatorController
       .povLeft()
       .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));*/
-      operatorController.povRight().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
-      operatorController.povLeft().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
+      //operatorController.povRight().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
+      //operatorController.povLeft().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
 
-      operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
+      //operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
       operatorController.povDown().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
-      operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
-      operatorController.b().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+      operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L2)));
+      //operatorController.povUp().onTrue(new InstantCommand(()->arm.testArmMovementDown()));
+      //operatorController.povLeft().onTrue(new InstantCommand(()->arm.stopArmMovement()));
+      //operatorController.povDown().onTrue(new InstantCommand(()->arm.testArmMovementUp()));
+      //operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+      //operatorController.b().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
       //operatorController.x().onTrue(new InstantCommand(()->claw.runMotorsIntaking()));
-      operatorController.x().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(-8.0)));
+      operatorController.x().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(9.0)));
       operatorController.y().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(0.0)));
+      operatorController.a().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(-9.0)));
+
     operatorController
         .start()
         .onTrue(
