@@ -638,9 +638,9 @@ public class RobotContainer implements Sendable {
       operatorController
       .povDown()
       .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));*/
-      operatorController //these are backwards for up and down
+      /*operatorController //these are backwards for up and down
       .povRight()
-      .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));
+      .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));*/
       /*
       operatorController
       .povRight()
@@ -651,8 +651,8 @@ public class RobotContainer implements Sendable {
       operatorController
       .povLeft()
       .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));*/
-      //operatorController.povRight().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
-      operatorController.povLeft().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
+      operatorController.povRight().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
+      operatorController.povLeft().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
 
       operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
       operatorController.povDown().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));

@@ -61,7 +61,7 @@ public class Elevator extends SubsystemBase {
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
 
-  private boolean allowElevatorMovement = false; //TODO
+  private boolean allowElevatorMovement = true; //TODO
 
   public Elevator() {
     elevatorPositions.put(ElevatorHeight.HOME, ElevatorCal.POSITION_HOME_INCHES);
