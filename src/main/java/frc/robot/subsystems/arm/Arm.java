@@ -78,26 +78,28 @@ public class Arm extends SubsystemBase {
     this.armDesiredPosition = armPosition;
   }
 
-  public double getPositionRotationsReal(){
-    if(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() >= 0){
-      return armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
-    }
-    else{
-      return 1.0 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
-    }
+  public double getPositionArmRotationsReal(){
+    // if(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() >= 0){
+    //   return armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
+    // }
+    // else{
+    //   return 1.0 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
+    // }
+    return 0.5 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
   }
 
   public void rezeroArm() { //this is stupid
-    armMotorLeft.setPosition(getPositionRotationsReal()*90);
+    armMotorLeft.setPosition(getPositionArmRotationsReal()*90);
     // armMotorLeft.setPosition(armLeftEncoderAbs.getDistance());
-   // armMotorLeft.setPosition(getPositionRotationsReal()*90);
+   // armMotorLeft.setPosition(getPositionArmRotationsReal()*90);
     tSetpoint =
-        new TrapezoidProfile.State(getPositionRotationsReal(), 0.0);
+        new TrapezoidProfile.State(getPositionArmRotationsReal() * 90, 0.0);
     // new TrapezoidProfile.State(armLeftEncoderAbs.getDistance(), 0.0);
   }
 
   // Account for PID when setting position of our arm
   public void controlPosition(double inputPositionDegrees) {
+    // System.out.println("control pos\n");
     // goal position (rotations) w/ velocity at position (0?)
     /*PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
     TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
@@ -113,18 +115,29 @@ public class Arm extends SubsystemBase {
       new TrapezoidProfile(
           new TrapezoidProfile.Constraints(
               ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
-    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0 * 90, 0);
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0 * 90, 0.0);
+
+    System.out.println("\ngoal.pos " + tGoal.position + "\n");
+    System.out.println("goal.vel " + tGoal.velocity + "\n");
     TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
+    // TrapezoidProfile.State setpoint =
+    //     new TrapezoidProfile.State(getPositionArmRotationsReal() * 90, 0.0);
+
+    System.out.println("\nsetpoint.pos " + setpoint.position + "\n");
+    System.out.println("setpoint.vel " + setpoint.velocity + "\n");
     final PositionVoltage request = new PositionVoltage(0).withSlot(0);
     setpoint = trapezoidProfile.calculate(0.020, setpoint, tGoal);
     request.Position = setpoint.position;
     request.Velocity = setpoint.velocity;
+    System.out.println("\nrequest.pos " + request.Position + "\n");
+    System.out.println("request.vel " + request.Velocity + "\n");
     armMotorLeft.setControl(request);
   }
 
   public boolean atArmPosition(ArmPosition pos) {
     double checkPositionDeg = armPositions.get(pos);
-    double currentPositionDeg = getPositionRotationsReal() * 360.0;
+    // double currentPositionDeg = getPositionArmRotationsReal() * 360.0;
+    double currentPositionDeg = getPositionArmRotationsReal() * 360.0;
 
     return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_MARGIN_DEGREES;
   }
@@ -176,7 +189,7 @@ public class Arm extends SubsystemBase {
 
         builder.addDoubleProperty(
           "Arm Left Motor ABS REAL (deg)",
-          (() -> getPositionRotationsReal() * 360.0),
+          (() -> getPositionArmRotationsReal() * 360.0),
           // (() -> armLeftEncoderAbs.getDistance() * 360.0),
           null);
 
@@ -185,7 +198,7 @@ public class Arm extends SubsystemBase {
         "Arm Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
 
     builder.addDoubleProperty("rotations measured", ()-> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(), null);
-
+    builder.addDoubleProperty("rotations 'real'", (() -> getPositionArmRotationsReal()), null);
     builder.addDoubleProperty("Output voltage commanded", ()->armMotorLeft.getMotorVoltage().getValueAsDouble(), null);
   }
 }

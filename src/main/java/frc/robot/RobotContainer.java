@@ -614,7 +614,7 @@ public class RobotContainer implements Sendable {
     new Rotation2d();
     */
      //Testing code for climb, arm, and elevator
-     /*operatorController
+     operatorController
      .y()
      .whileTrue(new InstantCommand(() -> arm.testArmMovementUp()));
       operatorController
@@ -626,6 +626,7 @@ public class RobotContainer implements Sendable {
       operatorController
       .a()
       .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+      /*
       operatorController
       .povUp()
       .whileTrue(new InstantCommand(() -> climb.testClimbMovementUp()));
@@ -662,9 +663,9 @@ public class RobotContainer implements Sendable {
       //operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
       //operatorController.b().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
       //operatorController.x().onTrue(new InstantCommand(()->claw.runMotorsIntaking()));
-      operatorController.x().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(9.0)));
-      operatorController.y().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(0.0)));
-      operatorController.a().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(-9.0)));
+    //   operatorController.x().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(9.0)));
+    //   operatorController.y().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(0.0)));
+    //   operatorController.a().onTrue(new InstantCommand(()->claw.rollerMotor.setVoltage(-9.0)));
 
     operatorController
         .start()

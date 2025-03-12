@@ -5,7 +5,8 @@ public class RobotMap {
   public static final int CLAW_BEAM_BREAK_DIO_LEFT = 7;
   public static final int CLAW_BEAM_BREAK_DIO_RIGHT = 6;
 
-  public static final int LEFT_ARM_MOTOR_CAN_ID = 18, RIGHT_ARM_MOTOR_CAN_ID = 24;
+  // these are swapped TODOs
+  public static final int LEFT_ARM_MOTOR_CAN_ID = 24, RIGHT_ARM_MOTOR_CAN_ID = 18;
   //   public static final int ARM_ABS_ENCODER_CAN_ID = Constants.PLACEHOLDER_INT;
   //public static final int ARM_ABS_ENCODER_DIO_A = Constants.PLACEHOLDER_INT,
       //ARM_ABS_ENCODER_DIO_B = Constants.PLACEHOLDER_INT;
