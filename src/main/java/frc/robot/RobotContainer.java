@@ -679,6 +679,9 @@ public class RobotContainer implements Sendable {
         // InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
         operatorController.povDown().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)));
         operatorController.povUp().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L2)));
+        operatorController.povRight().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L4)));
+        operatorController.povLeft().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L3)));
+
         // operatorController.povUp().onTrue(new
         // InstantCommand(()->arm.testArmMovementDown()));
         // operatorController.povLeft().onTrue(new

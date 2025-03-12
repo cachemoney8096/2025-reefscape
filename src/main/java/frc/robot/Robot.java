@@ -87,8 +87,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    // m_robotContainer.arm.rezeroArm();
-    // System.out.println("UPDATED DESIRED POSITION\nIs Arm At Desired Pos:  " + m_robotContainer.arm.atDesiredArmPosition());
   }
 
   /** This function is called periodically during operator control. */
