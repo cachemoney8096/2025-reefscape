@@ -614,6 +614,7 @@ public class RobotContainer implements Sendable {
     new Rotation2d();
     */
      //Testing code for climb, arm, and elevator
+     /*
      operatorController
      .y()
      .whileTrue(new InstantCommand(() -> arm.testArmMovementUp()));
@@ -626,7 +627,6 @@ public class RobotContainer implements Sendable {
       operatorController
       .a()
       .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
-      /*
       operatorController
       .povUp()
       .whileTrue(new InstantCommand(() -> climb.testClimbMovementUp()));

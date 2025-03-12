@@ -76,6 +76,7 @@ public class Arm extends SubsystemBase {
 
   public void setDesiredPosition(ArmPosition armPosition) {
     this.armDesiredPosition = armPosition;
+    controlPosition(armPositions.get(this.armDesiredPosition)); // TODO
   }
 
   public double getPositionArmRotationsReal(){
@@ -89,9 +90,9 @@ public class Arm extends SubsystemBase {
   }
 
   public void rezeroArm() { //this is stupid
-    armMotorLeft.setPosition(getPositionArmRotationsReal()*90);
+    // armMotorLeft.setPosition(100.0);
     // armMotorLeft.setPosition(armLeftEncoderAbs.getDistance());
-   // armMotorLeft.setPosition(getPositionArmRotationsReal()*90);
+   armMotorLeft.setPosition(getPositionArmRotationsReal()*90);
     tSetpoint =
         new TrapezoidProfile.State(getPositionArmRotationsReal() * 90, 0.0);
     // new TrapezoidProfile.State(armLeftEncoderAbs.getDistance(), 0.0);
@@ -99,6 +100,7 @@ public class Arm extends SubsystemBase {
 
   // Account for PID when setting position of our arm
   public void controlPosition(double inputPositionDegrees) {
+    System.out.println(armPositions.get(this.armDesiredPosition));
     // System.out.println("control pos\n");
     // goal position (rotations) w/ velocity at position (0?)
     /*PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
@@ -136,7 +138,6 @@ public class Arm extends SubsystemBase {
 
   public boolean atArmPosition(ArmPosition pos) {
     double checkPositionDeg = armPositions.get(pos);
-    // double currentPositionDeg = getPositionArmRotationsReal() * 360.0;
     double currentPositionDeg = getPositionArmRotationsReal() * 360.0;
 
     return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_MARGIN_DEGREES;
@@ -161,7 +162,6 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    controlPosition(armPositions.get(this.armDesiredPosition)); // TODO
   }
 
   @Override
