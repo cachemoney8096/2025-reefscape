@@ -15,7 +15,7 @@ import frc.robot.RobotMap;
 import java.util.TreeMap;
 
 public class Arm extends SubsystemBase {
-  private final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID, "rio");
+  public final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID, "rio");
   private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID, "rio");
 
   private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID, "rio");
@@ -80,17 +80,10 @@ public class Arm extends SubsystemBase {
   }
 
   public double getPositionArmRotationsReal(){
-    // if(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble() >= 0){
-    //   return armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
-    // }
-    // else{
-    //   return 1.0 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
-    // }
     return 0.5 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
   }
 
   public void rezeroArm() { //this is stupid
-    // armMotorLeft.setPosition(100.0);
     // armMotorLeft.setPosition(armLeftEncoderAbs.getDistance());
    armMotorLeft.setPosition(getPositionArmRotationsReal()*90);
     tSetpoint =
@@ -121,9 +114,11 @@ public class Arm extends SubsystemBase {
 
     System.out.println("\ngoal.pos " + tGoal.position + "\n");
     System.out.println("goal.vel " + tGoal.velocity + "\n");
-    TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
+    // TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     // TrapezoidProfile.State setpoint =
     //     new TrapezoidProfile.State(getPositionArmRotationsReal() * 90, 0.0);
+    TrapezoidProfile.State setpoint =
+        new TrapezoidProfile.State(armMotorLeft.getPosition().getValueAsDouble(), armMotorLeft.getVelocity().getValueAsDouble());
 
     System.out.println("\nsetpoint.pos " + setpoint.position + "\n");
     System.out.println("setpoint.vel " + setpoint.velocity + "\n");

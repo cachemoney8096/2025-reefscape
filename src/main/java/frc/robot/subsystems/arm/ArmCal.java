@@ -21,5 +21,5 @@ package frc.robot.subsystems.arm;
 
   // TODO if the arm doesn't work, this could be the cause
   public static final double ARM_MOTOR_MAX_VELOCITY_RPS = 6000.0,
-      ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED = 6000.0;
+      ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED = 100000.0;
 }
