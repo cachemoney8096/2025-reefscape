@@ -78,35 +78,20 @@ public class Arm extends SubsystemBase {
   }
 
   public double getPositionArmRotationsReal(){
-    return 1 - (0.5 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble());
+    return 1 - (0.5 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble()); //this is because the absolute encoder moves in the opposite direction to what we want
   }
 
-  public void rezeroArm() { //this is stupid
-    // armMotorLeft.setPosition(armLeftEncoderAbs.getDistance());
-   armMotorLeft.setPosition(getPositionArmRotationsReal()*90);
+  public void rezeroArm() { //once upon a time, this was stupid
+   armMotorLeft.setPosition(getPositionArmRotationsReal()*ArmCal.MOTOR_TO_ARM_ROTATIONS);
   }
 
   // Account for PID when setting position of our arm
   public void controlPosition(double inputPositionDegrees) {
-    // goal position (rotations) w/ velocity at position (0?)
-    /*PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
-    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
-    // set next setpoint, where t = periodic interval (20ms)
-    
-    tSetpoint = trapezoidProfile.calculate(Constants.PERIOD_TIME_SECONDS, tSetpoint, tGoal);
-
-    tRequest.Position = tSetpoint.position;
-    tRequest.Velocity = tSetpoint.velocity;
-
-    armMotorLeft.setControl(tRequest);*/
     final TrapezoidProfile trapezoidProfile =
       new TrapezoidProfile(
           new TrapezoidProfile.Constraints(
               ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
-    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0 * 90, 0.0);
-    // TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
-    // TrapezoidProfile.State setpoint =
-    //     new TrapezoidProfile.State(getPositionArmRotationsReal() * 90, 0.0);
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0 * ArmCal.MOTOR_TO_ARM_ROTATIONS, 0.0);
     TrapezoidProfile.State setpoint =
         new TrapezoidProfile.State(armMotorLeft.getPosition().getValueAsDouble(), armMotorLeft.getVelocity().getValueAsDouble());
     final PositionVoltage request = new PositionVoltage(0).withSlot(0);
@@ -142,7 +127,7 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    controlPosition(armPositions.get(this.armDesiredPosition)); // TODO
+    controlPosition(armPositions.get(this.armDesiredPosition)); 
   }
 
   @Override

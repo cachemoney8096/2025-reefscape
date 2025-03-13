@@ -1,9 +1,9 @@
 package frc.robot.subsystems.climb;
 
 public class ClimbCal {
-  public static final double CLIMBING_P = 1.0,
+  public static final double CLIMBING_P = 0.01,
       CLIMBING_I = 0.0,
-      CLIMBING_D = 0.01,
+      CLIMBING_D = 0.0,
       CLIMBING_FF = 0.0;
   public static final double POSITIONING_P = 0.0001,
       POSITIONING_I = 0.0,
@@ -14,8 +14,8 @@ public class ClimbCal {
       CLIMB_CLIMBING_PREP_DEGREES = 167.8 + 129.5;
 
   // TODO if climb doesnt work, this could be the cause
-  public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 0.5,
-      CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED = 0.833;
+  public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 6000.0,
+      CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED = 6000.0;
   public static final double CLIMB_TALONS_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS = 80.0;
 
