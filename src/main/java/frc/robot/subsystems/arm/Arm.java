@@ -99,6 +99,8 @@ public class Arm extends SubsystemBase {
     request.Position = setpoint.position;
     request.Velocity = setpoint.velocity;
     armMotorLeft.setControl(request);
+    System.out.println("\nrequest pos: " + request.Position + "\n");
+    System.out.println("request vel: " + request.Velocity + "\n\n");
   }
 
   public boolean atArmPosition(ArmPosition pos) {
@@ -127,6 +129,7 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
+    System.out.println("Desired position: " + this.armDesiredPosition + "\n");
     controlPosition(armPositions.get(this.armDesiredPosition)); 
   }
 

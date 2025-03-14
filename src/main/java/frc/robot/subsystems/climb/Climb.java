@@ -17,8 +17,8 @@ import frc.robot.RobotMap;
 import java.util.TreeMap;
 
 public class Climb extends SubsystemBase {
-  private final TalonFX climbTalonLeft = new TalonFX(RobotMap.CLIMBING_LEFT_MOTOR_CAN_ID, "rio");
-  private final TalonFX climbTalonRight = new TalonFX(RobotMap.CLIMBING_RIGHT_MOTOR_CAN_ID, "rio");
+  public final TalonFX climbTalonLeft = new TalonFX(RobotMap.CLIMBING_LEFT_MOTOR_CAN_ID, "rio");
+  public final TalonFX climbTalonRight = new TalonFX(RobotMap.CLIMBING_RIGHT_MOTOR_CAN_ID, "rio");
   private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID, "rio");
   // private final Encoder climbAbsoluteEncoder =
   // new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
@@ -32,7 +32,7 @@ public class Climb extends SubsystemBase {
 
   private TreeMap<ClimbPosition, Double> climbPositionMap;
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
-  private boolean allowClimbMovement = false; //TODO
+  private boolean allowClimbMovement = true; //TODO
 
   private int currentSlot = 1;
 
@@ -44,6 +44,8 @@ public class Climb extends SubsystemBase {
     climbPositionMap.put(ClimbPosition.CLIMBING, ClimbCal.CLIMB_CLIMBING_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.STOWED, ClimbCal.CLIMB_STOWED_POSITION_DEGREES);
     climbPositionMap.put(ClimbPosition.CLIMBING_PREP, ClimbCal.CLIMB_CLIMBING_PREP_DEGREES);
+    setServoLocked(false);
+    zeroMotorEncoders();
   }
 
   private void initClimbTalons() {
@@ -78,7 +80,7 @@ public class Climb extends SubsystemBase {
   }
 
   public double getPositionClimbRotationsReal(){
-    return 0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(); 
+    return 1 - (0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble()); 
   }
 
   public void setClimbingPID() {
@@ -157,9 +159,10 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (allowClimbMovement) {
-      controlPosition(climbPositionMap.get(this.desiredPosition));
-    }
+    // if (allowClimbMovement) {
+    //   controlPosition(climbPositionMap.get(this.desiredPosition));
+    // }
+    controlPosition(climbPositionMap.get(this.desiredPosition));
   }
 
   @Override
@@ -179,10 +182,15 @@ public class Climb extends SubsystemBase {
         "Climb Right Motor RELATIVE (deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
+    // builder.addDoubleProperty(
+    //     "Climb ABSOLUTE (deg)",
+    //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/
+    //         climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+    //     null);
     builder.addDoubleProperty(
-        "Climb ABSOLUTE (deg)",
+        "Climb ABSOLUTE REAL (deg)",
         () -> /*climbAbsoluteEncoder.getDistance() * 360*/
-            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+            getPositionClimbRotationsReal() * 360,
         null);
 
     builder.addStringProperty(

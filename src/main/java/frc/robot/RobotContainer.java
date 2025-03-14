@@ -656,6 +656,21 @@ public class RobotContainer implements Sendable {
          * .povDown()
          * .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
          */
+
+        //  operatorController.povUp().whileTrue(new InstantCommand(() -> climb.testClimbMovementUp()));
+        //  operatorController.povUp().onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+
+        //  operatorController.povDown().whileTrue(new InstantCommand(() -> climb.testClimbMovementDown()));
+        //  operatorController.povDown().onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
+
+        operatorController.povUp().onTrue(new
+        InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
+        operatorController.povDown().onTrue(new
+        InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+        operatorController.povRight().onTrue(new
+        InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+        operatorController.povLeft().onTrue(new
+        InstantCommand(()->climb.climbTalonLeft.stopMotor()));
         /*
          * operatorController //these are backwards for up and down
          * .povRight()
@@ -677,10 +692,10 @@ public class RobotContainer implements Sendable {
 
         // operatorController.povUp().onTrue(new
         // InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
-        operatorController.povDown().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)));
-        operatorController.povUp().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L2)));
-        operatorController.povRight().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L4)));
-        operatorController.povLeft().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L3)));
+        // operatorController.povDown().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)));
+        // operatorController.povUp().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L2)));
+        // operatorController.povRight().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L4)));
+        // operatorController.povLeft().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L3)));
 
         // operatorController.povUp().onTrue(new
         // InstantCommand(()->arm.testArmMovementDown()));
@@ -692,8 +707,10 @@ public class RobotContainer implements Sendable {
         // InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
         // operatorController.b().onTrue(new
         // InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
-        // operatorController.x().onTrue(new
-        // InstantCommand(()->claw.runMotorsIntaking()));
+        // operatorController.povUp().onTrue(new
+        // InstantCommand(()->claw.runMotorsIntaking()).until(() -> claw.beamBreakSeesObject()).andThen(new InstantCommand(() -> claw.stopMotors())));
+        // operatorController.povDown().onTrue(new
+        // InstantCommand(()->claw.stopMotors()));
         // operatorController.x().onTrue(new
         // InstantCommand(()->claw.rollerMotor.setVoltage(9.0)));
         // operatorController.y().onTrue(new

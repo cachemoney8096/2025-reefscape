@@ -4,6 +4,7 @@ public class RobotMap {
   public static final int ROLLER_MOTOR_CAN_ID = 26;
   public static final int CLAW_BEAM_BREAK_DIO_LEFT = 7;
   public static final int CLAW_BEAM_BREAK_DIO_RIGHT = 6;
+//   public static final int CLAW_COLOR_SENSOR_DIO = 7;
 
   // these are swapped TODOs
   public static final int LEFT_ARM_MOTOR_CAN_ID = 24, RIGHT_ARM_MOTOR_CAN_ID = 18;

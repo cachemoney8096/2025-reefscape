@@ -5,13 +5,16 @@ public class ClimbCal {
       CLIMBING_I = 0.0,
       CLIMBING_D = 0.0,
       CLIMBING_FF = 0.0;
-  public static final double POSITIONING_P = 0.0001,
+  public static final double POSITIONING_P = 0.05,
       POSITIONING_I = 0.0,
       POSITIONING_D = 0.0,
       POSITIONING_FF = 0.0;
-  public static final double CLIMB_CLIMBING_POSITION_DEGREES = 77.8 + 129.5,
-      CLIMB_STOWED_POSITION_DEGREES = 0.0 + 129.5,
-      CLIMB_CLIMBING_PREP_DEGREES = 167.8 + 129.5;
+//   public static final double CLIMB_CLIMBING_POSITION_DEGREES = 77.8 + 129.5,
+//       CLIMB_STOWED_POSITION_DEGREES = 0.0 + 129.5,
+//       CLIMB_CLIMBING_PREP_DEGREES = 167.8 + 129.5;
+public static final double CLIMB_CLIMBING_POSITION_DEGREES = 85,
+      CLIMB_STOWED_POSITION_DEGREES = 308,
+      CLIMB_CLIMBING_PREP_DEGREES = 76;
 
   // TODO if climb doesnt work, this could be the cause
   public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 6000.0,
