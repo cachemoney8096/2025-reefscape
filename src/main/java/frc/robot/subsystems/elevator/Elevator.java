@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
+import frc.robot.subsystems.arm.ArmCal;
+
 import java.util.TreeMap;
 
 public class Elevator extends SubsystemBase {
@@ -36,32 +38,18 @@ public class Elevator extends SubsystemBase {
   private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
 
   private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
-  DigitalInput limitSwitchHome = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
+  /*DigitalInput limitSwitchHome = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
   DigitalInput limitSwitchBelowHome =
       new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_BELOWHOME);
-  DigitalInput limitSwitchTop = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_TOP);
-  private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID);
-  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID);
-  private CANrange canrange = new CANrange(RobotMap.ELEVATOR_CANRANGE);
-
-  private final TrapezoidProfile m_profile_scoring =
-      new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(
-              ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE,
-              ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE));
-  private final TrapezoidProfile m_profile_climbing =
-      new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(
-              ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_CLIMB,
-              ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_CLIMB));
+  DigitalInput limitSwitchTop = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_TOP);*/
+  private TalonFX leftMotor = new TalonFX(RobotMap.LEFT_ELEVATOR_MOTOR_CAN_ID, "rio");
+  private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID, "rio");
+  private CANrange canrange = new CANrange(RobotMap.ELEVATOR_CANRANGE, "rio");
 
   private boolean isScoring = true;
   private int currentSlotValue = 0; // 0 is for scoring and 1 is for climbing
 
-  private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
-  private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
-
-  private boolean allowElevatorMovement = false;
+  private boolean allowElevatorMovement = false; //TODO
 
   public Elevator() {
     elevatorPositions.put(ElevatorHeight.HOME, ElevatorCal.POSITION_HOME_INCHES);
@@ -89,9 +77,9 @@ public class Elevator extends SubsystemBase {
     TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
-    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.CurrentLimits.SupplyCurrentLimit = ElevatorCal.ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit =
         ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
@@ -124,12 +112,12 @@ public class Elevator extends SubsystemBase {
   }
 
   private void controlPosition(double inputPositionInch) {
-    final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
+    // final PositionVoltage m_request = new PositionVoltage(0.0).withSlot(currentSlotValue);
     double rotations =
         inputPositionInch
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO;
-    m_goal = new TrapezoidProfile.State(rotations, 0.0);
+    /*m_goal = new TrapezoidProfile.State(rotations, 0.0);
 
     m_setpoint =
         (isScoring ? m_profile_scoring : m_profile_climbing)
@@ -138,7 +126,21 @@ public class Elevator extends SubsystemBase {
     m_request.Position = m_setpoint.position;
     m_request.Velocity = m_setpoint.velocity;
 
-    leftMotor.setControl(m_request);
+    leftMotor.setControl(m_request);*/
+    final TrapezoidProfile trapezoidProfile =
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              ElevatorCal.MAX_VELOCITY_IN_PER_SECOND_SCORE / ElevatorConstants.DRUM_CIRCUMFERENCE
+              * ElevatorConstants.MOTOR_TO_DRUM_RATIO, ElevatorCal.MAX_ACCELERATION_IN_PER_SECOND_SQUARED_SCORE / ElevatorConstants.DRUM_CIRCUMFERENCE
+              * ElevatorConstants.MOTOR_TO_DRUM_RATIO));
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(rotations, 0.0);
+    TrapezoidProfile.State setpoint =
+        new TrapezoidProfile.State(leftMotor.getPosition().getValueAsDouble(), leftMotor.getVelocity().getValueAsDouble());
+    final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+    setpoint = trapezoidProfile.calculate(0.020, setpoint, tGoal);
+    request.Position = setpoint.position;
+    request.Velocity = setpoint.velocity;
+    leftMotor.setControl(request);
   }
 
   public boolean atDesiredPosition() {
@@ -167,7 +169,7 @@ public class Elevator extends SubsystemBase {
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO; // someone reviewing my work check this please
   }
 
-  /* The limit switches we are using are active low, hence the ! operator */
+  /* The limit switches we are using are active low, hence the ! operator
   public boolean getLimitSwitchHome() {
     return !limitSwitchHome.get();
   }
@@ -178,7 +180,7 @@ public class Elevator extends SubsystemBase {
 
   public boolean getLimitSwitchTop() {
     return !limitSwitchTop.get();
-  }
+  }*/
 
   public void periodic() {
     if (allowElevatorMovement) {
@@ -203,12 +205,6 @@ public class Elevator extends SubsystemBase {
         ElevatorCal.POSITION_HOME_INCHES
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO);
-    m_setpoint =
-        new TrapezoidProfile.State(
-            ElevatorCal.POSITION_HOME_INCHES
-                / ElevatorConstants.DRUM_CIRCUMFERENCE
-                * ElevatorConstants.MOTOR_TO_DRUM_RATIO,
-            0.0);
   }
 
   public void zeroElevatorUsingCanrange() {
@@ -217,7 +213,6 @@ public class Elevator extends SubsystemBase {
             / ElevatorConstants.DRUM_CIRCUMFERENCE
             * ElevatorConstants.MOTOR_TO_DRUM_RATIO;
     leftMotor.setPosition(currentHeightRot);
-    m_setpoint = new TrapezoidProfile.State(currentHeightRot, 0.0);
   }
 
   public void setElevatorMovementAllowed(boolean allowed) {
@@ -250,22 +245,19 @@ public class Elevator extends SubsystemBase {
                 / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
         null);
 
-    builder.addDoubleProperty(
-        "Elevator Trapezoid Setpoint Pos (revs)", () -> m_setpoint.position, null);
-    builder.addDoubleProperty(
-        "Elevator Trapezoid Setpoint Velocity (revs/sec)", () -> m_setpoint.velocity, null);
-
     builder.addStringProperty(
         "Elevator PID Slot",
         () -> {
           return currentSlotValue == 0 ? "SCORING" : "CLIMBING";
         },
         null);
-    builder.addBooleanProperty("Elevator Limit Switch HOME ", () -> getLimitSwitchHome(), null);
+    /*builder.addBooleanProperty("Elevator Limit Switch HOME ", () -> getLimitSwitchHome(), null);
     builder.addBooleanProperty(
         "Elevator Limit Switch BELOW HOME", () -> getLimitSwitchBelowHome(), null);
-    builder.addBooleanProperty("Elevator Limit Switch Switch TOP", () -> getLimitSwitchTop(), null);
+    builder.addBooleanProperty("Elevator Limit Switch Switch TOP", () -> getLimitSwitchTop(), null);*/
 
     builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
+    builder.addDoubleProperty("Canrange distance", ()->Units.metersToInches(canrange.getDistance().getValueAsDouble())/ ElevatorConstants.DRUM_CIRCUMFERENCE*ElevatorConstants.MOTOR_TO_DRUM_RATIO, null);
+    builder.addDoubleProperty("Elevator voltage commanded", ()->leftMotor.getMotorVoltage().getValueAsDouble(), null);
   }
 }

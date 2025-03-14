@@ -15,10 +15,10 @@ import frc.robot.RobotMap;
 import java.util.TreeMap;
 
 public class Arm extends SubsystemBase {
-  private final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID);
-  private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID);
+  public final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID, "rio");
+  private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID, "rio");
 
-  private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID);
+  private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID, "rio");
   // private final Encoder armLeftEncoderAbs =
   // new Encoder(RobotMap.ARM_ABS_ENCODER_DIO_A, RobotMap.ARM_ABS_ENCODER_DIO_B);
 
@@ -27,7 +27,6 @@ public class Arm extends SubsystemBase {
       new TrapezoidProfile(
           new TrapezoidProfile.Constraints(
               ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
-  private TrapezoidProfile.State tSetpoint = new TrapezoidProfile.State();
 
   public enum ArmPosition {
     HOME,
@@ -54,6 +53,7 @@ public class Arm extends SubsystemBase {
     armPositions.put(ArmPosition.L3, ArmCal.ARM_POSITION_L3_DEGREES);
     armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
     initArmTalons();
+    rezeroArm();
     // armLeftEncoderAbs.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
   }
 
@@ -64,12 +64,11 @@ public class Arm extends SubsystemBase {
     toApply.CurrentLimits.SupplyCurrentLimit = ArmCal.ARM_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit = ArmCal.ARM_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
-    toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     toApply.Slot0.kP = ArmCal.ARM_MOTOR_P;
     toApply.Slot0.kI = ArmCal.ARM_MOTOR_I;
     toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
     toApply.Slot0.kV = ArmCal.ARM_MOTOR_FF;
-
     armMotorLeft.getConfigurator().apply(toApply);
     armMotorRight.setControl(new Follower(armMotorLeft.getDeviceID(), true));
   }
@@ -78,31 +77,35 @@ public class Arm extends SubsystemBase {
     this.armDesiredPosition = armPosition;
   }
 
-  public void rezeroArm() {
-    armMotorLeft.setPosition(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble());
-    // armMotorLeft.setPosition(armLeftEncoderAbs.getDistance());
-    tSetpoint =
-        new TrapezoidProfile.State(armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(), 0.0);
-    // new TrapezoidProfile.State(armLeftEncoderAbs.getDistance(), 0.0);
+  public double getPositionArmRotationsReal(){
+    return 1 - (0.5 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble()); //this is because the absolute encoder moves in the opposite direction to what we want
+  }
+
+  public void rezeroArm() { //once upon a time, this was stupid
+   armMotorLeft.setPosition(getPositionArmRotationsReal()*ArmCal.MOTOR_TO_ARM_ROTATIONS);
   }
 
   // Account for PID when setting position of our arm
   public void controlPosition(double inputPositionDegrees) {
-    // goal position (rotations) w/ velocity at position (0?)
-    PositionVoltage tRequest = new PositionVoltage(0.0).withSlot(0);
-    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0, 0);
-    // set next setpoint, where t = periodic interval (20ms)
-    tSetpoint = trapezoidProfile.calculate(Constants.PERIOD_TIME_SECONDS, tSetpoint, tGoal);
-
-    tRequest.Position = tSetpoint.position;
-    tRequest.Velocity = tSetpoint.velocity;
-
-    armMotorLeft.setControl(tRequest);
+    final TrapezoidProfile trapezoidProfile =
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
+    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0 * ArmCal.MOTOR_TO_ARM_ROTATIONS, 0.0);
+    TrapezoidProfile.State setpoint =
+        new TrapezoidProfile.State(armMotorLeft.getPosition().getValueAsDouble(), armMotorLeft.getVelocity().getValueAsDouble());
+    final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+    setpoint = trapezoidProfile.calculate(0.020, setpoint, tGoal);
+    request.Position = setpoint.position;
+    request.Velocity = setpoint.velocity;
+    armMotorLeft.setControl(request);
+    System.out.println("\nrequest pos: " + request.Position + "\n");
+    System.out.println("request vel: " + request.Velocity + "\n\n");
   }
 
   public boolean atArmPosition(ArmPosition pos) {
     double checkPositionDeg = armPositions.get(pos);
-    double currentPositionDeg = armMotorLeft.getPosition().getValueAsDouble() * 360.0;
+    double currentPositionDeg = getPositionArmRotationsReal() * 360.0;
 
     return Math.abs(checkPositionDeg - currentPositionDeg) <= ArmCal.ARM_MARGIN_DEGREES;
   }
@@ -126,7 +129,8 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    controlPosition(armPositions.get(this.armDesiredPosition));
+    System.out.println("Desired position: " + this.armDesiredPosition + "\n");
+    controlPosition(armPositions.get(this.armDesiredPosition)); 
   }
 
   @Override
@@ -152,8 +156,14 @@ public class Arm extends SubsystemBase {
         // (() -> armLeftEncoderAbs.getDistance() * 360.0),
         null);
 
-    builder.addDoubleProperty("Arm Trapezoid Setpoint Pos (revs)", () -> tSetpoint.position, null);
-    builder.addDoubleProperty(
-        "Arm Trapezoid Setpoint Velocity (revs/sec)", () -> tSetpoint.velocity, null);
+        builder.addDoubleProperty(
+          "Arm Left Motor ABS REAL (deg)",
+          (() -> getPositionArmRotationsReal() * 360.0),
+          // (() -> armLeftEncoderAbs.getDistance() * 360.0),
+          null);
+
+    builder.addDoubleProperty("rotations measured", ()-> armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(), null);
+    builder.addDoubleProperty("rotations 'real'", (() -> getPositionArmRotationsReal()), null);
+    builder.addDoubleProperty("Output voltage commanded", ()->armMotorLeft.getMotorVoltage().getValueAsDouble(), null);
   }
 }
