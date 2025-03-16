@@ -30,6 +30,7 @@ import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.AutoScoringSequence;
 import frc.robot.commands.DeepClimbPrep;
 import frc.robot.commands.DeepClimbScoringSequence;
+import frc.robot.commands.DriveToTag;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.IntakeSequence;
@@ -690,6 +691,8 @@ public class RobotContainer implements Sendable {
         InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
         operatorController.povLeft().onTrue(new
         InstantCommand(()->climb.climbTalonLeft.stopMotor()));
+
+        operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, intakeLimelight));
         /*
          * operatorController //these are backwards for up and down
          * .povRight()
