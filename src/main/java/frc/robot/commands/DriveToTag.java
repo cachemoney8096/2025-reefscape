@@ -26,7 +26,7 @@ public class DriveToTag extends SequentialCommandGroup{
         };
         addCommands(
             new ConditionalCommand(
-                new InstantCommand(()->{Pose2d targetPose = drive.getState().Pose.plus(robotToTag);drive.driveToPose(targetPose);}), 
+                new InstantCommand(()->{Pose2d targetPose = drive.getState().Pose.plus(robotToTag);drive.driveToPose(drive.getState().Pose, targetPose);}), 
                 new InstantCommand(()->System.out.println("did not see a tag")), 
                 checkForTag)
         );

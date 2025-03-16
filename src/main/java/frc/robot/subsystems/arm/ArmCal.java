@@ -1,7 +1,7 @@
 package frc.robot.subsystems.arm;
 
     public class ArmCal {
-  public static final double ARM_POSITION_INTAKE_DEGREES = 141.5 - 57,
+  public static final double ARM_POSITION_INTAKE_DEGREES = 88.6, // 141.5 - 57,
       ARM_POSITION_HOME_DEGREES = 141.5, // 108
       ARM_POSITION_L1_DEGREES = 141.5 + 42,
       ARM_POSITION_L2_DEGREES = 141.5 + 42,

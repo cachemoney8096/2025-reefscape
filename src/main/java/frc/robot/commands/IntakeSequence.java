@@ -113,7 +113,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                     }),
                 new InstantCommand(
                     () -> {
-                      drive.driveToPose(targetPose);
+                      drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
             checkForTag),

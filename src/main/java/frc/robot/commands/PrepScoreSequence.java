@@ -67,7 +67,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
             new SequentialCommandGroup(
                 new InstantCommand(
                     () -> {
-                      drive.driveToPose(targetPose);
+                      drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
             () -> {

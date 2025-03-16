@@ -138,10 +138,15 @@ public class RobotContainer implements Sendable {
             .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(
                     DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+//     private final SwerveRequest.FieldCentricFacingAngle drive = new SwerveRequest.FieldCentricFacingAngle()
+//         .withDeadband(MaxSpeed * 0.1)
+//         .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+//         .withDriveRequestType(
+//                 DriveRequestType.OpenLoopVoltage);
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-    private final SwerveRequest.FieldCentricFacingAngle driveWithAngleController = new SwerveRequest.FieldCentricFacingAngle(); //TODO maybe add withDriveRequestType(DriveRequestType.OpenLoopVoltage) if encountering issues?
+    private final SwerveRequest.FieldCentricFacingAngle driveWithAngleController = new SwerveRequest.FieldCentricFacingAngle().withDriveRequestType(DriveRequestType.OpenLoopVoltage); //TODO maybe add withDriveRequestType(DriveRequestType.OpenLoopVoltage) if encountering issues?
             
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -434,6 +439,18 @@ public class RobotContainer implements Sendable {
     private void configureDriverBindings() {
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
+                // drivetrain.applyRequest(
+                //         () -> drive
+                //                 .withVelocityX(
+                //                         -driverController.getLeftY()
+                //                                 * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward)
+                //                 .withVelocityY(
+                //                         -driverController.getLeftX()
+                //                                 * MaxSpeed * elevator.linearSpeedThrottle()) // Drive left with negative X (left)
+                //                 .withRotationalRate(
+                //                         driverController.getRightX()
+                //                                 * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left) // TODO used to have a negative here
+                // ));
                 drivetrain.applyRequest(
                         () -> drive
                                 .withVelocityX(

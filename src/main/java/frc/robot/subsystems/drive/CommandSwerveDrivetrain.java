@@ -25,6 +25,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -35,6 +37,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -328,8 +332,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   public Command driveToPoint;
   /** Drive to a point */
-  public void driveToPose(Pose2d targetPose) {
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(targetPose);
+  // public void driveToPose(Pose2d targetPose) {
+  //   List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(targetPose);
+  //   PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI);
+  //   PathPlannerPath path =
+  //       new PathPlannerPath(
+  //           waypoints, constraints, null, new GoalEndState(0.0, targetPose.getRotation()));
+  //   path.preventFlipping = true;
+  //   driveToPoint = AutoBuilder.followPath(path);
+  //   driveToPoint.schedule();
+  // }
+
+  /** Drive to a point */
+  public void driveToPose(Pose2d currentPose, Pose2d targetPose) {
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(currentPose, targetPose);
     PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI);
     PathPlannerPath path =
         new PathPlannerPath(
