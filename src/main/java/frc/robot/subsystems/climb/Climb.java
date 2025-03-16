@@ -1,5 +1,6 @@
 package frc.robot.subsystems.climb;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
@@ -71,6 +72,10 @@ public class Climb extends SubsystemBase {
 
     Follower master = new Follower(climbTalonLeft.getDeviceID(), true);
     climbTalonRight.setControl(master);
+
+    CANcoderConfiguration cfg = new CANcoderConfiguration();
+    cfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+    climbAbsoluteEncoder.getConfigurator().apply(cfg);
   }
 
 
@@ -80,7 +85,13 @@ public class Climb extends SubsystemBase {
   }
 
   public double getPositionClimbRotationsReal(){
-    return 1 - (0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble()); 
+    // return 1 - (0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble()); 
+    //return (climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() / 2) - (120 / 360);
+    double rawRotations = climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
+    if (rawRotations < 0.32) {
+      rawRotations += 1;
+    }
+    return (rawRotations / 2);
   }
 
   public void setClimbingPID() {
@@ -162,7 +173,7 @@ public class Climb extends SubsystemBase {
     // if (allowClimbMovement) {
     //   controlPosition(climbPositionMap.get(this.desiredPosition));
     // }
-    controlPosition(climbPositionMap.get(this.desiredPosition));
+    // controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
 
   @Override
@@ -192,6 +203,12 @@ public class Climb extends SubsystemBase {
         () -> /*climbAbsoluteEncoder.getDistance() * 360*/
             getPositionClimbRotationsReal() * 360,
         null);
+
+        builder.addDoubleProperty(
+          "Climb ABSOLUTE RAW (deg)",
+          () -> /*climbAbsoluteEncoder.getDistance() * 360*/
+              climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(),
+          null);
 
     builder.addStringProperty(
         "Climb PID Slot",

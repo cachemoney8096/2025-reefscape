@@ -127,7 +127,7 @@ public class RobotContainer implements Sendable {
     /* Garbage from phoenix tuner */
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                         // speed
-    private double MaxAngularRate = Units.RotationsPerSecond.of(0.75).in(Units.RadiansPerSecond); // 3/4 of a rotation
+    private double MaxAngularRate = Units.RotationsPerSecond.of(2.5).in(Units.RadiansPerSecond); // 3/4 of a rotation
                                                                                                   // per second
     // max angular velocity
 
@@ -436,13 +436,13 @@ public class RobotContainer implements Sendable {
                         () -> drive
                                 .withVelocityX(
                                         -driverController.getLeftY()
-                                                * MaxSpeed) // Drive forward with negative Y (forward)
+                                                * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward) // TODO add speed reduction
                                 .withVelocityY(
                                         -driverController.getLeftX()
-                                                * MaxSpeed) // Drive left with negative X (left)
+                                                * MaxSpeed * elevator.linearSpeedThrottle()) // Drive left with negative X (left)
                                 .withRotationalRate(
-                                        -driverController.getRightX()
-                                                * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                                        driverController.getRightX()
+                                                * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left)
                 ));
         /* prep score */
         driverController
@@ -451,6 +451,7 @@ public class RobotContainer implements Sendable {
                         new PrepScoreSequence(
                                 arm,
                                 elevator,
+
                                 scoringLimelight,
                                 climb,
                                 preppedHeight,
@@ -531,7 +532,7 @@ public class RobotContainer implements Sendable {
                                 new InstantCommand(),
                                 () -> prepState == PrepState.OFF));
 
-        // TODO check these
+        // TODO these don't work
         driverController
                 .y()
                 .onTrue(
@@ -577,7 +578,10 @@ public class RobotContainer implements Sendable {
                                 .beforeStarting(
                                         () -> {
                                             prepState = PrepState.OFF;
-                                            drivetrain.killDriveToPose();
+                                        //     if(drivetrain.driveToPoint.isScheduled()){
+                                        //         drivetrain.killDriveToPose();
+                                        //     }
+                                            // TODO this needs to be uncommented but fixed first
                                         }));
     }
 
@@ -627,7 +631,7 @@ public class RobotContainer implements Sendable {
          */
         // Testing code for climb, arm, and elevator
         // /*
-        operatorController
+        /* operatorController
                 .y()
                 .whileTrue(new InstantCommand(() -> arm.testArmMovementUp()));
         operatorController
@@ -638,10 +642,25 @@ public class RobotContainer implements Sendable {
                 .whileTrue(new InstantCommand(() -> arm.testArmMovementDown()));
         operatorController
                 .a()
-                .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
+                .onFalse(new InstantCommand(() -> arm.stopArmMovement()));*/
+
+        operatorController.b().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.INTAKE)));
+        operatorController.x().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
+        // operatorController.a().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
+        operatorController.povDown().onTrue(new InstantCommand(()->claw.runMotorsIntaking()));
+        operatorController.povDown().onFalse(new InstantCommand(()->claw.stopMotors()));
+        
+        operatorController.a().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
+        operatorController.y().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
+
+        // operatorController.povUp().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
+        // operatorController.povDown().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+        // operatorController.povLeft().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+
+
+
 
         // operatorController.x().onTrue(new InstantCommand(() -> arm.stopArmMovement()));
-
         /*
          * operatorController
          * .povUp()
@@ -724,7 +743,6 @@ public class RobotContainer implements Sendable {
                         new InstantCommand(
                                 () -> drivetrain.resetRotation(
                                         Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
-
         operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
     }
 

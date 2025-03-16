@@ -1,26 +1,26 @@
 package frc.robot.subsystems.climb;
 
 public class ClimbCal {
-  public static final double CLIMBING_P = 0.01,
+  public static final double CLIMBING_P = 5.0,
       CLIMBING_I = 0.0,
       CLIMBING_D = 0.0,
       CLIMBING_FF = 0.0;
-  public static final double POSITIONING_P = 0.05,
+  public static final double POSITIONING_P = 5.0,
       POSITIONING_I = 0.0,
       POSITIONING_D = 0.0,
       POSITIONING_FF = 0.0;
 //   public static final double CLIMB_CLIMBING_POSITION_DEGREES = 77.8 + 129.5,
 //       CLIMB_STOWED_POSITION_DEGREES = 0.0 + 129.5,
 //       CLIMB_CLIMBING_PREP_DEGREES = 167.8 + 129.5;
-public static final double CLIMB_CLIMBING_POSITION_DEGREES = 85,
-      CLIMB_STOWED_POSITION_DEGREES = 308,
-      CLIMB_CLIMBING_PREP_DEGREES = 76;
+public static final double CLIMB_CLIMBING_POSITION_DEGREES = 100, // 142, // 85
+      CLIMB_STOWED_POSITION_DEGREES = 63.7, // 63.7
+      CLIMB_CLIMBING_PREP_DEGREES = 230; // 76
 
   // TODO if climb doesnt work, this could be the cause
-  public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 6000.0,
-      CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED = 6000.0;
-  public static final double CLIMB_TALONS_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
-      CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS = 80.0;
+  public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 20000.0,
+      CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED = 20000.0;
+  public static final double CLIMB_TALONS_SUPPLY_CURRENT_LIMIT_AMPS = 100.0,
+      CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS = 100.0;
 
   public static final double CLIMB_MARGIN_DEGREES = 0.5;
   public static final double TEST_CLIMB_MOVEMENT_VOLTAGE = 4.0;

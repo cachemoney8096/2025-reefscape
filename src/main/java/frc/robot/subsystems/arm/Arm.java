@@ -1,5 +1,8 @@
 package frc.robot.subsystems.arm;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -13,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
 import java.util.TreeMap;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 
 public class Arm extends SubsystemBase {
   public final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID, "rio");
@@ -60,7 +64,7 @@ public class Arm extends SubsystemBase {
   private void initArmTalons() {
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
-    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     toApply.CurrentLimits.SupplyCurrentLimit = ArmCal.ARM_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit = ArmCal.ARM_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -69,8 +73,13 @@ public class Arm extends SubsystemBase {
     toApply.Slot0.kI = ArmCal.ARM_MOTOR_I;
     toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
     toApply.Slot0.kV = ArmCal.ARM_MOTOR_FF;
+    toApply.Slot0.kG = 0.25;
     armMotorLeft.getConfigurator().apply(toApply);
     armMotorRight.setControl(new Follower(armMotorLeft.getDeviceID(), true));
+    CANcoderConfiguration cfg = new CANcoderConfiguration();
+    cfg.MagnetSensor.MagnetOffset = -0.93;
+    cfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+    armLeftEncoderAbs.getConfigurator().apply(cfg);
   }
 
   public void setDesiredPosition(ArmPosition armPosition) {
@@ -78,7 +87,7 @@ public class Arm extends SubsystemBase {
   }
 
   public double getPositionArmRotationsReal(){
-    return 1 - (0.5 + armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble()); //this is because the absolute encoder moves in the opposite direction to what we want
+    return armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble(); 
   }
 
   public void rezeroArm() { //once upon a time, this was stupid
@@ -99,8 +108,6 @@ public class Arm extends SubsystemBase {
     request.Position = setpoint.position;
     request.Velocity = setpoint.velocity;
     armMotorLeft.setControl(request);
-    System.out.println("\nrequest pos: " + request.Position + "\n");
-    System.out.println("request vel: " + request.Velocity + "\n\n");
   }
 
   public boolean atArmPosition(ArmPosition pos) {
@@ -129,7 +136,6 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    System.out.println("Desired position: " + this.armDesiredPosition + "\n");
     controlPosition(armPositions.get(this.armDesiredPosition)); 
   }
 
