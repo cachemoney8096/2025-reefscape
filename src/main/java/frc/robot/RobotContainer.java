@@ -140,8 +140,9 @@ public class RobotContainer implements Sendable {
                     DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.FieldCentricFacingAngle driveWithAngleController = new SwerveRequest.FieldCentricFacingAngle(); //TODO maybe add withDriveRequestType(DriveRequestType.OpenLoopVoltage) if encountering issues?
+            
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -538,26 +539,26 @@ public class RobotContainer implements Sendable {
                 .y()
                 .onTrue(
                         drivetrain.applyRequest(
-                                () -> point.withModuleDirection(
-                                        Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
+                                () -> driveWithAngleController.withTargetDirection(
+                                        Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180)).withVelocityX(drivetrain.getState().Speeds.vxMetersPerSecond).withVelocityY(drivetrain.getState().Speeds.vyMetersPerSecond)));
         driverController
                 .b()
                 .onTrue(
                         drivetrain.applyRequest(
-                                () -> point.withModuleDirection(
-                                        Rotation2d.fromDegrees(matchState.isBlue() ? 90 : 270))));
+                                () -> driveWithAngleController.withTargetDirection(
+                                        Rotation2d.fromDegrees(matchState.isBlue() ? 90 : 270)).withVelocityX(drivetrain.getState().Speeds.vxMetersPerSecond).withVelocityY(drivetrain.getState().Speeds.vyMetersPerSecond)));
         driverController
                 .a()
                 .onTrue(
                         drivetrain.applyRequest(
-                                () -> point.withModuleDirection(
-                                        Rotation2d.fromDegrees(matchState.isBlue() ? 180 : 0))));
+                                () -> driveWithAngleController.withTargetDirection(
+                                        Rotation2d.fromDegrees(matchState.isBlue() ? 180 : 0)).withVelocityX(drivetrain.getState().Speeds.vxMetersPerSecond).withVelocityY(drivetrain.getState().Speeds.vyMetersPerSecond)));
         driverController
                 .x()
                 .onTrue(
                         drivetrain.applyRequest(
-                                () -> point.withModuleDirection(
-                                        Rotation2d.fromDegrees(matchState.isBlue() ? 270 : 90))));
+                                () -> driveWithAngleController.withTargetDirection(
+                                        Rotation2d.fromDegrees(matchState.isBlue() ? 270 : 90)).withVelocityX(drivetrain.getState().Speeds.vxMetersPerSecond).withVelocityY(drivetrain.getState().Speeds.vyMetersPerSecond)));
 
         /* TODO: CHANGE BINDINGS LATER */
 
