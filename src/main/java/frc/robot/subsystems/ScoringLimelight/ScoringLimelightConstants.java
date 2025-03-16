@@ -8,5 +8,5 @@ public class ScoringLimelightConstants {
 
   public static final double SCORING_LIMELIGHT_PITCH_DEGREES = 0.0; // 40 degrees down
   public static final double SCORING_LIMELIGHT_HEIGHT_METERS =
-      Units.inchesToMeters(34.25); // TODO: check this value physically
+      Units.inchesToMeters(34.25);
 }

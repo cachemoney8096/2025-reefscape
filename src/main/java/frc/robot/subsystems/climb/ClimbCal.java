@@ -16,8 +16,7 @@ public static final double CLIMB_CLIMBING_POSITION_DEGREES = 100, // 142, // 85
       CLIMB_STOWED_POSITION_DEGREES = 63.7, // 63.7
       CLIMB_CLIMBING_PREP_DEGREES = 230; // 76
 
-  // TODO if climb doesnt work, this could be the cause
-  public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 20000.0,
+  public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 20000.0, // TODO increase this to speed up climb, might make diff value for positioning vs climbing
       CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED = 20000.0;
   public static final double CLIMB_TALONS_SUPPLY_CURRENT_LIMIT_AMPS = 100.0,
       CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS = 100.0;

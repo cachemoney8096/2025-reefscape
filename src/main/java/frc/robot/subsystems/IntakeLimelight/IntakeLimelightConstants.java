@@ -8,5 +8,5 @@ public class IntakeLimelightConstants {
 
   public static final double INTAKE_LIMELIGHT_PITCH_DEGREES = 0.0; // 40 degrees
   public static final double INTAKE_LIMELIGHT_HEIGHT_METERS =
-      Units.inchesToMeters(38.5); // TODO: check this value physically
+      Units.inchesToMeters(38.5);
 }

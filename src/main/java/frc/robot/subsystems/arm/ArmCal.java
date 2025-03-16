@@ -20,7 +20,7 @@ package frc.robot.subsystems.arm;
       ARM_MOTOR_FF = 0.0;
 
   public static final double MOTOR_TO_ARM_ROTATIONS = 90.0; //90 rotations of motor to 1 arm rotation
-  // TODO if the arm doesn't work, this could be the cause
+
   public static final double ARM_MOTOR_MAX_VELOCITY_RPS = 6000.0,
       ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED = 100000.0;
 }

@@ -436,13 +436,13 @@ public class RobotContainer implements Sendable {
                         () -> drive
                                 .withVelocityX(
                                         -driverController.getLeftY()
-                                                * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward) // TODO add speed reduction
+                                                * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward)
                                 .withVelocityY(
                                         -driverController.getLeftX()
                                                 * MaxSpeed * elevator.linearSpeedThrottle()) // Drive left with negative X (left)
                                 .withRotationalRate(
                                         driverController.getRightX()
-                                                * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left)
+                                                * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left) // TODO used to have a negative here
                 ));
         /* prep score */
         driverController
