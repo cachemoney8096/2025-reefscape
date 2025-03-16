@@ -23,7 +23,8 @@ public class Climb extends SubsystemBase {
   private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID, "rio");
   // private final Encoder climbAbsoluteEncoder =
   // new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
-  private final Servo climbServo = new Servo(RobotMap.CLIMBING_SERVO_DIO);
+  private final Servo climbServoLeft = new Servo(RobotMap.CLIMBING_SERVO_LEFT_DIO);
+  private final Servo climbServoRight = new Servo(RobotMap.CLIMBING_SERVO_RIGHT_DIO);
 
   public enum ClimbPosition {
     CLIMBING_PREP,
@@ -133,11 +134,11 @@ public class Climb extends SubsystemBase {
     this.allowClimbMovement = true;
   }
 
-  public void setServoLocked(boolean lockServo) {
+  public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
     if (lockServo) {
-      climbServo.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
     } else {
-      climbServo.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
     }
   }
 
@@ -221,7 +222,7 @@ public class Climb extends SubsystemBase {
     builder.addStringProperty(
         "Servo DESIRED Pos",
         () -> {
-          return climbServo.getAngle() == ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES
+          return climbServoLeft.getAngle() == ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES
               ? "UNLOCKED"
               : "LOCKED";
         },

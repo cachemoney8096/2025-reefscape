@@ -2,9 +2,11 @@ package frc.robot;
 
 public class RobotMap {
   public static final int ROLLER_MOTOR_CAN_ID = 26;
-  public static final int CLAW_BEAM_BREAK_DIO_LEFT = 7;
-  public static final int CLAW_BEAM_BREAK_DIO_RIGHT = 6;
+//   public static final int CLAW_BEAM_BREAK_DIO_LEFT = 7;
+//   public static final int CLAW_BEAM_BREAK_DIO_RIGHT = 6;
 //   public static final int CLAW_COLOR_SENSOR_DIO = 7;
+public static final int CLAW_BEAM_BREAK_DIO_TOP = 9;
+  public static final int CLAW_BEAM_BREAK_DIO_BOTTOM = 6;
 
   // these are swapped TODOs
   public static final int LEFT_ARM_MOTOR_CAN_ID = 24, RIGHT_ARM_MOTOR_CAN_ID = 18;
@@ -13,7 +15,8 @@ public class RobotMap {
       //ARM_ABS_ENCODER_DIO_B = Constants.PLACEHOLDER_INT;
   public static final int CLIMBING_LEFT_MOTOR_CAN_ID = 16,
       CLIMBING_RIGHT_MOTOR_CAN_ID = 22,
-      CLIMBING_SERVO_DIO = 8;
+      CLIMBING_SERVO_LEFT_DIO = 8,
+      CLIMBING_SERVO_RIGHT_DIO = 7;
   //   public static final int CLIMB_ABS_ENCODER_CAN_ID = Constants.PLACEHOLDER_INT;
   //public static final int CLIMBING_ABS_ENCODER_DIO_A = Constants.PLACEHOLDER_INT,
       //CLIMBING_ABS_ENCODER_DIO_B = Constants.PLACEHOLDER_INT;
