@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -55,9 +60,23 @@ public class Robot extends TimedRobot {
     m_robotContainer.lights.setLEDColor(LightCode.DISABLED);
   }
 
+  public static Transform2d robotToTag;
   @Override
   public void disabledPeriodic() {
     m_robotContainer.scoringLimelight.resetOdometryWithTags(m_robotContainer.drivetrain);
+    /* for testing, TODO remove */
+    /*BooleanSupplier checkForTag =
+        () -> {
+          Optional<Transform2d> robotToTagOptional = m_robotContainer.intakeLimelight.checkForTag();
+          if (robotToTagOptional.isPresent()) {
+            robotToTag = robotToTagOptional.get();
+            return true;
+          }
+          return false;
+        };
+    if(checkForTag.getAsBoolean()){
+      System.out.println("current pose: " + m_robotContainer.drivetrain.getState().Pose + "\nrobot to tag : " + robotToTag.toString() + "\n") ; Pose2d targetPose = m_robotContainer.drivetrain.getState().Pose.plus(robotToTag); System.out.println("target pose: " + targetPose.toString() + "\n");
+    }*/
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
