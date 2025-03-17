@@ -868,8 +868,9 @@ public class RobotContainer implements Sendable {
                                                 new InstantCommand(
                                                                 () -> drivetrain.resetRotation(
                                                                                 Rotation2d.fromDegrees(matchState
-                                                                                                .isBlue() ? 0 : 180))));
+                                                                                                .isBlue() ? 180 : 0))));
                 operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
+                
         }
 
         /**
@@ -889,5 +890,8 @@ public class RobotContainer implements Sendable {
                 builder.addStringProperty(
                                 "Prepped Scoring Location", () -> preppedScoringLocation.toString(), null);
                 builder.addDoubleProperty("runNumber", () -> 1.0, null);
+                builder.addDoubleProperty("odometry X", ()->drivetrain.getState().Pose.getX(), null);
+                builder.addDoubleProperty("odometry Y", ()->drivetrain.getState().Pose.getY(), null);
+                builder.addDoubleProperty("odometry rotation deg", ()->drivetrain.getState().Pose.getRotation().getDegrees(), null);
         }
 }

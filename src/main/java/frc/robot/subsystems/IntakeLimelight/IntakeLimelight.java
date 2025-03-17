@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightHelpers.RawFiducial;
 import frc.robot.utils.LimelightHelpersOld.LimelightTarget_Fiducial;
@@ -203,6 +204,12 @@ public class IntakeLimelight extends SubsystemBase {
       }
     }
     throw new NoSuchTargetException("Can't find ID: " + id);
+  }
+
+  public void resetOdometryWithTags(CommandSwerveDrivetrain drivetrain){
+    if(checkForTag().isPresent()){
+      drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME));
+    }
   }
 
   public double getLatencySeconds() {

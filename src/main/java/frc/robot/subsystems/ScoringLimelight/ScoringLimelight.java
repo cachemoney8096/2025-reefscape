@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightHelpers.RawFiducial;
 import frc.robot.utils.LimelightHelpersOld.LimelightTarget_Fiducial;
@@ -195,6 +196,12 @@ public class ScoringLimelight extends SubsystemBase {
       }
     }
     return closest;
+  }
+
+  public void resetOdometryWithTags(CommandSwerveDrivetrain drivetrain){
+    if(checkForTag().isPresent()){
+      drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME));
+    }
   }
 
   public RawFiducial getFiducialWithId(int id) {
