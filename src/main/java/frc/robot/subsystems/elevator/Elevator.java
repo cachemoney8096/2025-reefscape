@@ -108,6 +108,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double linearSpeedThrottle() {
+    System.out.println("throttle called\n");
     if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4) {
       return 0.1;
     }
@@ -115,6 +116,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double angularSpeedThrottle() {
+    System.out.println("throttle called\n");
     if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4) {
       return 0.1;
     }
