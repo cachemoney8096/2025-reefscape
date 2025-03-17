@@ -70,6 +70,8 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
+
+import java.lang.annotation.ElementType;
 import java.util.TreeMap;
 
 /**
@@ -450,7 +452,7 @@ public class RobotContainer implements Sendable {
          * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
          * joysticks}.
          */
-        private void configureDriverBindings() {
+        private void configureDriverBindings() { // maybe add ternerary for robot relative based on prep staet? TODO
                 drivetrain.setDefaultCommand(
                                 // Drivetrain will execute this command periodically
                                 // drivetrain.applyRequest(
@@ -800,7 +802,7 @@ public class RobotContainer implements Sendable {
                 //                 .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
                 // operatorController.povLeft().onTrue(new InstantCommand(() -> climb.climbTalonLeft.stopMotor()));
 
-                // operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, intakeLimelight));
+                operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, intakeLimelight));
                 /*
                  * operatorController //these are backwards for up and down
                  * .povRight()
@@ -820,14 +822,14 @@ public class RobotContainer implements Sendable {
                 // operatorController.povLeft().onTrue(new
                 // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
 
-                operatorController.povUp().onTrue(new
-                InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
-                operatorController.povDown().onTrue(new InstantCommand(() ->
-                arm.setDesiredPosition(ArmPosition.HOME)));
-                operatorController.povRight().onTrue(new InstantCommand(() ->
-                arm.setDesiredPosition(ArmPosition.L2)));
-                operatorController.povLeft().onTrue(new InstantCommand(() ->
-                arm.setDesiredPosition(ArmPosition.L3)));
+                // operatorController.povUp().onTrue(new
+                // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)));
+                // operatorController.povDown().onTrue(new InstantCommand(() ->
+                // elevator.setDesiredPosition(ElevatorHeight.HOME)));
+                // operatorController.povRight().onTrue(new InstantCommand(() ->
+                // arm.setDesiredPosition(ArmPosition.L2)));
+                // operatorController.povLeft().onTrue(new InstantCommand(() ->
+                // arm.setDesiredPosition(ArmPosition.L3)));
 
                 // operatorController.povUp().onTrue(new
                 // InstantCommand(()->arm.testArmMovementDown()));

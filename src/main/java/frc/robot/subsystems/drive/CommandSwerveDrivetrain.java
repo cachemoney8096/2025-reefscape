@@ -17,6 +17,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
@@ -211,9 +212,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                       .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
           new PPHolonomicDriveController( // TODO change these
               // PID constants for translation
-              new PIDConstants(0.1, 0, 0), // previously kP = 10 // TODO this could be way too fast since manual drive has throttle
+              new PIDConstants(0.001, 0, 0), // previously kP = 10 // TODO this could be way too fast since manual drive has throttle
               // PID constants for rotation
-              new PIDConstants(100, 0, 0)), // previously kP = 7
+              new PIDConstants(0.1, 0, 0)), // previously kP = 7
           config,
           // Assume the path needs to be flipped for Red vs Blue, this is normally the case
           () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
@@ -345,11 +346,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   /** Drive to a point */
   public void driveToPose(Pose2d currentPose, Pose2d targetPose) {
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(currentPose, targetPose);
-    PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI);
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(targetPose, currentPose);
+    PathConstraints constraints = new PathConstraints(2.0, 3.0, 2 * Math.PI, 4 * Math.PI);
     PathPlannerPath path =
         new PathPlannerPath(
-            waypoints, constraints, null, new GoalEndState(0.0, targetPose.getRotation()));
+            waypoints, constraints, new IdealStartingState(0.0, currentPose.getRotation()), new GoalEndState(0.0, targetPose.getRotation()));
     path.preventFlipping = true;
     driveToPoint = AutoBuilder.followPath(path);
     driveToPoint.schedule();
