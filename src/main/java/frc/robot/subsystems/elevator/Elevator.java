@@ -116,9 +116,9 @@ public class Elevator extends SubsystemBase {
 
   public double angularSpeedThrottle() {
     if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4) {
-      return 0.1;
+      return 0.05;
     }
-    return 0.2;
+    return 0.1;
   }
 
   public void setControlParams(boolean isScoring) {

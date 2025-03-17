@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -25,8 +26,8 @@ public class DriveToTag extends SequentialCommandGroup{
           return false;
         };
         addCommands(
-            new ConditionalCommand(
-                new InstantCommand(()->{Pose2d targetPose = drive.getState().Pose.plus(robotToTag);drive.driveToPose(drive.getState().Pose, targetPose);}), 
+            new ConditionalCommand( // offset from bumpers should be 0.406 m
+                new InstantCommand(()->{System.out.println("current pose: " + drive.getState().Pose + "\nrobot to tag : " + robotToTag.toString() + "\n") ; Pose2d targetPose = drive.getState().Pose.plus(robotToTag); System.out.println("target pose: " + targetPose.toString() + "\n");  drive.driveToPose(drive.getState().Pose, targetPose);}), 
                 new InstantCommand(()->System.out.println("did not see a tag")), 
                 checkForTag)
         );
