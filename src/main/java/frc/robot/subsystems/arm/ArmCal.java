@@ -14,7 +14,7 @@ package frc.robot.subsystems.arm;
   public static final double ARM_MARGIN_DEGREES = 2.0;
   public static final double TEST_ARM_MOVEMENT_VOLTAGE = 6.0;
 
-  public static final double ARM_MOTOR_P = 0.75, // should be 2.5 when not having coral
+  public static final double ARM_MOTOR_P = 0.25, // 0.75, // should be 2.5 when not having coral
       ARM_MOTOR_I = 0.0,
       ARM_MOTOR_D = 0.0, // should be 0.0 when not having coral
       ARM_MOTOR_FF = 0.0;

@@ -802,7 +802,7 @@ public class RobotContainer implements Sendable {
                 //                 .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
                 // operatorController.povLeft().onTrue(new InstantCommand(() -> climb.climbTalonLeft.stopMotor()));
 
-                operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, intakeLimelight));
+                // operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, intakeLimelight));
                 /*
                  * operatorController //these are backwards for up and down
                  * .povRight()
