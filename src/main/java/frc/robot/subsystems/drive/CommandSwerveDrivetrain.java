@@ -347,10 +347,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   /** Drive to a point */
   public void driveToPose(Pose2d currentPose, Pose2d targetPose) {
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(targetPose, currentPose);
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(currentPose, targetPose); //TODO i switched these back to test w/ odometry
     // prev max speed and acceleration was 3.0, 3.0
     // 0.0 speed made it slow, 0.00001 made it stop, -0.01 made is fast in same direction
-    PathConstraints constraints = new PathConstraints(0.0, 0.0, 2 * Math.PI, 4 * Math.PI);
+    PathConstraints constraints = new PathConstraints(0.0, 0.0, 2 * Math.PI, 4 * Math.PI); //TODO why don't these work
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints, constraints, new IdealStartingState(0.0, currentPose.getRotation()), new GoalEndState(0.0, targetPose.getRotation()));

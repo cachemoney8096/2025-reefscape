@@ -175,7 +175,7 @@ public class RobotContainer implements Sendable {
                 claw = new Claw();
                 climb = new Climb();
                 // drive = new DriveSubsystem(ms);
-                driveWithAngleController.HeadingController.setPID(10, 0, 0);
+                driveWithAngleController.HeadingController.setPID(1.0, 0, 0); //TODO was 10
                 elevator = new Elevator();
                 lights = new Lights();
                 scoringLimelight = new ScoringLimelight(
@@ -463,7 +463,7 @@ public class RobotContainer implements Sendable {
                                 // (forward)
                                 // .withVelocityY(
                                 // -driverController.getLeft
-                                
+
                                 // * MaxSpeed * elevator.linearSpeedThrottle()) // Drive left with negative X
                                 // (left)
                                 // .withRotationalRate(
@@ -554,18 +554,22 @@ public class RobotContainer implements Sendable {
                                                                                 drivetrain,
                                                                                 lights),
                                                                 // new InstantCommand(() -> lights.setLEDColor(
-                                                                //                 LightCode.READY_TO_INTAKE)),
+                                                                // LightCode.READY_TO_INTAKE)),
                                                                 // new InstantCommand(() -> claw.runMotorsIntaking()),
                                                                 // new WaitUntilCommand(claw::beamBreakSeesObject),
                                                                 // new InstantCommand(() -> claw.stopMotors()
                                                                 // new SequentialCommandGroup(
                                                                 new InstantCommand(() -> claw.runMotorsIntaking()),
                                                                 new WaitUntilCommand(claw::beamBreakSeesObject),
-                                                                new InstantCommand(() -> System.out.println("saw object\n")),
+                                                                new InstantCommand(() -> System.out
+                                                                                .println("saw object\n")),
                                                                 new InstantCommand(() -> claw.runMotorsSlowIntaking()),
                                                                 new WaitCommand(0.25),
                                                                 new InstantCommand(() -> claw.stopMotors()),
-                                                                new ConditionalCommand(new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)), new InstantCommand(), claw::beamBreakSeesObject)));
+                                                                new ConditionalCommand(new InstantCommand(() -> lights
+                                                                                .setLEDColor(LightCode.HAS_CORAL)),
+                                                                                new InstantCommand(),
+                                                                                claw::beamBreakSeesObject)));
                 driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
                 TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
@@ -740,29 +744,40 @@ public class RobotContainer implements Sendable {
                  */
 
                 // operatorController.b()
-                //                 .onTrue(new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.INTAKE)));
+                // .onTrue(new InstantCommand(() ->
+                // elevator.setDesiredPosition(ElevatorHeight.INTAKE)));
                 // operatorController.x()
-                //                 .onTrue(new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)));
+                // .onTrue(new InstantCommand(() ->
+                // elevator.setDesiredPosition(ElevatorHeight.HOME)));
                 // // operatorController.a().onTrue(new
                 // // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
-                // operatorController.povDown().onTrue(new InstantCommand(() -> claw.runMotorsIntaking()));
-                // operatorController.povDown().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                // operatorController.povDown().onTrue(new InstantCommand(() ->
+                // claw.runMotorsIntaking()));
+                // operatorController.povDown().onFalse(new InstantCommand(() ->
+                // claw.stopMotors()));
 
-                // operatorController.a().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)));
-                // operatorController.y().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)));
+                // operatorController.a().onTrue(new InstantCommand(() ->
+                // arm.setDesiredPosition(ArmPosition.INTAKE)));
+                // operatorController.y().onTrue(new InstantCommand(() ->
+                // arm.setDesiredPosition(ArmPosition.HOME)));
 
-                operatorController.b().whileTrue(new SequentialCommandGroup(new InstantCommand(() -> claw.runMotorsIntaking()),
-                                                                new WaitUntilCommand(claw::beamBreakSeesObject),
-                                                                new InstantCommand(() -> System.out.println("saw object\n")),
-                                                                new InstantCommand(() -> claw.runMotorsSlowIntaking()),
-                                                                new WaitCommand(0.25),
-                                                                new InstantCommand(() -> claw.stopMotors())));
+                operatorController.b()
+                                .whileTrue(new SequentialCommandGroup(
+                                                new InstantCommand(() -> claw.runMotorsIntaking()),
+                                                new WaitUntilCommand(claw::beamBreakSeesObject),
+                                                new InstantCommand(() -> System.out.println("saw object\n")),
+                                                new InstantCommand(() -> claw.runMotorsSlowIntaking()),
+                                                new WaitCommand(0.25),
+                                                new InstantCommand(() -> claw.stopMotors())));
                 operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
-                // operatorController.y().whileTrue(new ConditionalCommand(new InstantCommand(), new InstantCommand(() -> claw.runMotorsIntaking()), () -> claw.beamBreakSeesObject()));
+                // operatorController.y().whileTrue(new ConditionalCommand(new InstantCommand(),
+                // new InstantCommand(() -> claw.runMotorsIntaking()), () ->
+                // claw.beamBreakSeesObject()));
 
                 operatorController.x().onTrue(new InstantCommand(() -> claw.stopMotors()));
-                operatorController.y().whileTrue(new SequentialCommandGroup(new InstantCommand(() -> claw.runMotorsOuttake())));
+                operatorController.y().whileTrue(
+                                new SequentialCommandGroup(new InstantCommand(() -> claw.runMotorsOuttake())));
                 operatorController.y().onFalse(new InstantCommand(() -> claw.stopMotors()));
                 operatorController.a().whileTrue(new InstantCommand(() -> claw.runMotorsScoring()));
                 operatorController.a().onFalse(new InstantCommand(() -> claw.stopMotors()));
@@ -803,12 +818,16 @@ public class RobotContainer implements Sendable {
                 // climb.stopClimbMovement()));
 
                 // operatorController.povUp().onTrue(
-                //                 new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
+                // new InstantCommand(() ->
+                // climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
                 // operatorController.povDown().onTrue(
-                //                 new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+                // new InstantCommand(() ->
+                // climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
                 // operatorController.povRight()
-                //                 .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
-                // operatorController.povLeft().onTrue(new InstantCommand(() -> climb.climbTalonLeft.stopMotor()));
+                // .onTrue(new InstantCommand(() ->
+                // climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+                // operatorController.povLeft().onTrue(new InstantCommand(() ->
+                // climb.climbTalonLeft.stopMotor()));
 
                 operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, intakeLimelight));
                 /*
@@ -870,7 +889,7 @@ public class RobotContainer implements Sendable {
                                                                                 Rotation2d.fromDegrees(matchState
                                                                                                 .isBlue() ? 180 : 0))));
                 operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
-                
+
         }
 
         /**
@@ -890,8 +909,9 @@ public class RobotContainer implements Sendable {
                 builder.addStringProperty(
                                 "Prepped Scoring Location", () -> preppedScoringLocation.toString(), null);
                 builder.addDoubleProperty("runNumber", () -> 1.0, null);
-                builder.addDoubleProperty("odometry X", ()->drivetrain.getState().Pose.getX(), null);
-                builder.addDoubleProperty("odometry Y", ()->drivetrain.getState().Pose.getY(), null);
-                builder.addDoubleProperty("odometry rotation deg", ()->drivetrain.getState().Pose.getRotation().getDegrees(), null);
+                builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
+                builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
+                builder.addDoubleProperty("odometry rotation deg",
+                                () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
         }
 }
