@@ -552,10 +552,17 @@ public class RobotContainer implements Sendable {
                                                                                 preppedLocation,
                                                                                 drivetrain,
                                                                                 lights),
-                                                                new InstantCommand(() -> lights.setLEDColor(
-                                                                                LightCode.READY_TO_INTAKE)),
+                                                                // new InstantCommand(() -> lights.setLEDColor(
+                                                                //                 LightCode.READY_TO_INTAKE)),
+                                                                // new InstantCommand(() -> claw.runMotorsIntaking()),
+                                                                // new WaitUntilCommand(claw::beamBreakSeesObject),
+                                                                // new InstantCommand(() -> claw.stopMotors()
+                                                                // new SequentialCommandGroup(
                                                                 new InstantCommand(() -> claw.runMotorsIntaking()),
                                                                 new WaitUntilCommand(claw::beamBreakSeesObject),
+                                                                new InstantCommand(() -> System.out.println("saw object\n")),
+                                                                new InstantCommand(() -> claw.runMotorsSlowIntaking()),
+                                                                new WaitCommand(0.25),
                                                                 new InstantCommand(() -> claw.stopMotors()),
                                                                 new ConditionalCommand(new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)), new InstantCommand(), claw::beamBreakSeesObject)));
                 driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
