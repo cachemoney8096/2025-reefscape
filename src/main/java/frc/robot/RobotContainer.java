@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -903,6 +904,7 @@ public class RobotContainer implements Sendable {
 
         @Override
         public void initSendable(SendableBuilder builder) {
+                //super.initSendable(builder);
                 builder.addStringProperty("Prep State", () -> prepState.toString(), null);
                 builder.addStringProperty("Prepped Location", () -> preppedLocation.toString(), null);
                 builder.addStringProperty("Prepped Height", () -> preppedHeight.toString(), null);
