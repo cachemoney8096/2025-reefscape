@@ -455,61 +455,13 @@ public class RobotContainer implements Sendable {
          */
         private void configureDriverBindings() { // maybe add ternerary for robot relative based on prep staet? TODO
                 drivetrain.setDefaultCommand(
-                                // Drivetrain will execute this command periodically
-                                // drivetrain.applyRequest(
-                                // () -> drive
-                                // .withVelocityX(
-                                // -driverController.getLeftY()
-                                // * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y
-                                // (forward)
-                                // .withVelocityY(
-                                // -driverController.getLeft
-
-                                // * MaxSpeed * elevator.linearSpeedThrottle()) // Drive left with negative X
-                                // (left)
-                                // .withRotationalRate(
-                                // driverController.getRightX()
-                                // * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise
-                                // with negative X (left) // TODO used to have a negative here
-                                // ));
-                                drivetrain.applyRequest(
-                                                () -> drive
-                                                                .withVelocityX(
-                                                                                -driverController.getLeftY()
-                                                                                                * MaxSpeed
-                                                                                                * elevator.linearSpeedThrottle()) // Drive
-                                                                                                                                  // forward
-                                                                                                                                  // with
-                                                                                                                                  // negative
-                                                                                                                                  // Y
-                                                                                                                                  // (forward)
-                                                                .withVelocityY(
-                                                                                -driverController.getLeftX()
-                                                                                                * MaxSpeed
-                                                                                                * elevator.linearSpeedThrottle()) // Drive
-                                                                                                                                  // left
-                                                                                                                                  // with
-                                                                                                                                  // negative
-                                                                                                                                  // X
-                                                                                                                                  // (left)
-                                                                .withRotationalRate(
-                                                                                driverController.getRightX()
-                                                                                                * MaxAngularRate
-                                                                                                * elevator.angularSpeedThrottle()) // Drive
-                                                                                                                                   // counterclockwise
-                                                                                                                                   // with
-                                                                                                                                   // negative
-                                                                                                                                   // X
-                                                                                                                                   // (left)
-                                                                                                                                   // //
-                                                                                                                                   // TODO
-                                                                                                                                   // used
-                                                                                                                                   // to
-                                                                                                                                   // have
-                                                                                                                                   // a
-                                                                                                                                   // negative
-                                                                                                                                   // here
-                                ));
+                        // Drivetrain will execute this command periodically
+                        drivetrain.applyRequest(() ->
+                            drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                                .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                                .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                        )
+                    );
                 /* prep score */
                 driverController
                                 .rightBumper()
@@ -727,6 +679,8 @@ public class RobotContainer implements Sendable {
                  * ScoringLocation.RIGHT));
                  * new Rotation2d();
                  */
+
+
                 // Testing code for climb, arm, and elevator
                 // /*
                 /*
@@ -762,7 +716,7 @@ public class RobotContainer implements Sendable {
                 // operatorController.y().onTrue(new InstantCommand(() ->
                 // arm.setDesiredPosition(ArmPosition.HOME)));
 
-                operatorController.b()
+                /*operatorController.b()
                                 .whileTrue(new SequentialCommandGroup(
                                                 new InstantCommand(() -> claw.runMotorsIntaking()),
                                                 new WaitUntilCommand(claw::beamBreakSeesObject),
@@ -770,18 +724,18 @@ public class RobotContainer implements Sendable {
                                                 new InstantCommand(() -> claw.runMotorsSlowIntaking()),
                                                 new WaitCommand(0.25),
                                                 new InstantCommand(() -> claw.stopMotors())));
-                operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));*/
 
                 // operatorController.y().whileTrue(new ConditionalCommand(new InstantCommand(),
                 // new InstantCommand(() -> claw.runMotorsIntaking()), () ->
                 // claw.beamBreakSeesObject()));
 
-                operatorController.x().onTrue(new InstantCommand(() -> claw.stopMotors()));
+                /*operatorController.x().onTrue(new InstantCommand(() -> claw.stopMotors()));
                 operatorController.y().whileTrue(
                                 new SequentialCommandGroup(new InstantCommand(() -> claw.runMotorsOuttake())));
                 operatorController.y().onFalse(new InstantCommand(() -> claw.stopMotors()));
                 operatorController.a().whileTrue(new InstantCommand(() -> claw.runMotorsScoring()));
-                operatorController.a().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                operatorController.a().onFalse(new InstantCommand(() -> claw.stopMotors()));*/
                 // operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
                 // operatorController.povUp().onTrue(new
@@ -830,7 +784,7 @@ public class RobotContainer implements Sendable {
                 // operatorController.povLeft().onTrue(new InstantCommand(() ->
                 // climb.climbTalonLeft.stopMotor()));
 
-                operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, intakeLimelight));
+                operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, scoringLimelight));
                 /*
                  * operatorController //these are backwards for up and down
                  * .povRight()
@@ -882,13 +836,14 @@ public class RobotContainer implements Sendable {
                 // operatorController.a().onTrue(new
                 // InstantCommand(()->claw.rollerMotor.setVoltage(-9.0)));
 
+                operatorController.a().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
+                operatorController.b().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
+                operatorController.x().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)));
+
+
                 operatorController
                                 .start()
-                                .onTrue(
-                                                new InstantCommand(
-                                                                () -> drivetrain.resetRotation(
-                                                                                Rotation2d.fromDegrees(matchState
-                                                                                                .isBlue() ? 180 : 0))));
+                                .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
                 operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
 
         }

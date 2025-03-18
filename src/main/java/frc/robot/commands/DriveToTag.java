@@ -10,12 +10,13 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
+import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class DriveToTag extends SequentialCommandGroup{
     public static Transform2d robotToTag;
 
-    public DriveToTag(CommandSwerveDrivetrain drive, IntakeLimelight limelight){
+    public DriveToTag(CommandSwerveDrivetrain drive, ScoringLimelight limelight){
         BooleanSupplier checkForTag =
         () -> {
           Optional<Transform2d> robotToTagOptional = limelight.checkForTag();

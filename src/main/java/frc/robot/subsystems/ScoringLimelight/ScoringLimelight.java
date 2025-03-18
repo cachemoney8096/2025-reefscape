@@ -200,13 +200,13 @@ public class ScoringLimelight extends SubsystemBase {
 
   public void resetOdometryWithTags(CommandSwerveDrivetrain drivetrain){
     if(checkForTag().isPresent()){
-      drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME));
-      System.out.println("attempted to rezero from tag");
+      //drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME));
+      //System.out.println("attempted to rezero from tag");
       
-      //drivetrain.addVisionMeasurement(LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME), Timer.getFPGATimestamp()); //TODO change this
-      //System.out.println("attempted to rezero from vision mesasurement");
+      drivetrain.addVisionMeasurement(LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME), Timer.getFPGATimestamp()); //TODO change this
+      System.out.println("attempted to rezero from vision mesasurement");
       System.out.println("new drivetrain pose: " + drivetrain.getState().Pose);
-      //System.out.println("GET POSE BLUE: " + LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME));
+      System.out.println("GET POSE BLUE: " + LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME));
     }
   }
 

@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
@@ -61,7 +62,8 @@ public class IntakeSequence extends SequentialCommandGroup {
     /* revert to manual control if we don't see a tag */
     addCommands(
         new ConditionalCommand(
-            new SequentialCommandGroup(
+            new ParallelCommandGroup(
+              moveArmElevatorClaw,
                 /* we saw a tag */
                 new InstantCommand(
                     () -> {
@@ -116,7 +118,6 @@ public class IntakeSequence extends SequentialCommandGroup {
                       drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
-            checkForTag),
-        moveArmElevatorClaw);
+            checkForTag));
   }
 }

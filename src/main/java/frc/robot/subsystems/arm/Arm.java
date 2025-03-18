@@ -77,7 +77,7 @@ public class Arm extends SubsystemBase {
     armMotorLeft.getConfigurator().apply(toApply);
     armMotorRight.setControl(new Follower(armMotorLeft.getDeviceID(), true));
     CANcoderConfiguration cfg = new CANcoderConfiguration();
-    cfg.MagnetSensor.MagnetOffset = -0.93;
+    cfg.MagnetSensor.MagnetOffset = 0.00; //TODO this
     cfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
     armLeftEncoderAbs.getConfigurator().apply(cfg);
   }
@@ -136,7 +136,7 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    controlPosition(armPositions.get(this.armDesiredPosition)); 
+    //controlPosition(armPositions.get(this.armDesiredPosition)); 
   }
 
   @Override
