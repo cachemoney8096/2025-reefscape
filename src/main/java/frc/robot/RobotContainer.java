@@ -858,6 +858,7 @@ public class RobotContainer implements Sendable {
                 //operatorController.x().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
                 operatorController.a().onTrue(new InstantCommand(()->climb.testClimbMovementUp()));
                 operatorController.b().onTrue(new InstantCommand(()->climb.stopClimbMovement()));
+                operatorController.x().onTrue(new InstantCommand(()->climb.testClimbMovementDown()));
 
 
         }
