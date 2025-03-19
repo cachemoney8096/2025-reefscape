@@ -108,17 +108,17 @@ public class Elevator extends SubsystemBase {
   }
 
   public double linearSpeedThrottle() {
-    if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4) {
-      return 0.1;
+    if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4 || desiredPosition == ElevatorHeight.INTAKE) {
+      return 0.3;
     }
-    return 0.2;
+    return 1.0;
   }
 
   public double angularSpeedThrottle() {
-    if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4) {
-      return 0.05;
+    if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4 || desiredPosition == ElevatorHeight.INTAKE) {
+      return 0.3;
     }
-    return 0.1;
+    return 1.0;
   }
 
   public void setControlParams(boolean isScoring) {
@@ -158,26 +158,26 @@ public class Elevator extends SubsystemBase {
 
   public boolean atDesiredPosition() {
     return Math.abs(
-            leftMotor.getPosition().getValueAsDouble()
+            leftMotor.getPosition().getValueAsDouble()* ElevatorConstants.DRUM_CIRCUMFERENCE
+            / ElevatorConstants.MOTOR_TO_DRUM_RATIO
                 - elevatorPositions.get(desiredPosition)
-                    / ElevatorConstants.DRUM_CIRCUMFERENCE
-                    * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
+                )
         < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean atElevatorPosition(ElevatorHeight height) {
     return Math.abs(
-            leftMotor.getPosition().getValueAsDouble()
+            leftMotor.getPosition().getValueAsDouble()* ElevatorConstants.DRUM_CIRCUMFERENCE
+            / ElevatorConstants.MOTOR_TO_DRUM_RATIO
                 - elevatorPositions.get(height)
-                    / ElevatorConstants.DRUM_CIRCUMFERENCE
-                    * ElevatorConstants.MOTOR_TO_DRUM_RATIO)
+                )
         < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean armMovementAllowed() {
     return leftMotor.getPosition().getValueAsDouble()
     * ElevatorConstants.DRUM_CIRCUMFERENCE
-    / ElevatorConstants.MOTOR_TO_DRUM_RATIO
+                / ElevatorConstants.MOTOR_TO_DRUM_RATIO
         > (elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)
                 - ElevatorCal.AT_CLEAR_POSITION_MARGIN); 
   }
@@ -240,7 +240,7 @@ public class Elevator extends SubsystemBase {
     builder.addStringProperty("Elevator DESIRED Pos", () -> desiredPosition.toString(), null);
     builder.addDoubleProperty(
         "Elevator DESIRED Pos (in)", () -> elevatorPositions.get(desiredPosition), null);
-    builder.addBooleanProperty("Elevator at desired", this::atDesiredPosition, null);
+    builder.addBooleanProperty("Elevator at desired", ()->atDesiredPosition(), null);
 
     builder.addDoubleProperty(
         "Elevator Left Motor RELATIVE (deg)",

@@ -21,6 +21,8 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.utils.HPUtil;
+import frc.robot.utils.PrepStateUtil;
+
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -34,10 +36,12 @@ public class IntakeSequence extends SequentialCommandGroup {
       Arm arm,
       Elevator elevator,
       Climb climb,
-      RobotContainer.IntakeClimbLocation location,
+      PrepStateUtil prepStateUtil,
       CommandSwerveDrivetrain drive,
       Lights lights) {
     /* mechanical intake sequence */
+      final PrepStateUtil.INTAKE_CLIMB_LOCATION location = prepStateUtil.getPrepIntakeClimbLocation();
+
     SequentialCommandGroup moveArmElevatorClaw =
         new SequentialCommandGroup(
             new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.INTAKE)),
@@ -75,7 +79,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                                   .getEntry("tid")
                                   .getDouble(0.0);
                       HPUtil.Position pos =
-                          location == RobotContainer.IntakeClimbLocation.LEFT
+                          location == PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT
                               ? HPUtil.Position.LEFT
                               : HPUtil.Position.RIGHT;
                       switch (id) {

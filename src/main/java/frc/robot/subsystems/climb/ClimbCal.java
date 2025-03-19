@@ -12,9 +12,9 @@ public class ClimbCal {
 //   public static final double CLIMB_CLIMBING_POSITION_DEGREES = 77.8 + 129.5,
 //       CLIMB_STOWED_POSITION_DEGREES = 0.0 + 129.5,
 //       CLIMB_CLIMBING_PREP_DEGREES = 167.8 + 129.5;
-public static final double CLIMB_CLIMBING_POSITION_DEGREES = 187.8, // 142, // 85
-      CLIMB_STOWED_POSITION_DEGREES = 110.0, // 63.7
-      CLIMB_CLIMBING_PREP_DEGREES = 277.8; // 76
+public static final double CLIMB_CLIMBING_POSITION_DEGREES = 28.0, // 142, // 85
+      CLIMB_STOWED_POSITION_DEGREES = 1.0, // 63.7
+      CLIMB_CLIMBING_PREP_DEGREES = 169.0; // 76
 
   public static final double CLIMB_MOTOR_MAX_VELOCITY_RPS = 20000.0, // TODO increase this to speed up climb, might make diff value for positioning vs climbing
       CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED = 20000.0;

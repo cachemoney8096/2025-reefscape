@@ -31,7 +31,8 @@ import com.pathplanner.lib.path.PathConstraints;
  import edu.wpi.first.wpilibj.Notifier;
  import edu.wpi.first.wpilibj.RobotController;
  import edu.wpi.first.wpilibj2.command.Command;
- import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
  import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
  import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
  import java.util.List;
@@ -206,9 +207,9 @@ import com.pathplanner.lib.path.PathConstraints;
                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
            new PPHolonomicDriveController(
                // PID constants for translation
-               new PIDConstants(10, 0, 0),
+               new PIDConstants(30, 0, 0),
                // PID constants for rotation
-               new PIDConstants(7, 0, 0)),
+               new PIDConstants(15, 0, 0)),
            config,
            // Assume the path needs to be flipped for Red vs Blue, this is normally the case
            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
@@ -331,7 +332,7 @@ import com.pathplanner.lib.path.PathConstraints;
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(currentPose, targetPose); 
     // prev max speed and acceleration was 3.0, 3.0
     // 0.0 speed made it slow, 0.00001 made it stop, -0.01 made is fast in same direction
-    PathConstraints constraints = new PathConstraints(0.0, 0.0, 2 * Math.PI, 4 * Math.PI); //TODO why don't these work
+    PathConstraints constraints = new PathConstraints(2.0, 2.0, 2 * Math.PI, 4 * Math.PI); //TODO why don't these work
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints, constraints, new IdealStartingState(0.0, currentPose.getRotation()), new GoalEndState(0.0, targetPose.getRotation()));

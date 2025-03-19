@@ -57,10 +57,6 @@ public class Claw extends SubsystemBase {
     rollerMotor.set(ClawCal.CLAW_ROLLERS_INTAKING_SPEED_PERCENT);
   }
 
-  public void runMotorsSlowIntaking() {
-    rollerMotor.set(ClawCal.CLAW_ROLLERS_SLOW_INTAKING_SPEED_PERCENT);
-  }
-
   public void runMotorsScoring() {
     rollerMotor.set(ClawCal.CLAW_ROLLERS_SCORING_SPEED_PERCENT);
   }

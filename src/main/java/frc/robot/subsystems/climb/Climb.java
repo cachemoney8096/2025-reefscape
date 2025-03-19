@@ -34,7 +34,7 @@ public class Climb extends SubsystemBase {
 
   private TreeMap<ClimbPosition, Double> climbPositionMap;
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
-  private boolean allowClimbMovement = false; //TODO
+  private boolean allowClimbMovement = true; //TODO
 
   private int currentSlot = 1;
 
@@ -76,6 +76,7 @@ public class Climb extends SubsystemBase {
 
     CANcoderConfiguration cfg = new CANcoderConfiguration();
     cfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+    cfg.MagnetSensor.MagnetOffset = -0.54;
     climbAbsoluteEncoder.getConfigurator().apply(cfg);
   }
 
@@ -89,10 +90,7 @@ public class Climb extends SubsystemBase {
     // return 1 - (0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble()); 
     //return (climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() / 2) - (120 / 360);
     double rawRotations = climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
-    if (rawRotations < 0.29) {
-      return (rawRotations+1)/2;
-    }
-    return (rawRotations / 2);
+    return rawRotations/2;
   }
 
   public void setClimbingPID() {
@@ -171,10 +169,10 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void periodic() {
-     //if (allowClimbMovement) {
-       //controlPosition(climbPositionMap.get(this.desiredPosition));
-     //}
-    // controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
+     /*if (allowClimbMovement) {
+       controlPosition(climbPositionMap.get(this.desiredPosition));
+     }*/
+     controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
 
   @Override
@@ -208,7 +206,7 @@ public class Climb extends SubsystemBase {
         builder.addDoubleProperty(
           "Climb ABSOLUTE RAW (deg)",
           () -> /*climbAbsoluteEncoder.getDistance() * 360*/
-              climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble(),
+              climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
           null);
 
     builder.addStringProperty(

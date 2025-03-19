@@ -71,6 +71,7 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
+import frc.robot.utils.PrepStateUtil;
 
 import java.lang.annotation.ElementType;
 import java.util.TreeMap;
@@ -128,7 +129,7 @@ public class RobotContainer implements Sendable {
         public PrepState prepState = PrepState.OFF;
         public IntakeClimbLocation preppedLocation = IntakeClimbLocation.LEFT;
         // public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
-        public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L2;
+        public static ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
         public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
         /* Garbage from phoenix tuner */
@@ -139,6 +140,8 @@ public class RobotContainer implements Sendable {
                                                                                                      // rotation
                                                                                                      // per second
         // max angular velocity
+
+        private PrepStateUtil prepStateUtil = new PrepStateUtil();
 
         /* Setting up bindings for necessary control of the swerve drive platform */
         private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -457,14 +460,14 @@ public class RobotContainer implements Sendable {
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
                         drivetrain.applyRequest(() ->
-                            drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                                .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                                .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                            drive.withVelocityX(-driverController.getLeftY() * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward)
+                                .withVelocityY(-driverController.getLeftX() * MaxSpeed* elevator.linearSpeedThrottle()) // Drive left with negative X (left)
+                                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left)
                         )
                     );
                 /* prep score */
                 driverController
-                                .rightBumper()
+                                .leftBumper()
                                 .onTrue(
                                                 new PrepScoreSequence(
                                                                 arm,
@@ -472,8 +475,7 @@ public class RobotContainer implements Sendable {
 
                                                                 scoringLimelight,
                                                                 climb,
-                                                                preppedHeight,
-                                                                preppedScoringLocation,
+                                                                prepStateUtil,
                                                                 drivetrain,
                                                                 matchState,
                                                                 lights)
@@ -486,7 +488,7 @@ public class RobotContainer implements Sendable {
                                                                 climb,
                                                                 arm,
                                                                 scoringLimelight,
-                                                                preppedLocation,
+                                                                prepStateUtil,
                                                                 matchState,
                                                                 drivetrain,
                                                                 elevator,
@@ -494,7 +496,7 @@ public class RobotContainer implements Sendable {
                                                                 .beforeStarting(() -> prepState = PrepState.CLIMB));
                 /* intake */
                 driverController
-                                .leftTrigger()
+                                .rightTrigger()
                                 .whileTrue(
                                                 new SequentialCommandGroup(
                                                                 new IntakeSequence(
@@ -503,7 +505,7 @@ public class RobotContainer implements Sendable {
                                                                                 arm,
                                                                                 elevator,
                                                                                 climb,
-                                                                                preppedLocation,
+                                                                                prepStateUtil,
                                                                                 drivetrain,
                                                                                 lights),
                                                                 // new InstantCommand(() -> lights.setLEDColor(
@@ -514,10 +516,7 @@ public class RobotContainer implements Sendable {
                                                                 // new SequentialCommandGroup(
                                                                 new InstantCommand(() -> claw.runMotorsIntaking()),
                                                                 new WaitUntilCommand(claw::beamBreakSeesObject),
-                                                                new InstantCommand(() -> System.out
-                                                                                .println("saw object\n")),
-                                                                new InstantCommand(() -> claw.runMotorsSlowIntaking()),
-                                                                new WaitCommand(0.25),
+                                
                                                                 new InstantCommand(() -> claw.stopMotors()),
                                                                 new ConditionalCommand(new InstantCommand(() -> lights
                                                                                 .setLEDColor(LightCode.HAS_CORAL)),
@@ -538,14 +537,15 @@ public class RobotContainer implements Sendable {
                                         prepState = PrepState.OFF;
                                         return h;
                                 });
+                
                 /* finish score */
                 driverController
-                                .rightTrigger()
+                                .leftTrigger()
                                 .onTrue(
                                                 new ConditionalCommand(
                                                                 new InstantCommand(() -> claw.runMotorsScoring()),
                                                                 driverRightTriggerCommand,
-                                                                () -> prepState == PrepState.OFF));
+                                                                () -> prepState == PrepState.OFF).beforeStarting(new InstantCommand(()->System.out.println("right trigger"))));
 
                 driverController
                                 .rightTrigger()
@@ -553,7 +553,7 @@ public class RobotContainer implements Sendable {
                                                 new ConditionalCommand(
                                                                 new InstantCommand(() -> claw.stopMotors()),
                                                                 new InstantCommand(),
-                                                                () -> prepState == PrepState.OFF));
+                                                                () -> prepState == PrepState.OFF).beforeStarting(new InstantCommand(()->System.out.println("right trigger"))));
 
                 // TODO these don't work
                 driverController
@@ -626,10 +626,12 @@ public class RobotContainer implements Sendable {
                                                 new GoHomeSequence(climb, elevator, arm, claw, lights)
                                                                 .beforeStarting(
                                                                                 () -> {
-                                                                                        prepState = PrepState.OFF;
-                                                                                        // if(drivetrain.driveToPoint.isScheduled()){
-                                                                                        // drivetrain.killDriveToPose();
-                                                                                        // }
+                                                                                        /*prepState = PrepState.OFF;
+                                                                                         if(drivetrain.driveToPoint.isScheduled()){
+                                                                                                System.out.println("killing");
+                                                                                         drivetrain.killDriveToPose();
+                                                                                         
+                                                                                         }*/
                                                                                         // TODO this needs to be
                                                                                         // uncommented but fixed first
                                                                                 }));
@@ -637,50 +639,44 @@ public class RobotContainer implements Sendable {
 
         private void configureOperatorBindings() {
                 /* Left right and center for intake and climb */
-                /* 
+                
                   operatorController
                   .povLeft()
-                  .onTrue(new InstantCommand(() -> preppedLocation =
-                  IntakeClimbLocation.LEFT));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT)));
                   operatorController
                   .povUp()
-                  .onTrue(new InstantCommand(() -> preppedLocation =
-                  IntakeClimbLocation.CENTER));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.CENTER)));
                   operatorController
                   .povRight()
-                  .onTrue(new InstantCommand(() -> preppedLocation =
-                  IntakeClimbLocation.RIGHT));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.RIGHT)));
 
-                  /* elevator height */
-                  /* 
+                //   /* elevator height */
+                  
                   operatorController
                   .a()
-                  .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L4));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L1)));
                   operatorController
                   .b()
-                  .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L3));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L2)));
                   operatorController
                   .x()
-                  .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L3)));
                   operatorController
                   .y()
-                  .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L4)));
                   
-                  /* Left and right for scoring
-                 */
+                //   /* Left and right for scoring
+                //  */
 
-                 /* 
+                 
                   operatorController
                  .leftBumper()
-                  .onTrue(new InstantCommand(() -> preppedScoringLocation =
-                  ScoringLocation.LEFT));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreLocation(PrepStateUtil.SCORE_LOCATION.LEFT)));
                   operatorController
                   .rightBumper()
-                  .onTrue(new InstantCommand(() -> preppedScoringLocation =
-                  ScoringLocation.RIGHT));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreLocation(PrepStateUtil.SCORE_LOCATION.RIGHT)));
                   new Rotation2d(); 
                   
-                  */
 
                 // Testing code for climb, arm, and elevator
                 // /*
@@ -739,12 +735,13 @@ public class RobotContainer implements Sendable {
                 operatorController.a().onFalse(new InstantCommand(() -> claw.stopMotors()));*/
                 // operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
-                // operatorController.povUp().onTrue(new
-                // InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
-                // operatorController.povDown().onTrue(new
-                // InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
-                // operatorController.povLeft().onTrue(new
-                // InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+                operatorController.povUp().onTrue(new
+                InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
+                operatorController.povDown().onTrue(new
+                InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+                operatorController.povLeft().onTrue(new
+                InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+                operatorController.povRight().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)));
 
                 // operatorController.x().onTrue(new InstantCommand(() ->
                 // arm.stopArmMovement()));
@@ -785,7 +782,7 @@ public class RobotContainer implements Sendable {
                 // operatorController.povLeft().onTrue(new InstantCommand(() ->
                 // climb.climbTalonLeft.stopMotor()));
 
-                operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, scoringLimelight));
+               // operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, scoringLimelight));
                 /*
                  * operatorController //these are backwards for up and down
                  * .povRight()

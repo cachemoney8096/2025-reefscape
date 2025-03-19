@@ -22,6 +22,7 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
+import frc.robot.utils.PrepStateUtil;
 import frc.robot.utils.ReefAngleCalcUtil;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -36,23 +37,28 @@ public class PrepScoreSequence extends SequentialCommandGroup {
       Elevator elevator,
       ScoringLimelight scoringLimelight,
       Climb climb,
-      ElevatorHeight height,
-      RobotContainer.ScoringLocation location,
+      PrepStateUtil prepStateUtil,
       CommandSwerveDrivetrain drive,
       MatchStateUtil msu,
       Lights lights) {
     addRequirements(arm, elevator, scoringLimelight);
-
+    PrepStateUtil.SCORE_HEIGHT pHeight = prepStateUtil.getPrepScoreHeight();
     final ArmPosition p;
-    if (height == ElevatorHeight.SCORE_L2) {
+    final ElevatorHeight height;
+    if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
       p = ArmPosition.L2;
-    } else if (height == ElevatorHeight.SCORE_L3) {
+      height = ElevatorHeight.SCORE_L2;
+    } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
       p = ArmPosition.L3;
-    } else if (height == ElevatorHeight.SCORE_L4) {
+      height = ElevatorHeight.SCORE_L3;
+    } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
       p = ArmPosition.L4;
+      height = ElevatorHeight.SCORE_L4;
     } else {
       p = ArmPosition.L1;
+      height = ElevatorHeight.SCORE_L1;
     }
+    final PrepStateUtil.SCORE_LOCATION location = prepStateUtil.getPrepScoreLocation();
 
     SequentialCommandGroup setPositions =
         new SequentialCommandGroup(
@@ -135,7 +141,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                 if (map.containsKey(id)) {
                   Translation2d offset =
                       ReefAngleCalcUtil.translateScorePositionOffset(
-                          map.get(id).getFirst(), location == RobotContainer.ScoringLocation.RIGHT);
+                          map.get(id).getFirst(), location == PrepStateUtil.SCORE_LOCATION.RIGHT);
                   robotToTag = robotToTag.plus(new Transform2d(offset, new Rotation2d()));
                   targetPose = drive.getState().Pose.plus(robotToTag);
                   targetPose =

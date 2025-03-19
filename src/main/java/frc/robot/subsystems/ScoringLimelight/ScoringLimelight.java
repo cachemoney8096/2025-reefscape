@@ -191,7 +191,7 @@ public class ScoringLimelight extends SubsystemBase {
             ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
     return new Pose2d(
             limelightPoseFieldSpace.getTranslation(),
-            limelightPoseFieldSpace.getRotation().plus(Rotation2d.fromDegrees(180))); //TODO ANGLE HERE
+            limelightPoseFieldSpace.getRotation().plus(Rotation2d.fromDegrees(173))); //TODO ANGLE HERE
   }
 
   public RawFiducial getClosestFiducial() {
