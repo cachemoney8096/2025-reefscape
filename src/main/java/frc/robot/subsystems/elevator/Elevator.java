@@ -176,10 +176,10 @@ public class Elevator extends SubsystemBase {
 
   public boolean armMovementAllowed() {
     return leftMotor.getPosition().getValueAsDouble()
+    * ElevatorConstants.DRUM_CIRCUMFERENCE
+    / ElevatorConstants.MOTOR_TO_DRUM_RATIO
         > (elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)
-                - ElevatorCal.AT_CLEAR_POSITION_MARGIN)
-            / ElevatorConstants.DRUM_CIRCUMFERENCE
-            * ElevatorConstants.MOTOR_TO_DRUM_RATIO; // someone reviewing my work check this please
+                - ElevatorCal.AT_CLEAR_POSITION_MARGIN); 
   }
 
   /* The limit switches we are using are active low, hence the ! operator
@@ -273,5 +273,6 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("Allow Elevator Movement", () -> allowElevatorMovement, null);
     builder.addDoubleProperty("Canrange distance INCHES", ()->Units.metersToInches(canrange.getDistance().getValueAsDouble()), null);
     builder.addDoubleProperty("Elevator voltage commanded", ()->leftMotor.getMotorVoltage().getValueAsDouble(), null);
+    builder.addBooleanProperty("arm movement allowed", this::armMovementAllowed, null);
   }
 }

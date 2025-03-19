@@ -785,7 +785,7 @@ public class RobotContainer implements Sendable {
                 // operatorController.povLeft().onTrue(new InstantCommand(() ->
                 // climb.climbTalonLeft.stopMotor()));
 
-                //operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, scoringLimelight));
+                operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, scoringLimelight));
                 /*
                  * operatorController //these are backwards for up and down
                  * .povRight()
@@ -846,19 +846,20 @@ public class RobotContainer implements Sendable {
                 operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L4)));
                 operatorController.povDown().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
 
-
+                */
                 operatorController
                                 .start()
                                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+                                /* 
                 operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));*/
 
                 
                 //operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
                 //operatorController.b().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
                 //operatorController.x().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
-                operatorController.a().onTrue(new InstantCommand(()->climb.testClimbMovementUp()));
-                operatorController.b().onTrue(new InstantCommand(()->climb.stopClimbMovement()));
-                operatorController.x().onTrue(new InstantCommand(()->climb.testClimbMovementDown()));
+                //operatorController.a().onTrue(new InstantCommand(()->climb.testClimbMovementUp()));
+                //operatorController.b().onTrue(new InstantCommand(()->climb.stopClimbMovement()));
+                //operatorController.x().onTrue(new InstantCommand(()->climb.testClimbMovementDown()));
 
 
         }

@@ -89,8 +89,8 @@ public class Climb extends SubsystemBase {
     // return 1 - (0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble()); 
     //return (climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() / 2) - (120 / 360);
     double rawRotations = climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
-    if (rawRotations < 0.32) {
-      return rawRotations/2 + 0.5;
+    if (rawRotations < 0.29) {
+      return (rawRotations+1)/2;
     }
     return (rawRotations / 2);
   }
@@ -131,7 +131,7 @@ public class Climb extends SubsystemBase {
 
   public void setDesiredClimbPosition(ClimbPosition pos) {
     this.desiredPosition = pos;
-    this.allowClimbMovement = true;
+    //this.allowClimbMovement = true;
   }
 
   public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
