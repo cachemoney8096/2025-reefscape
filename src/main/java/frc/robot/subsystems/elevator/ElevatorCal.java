@@ -3,10 +3,10 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants;
 
 public class ElevatorCal {
-  public static final double ELEVATOR_SCORE_P = 1.0, // 5.0 // TODO change these back after elevator is fixed
-      ELEVATOR_SCORE_I = 0.0001, // 0.0005,
+  public static final double ELEVATOR_SCORE_P = 2.0, // 5.0 // TODO change these back after elevator is fixed
+      ELEVATOR_SCORE_I = 0.0005, // 0.0005,
       ELEVATOR_SCORE_D = 0.0,
-      ELEVATOR_SCORE_FF = 0.001; // 0.005
+      ELEVATOR_SCORE_FF = 0.005; // 0.005
   public static final double ELEVATOR_CLIMB_P = 0.0001,
       ELEVATOR_CLIMB_I = 0.0,
       ELEVATOR_CLIMB_D = 0.0,

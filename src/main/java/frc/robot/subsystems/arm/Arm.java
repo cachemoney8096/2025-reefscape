@@ -73,11 +73,11 @@ public class Arm extends SubsystemBase {
     toApply.Slot0.kI = ArmCal.ARM_MOTOR_I;
     toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
     toApply.Slot0.kV = ArmCal.ARM_MOTOR_FF;
-    toApply.Slot0.kG = 0.25;
+    toApply.Slot0.kG = -0.25;
     armMotorLeft.getConfigurator().apply(toApply);
     armMotorRight.setControl(new Follower(armMotorLeft.getDeviceID(), true));
     CANcoderConfiguration cfg = new CANcoderConfiguration();
-    cfg.MagnetSensor.MagnetOffset = 0.00; //TODO this
+    cfg.MagnetSensor.MagnetOffset = -0.414; //TODO this
     cfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
     armLeftEncoderAbs.getConfigurator().apply(cfg);
   }
@@ -136,7 +136,7 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //controlPosition(armPositions.get(this.armDesiredPosition)); 
+    controlPosition(armPositions.get(this.armDesiredPosition)); 
   }
 
   @Override

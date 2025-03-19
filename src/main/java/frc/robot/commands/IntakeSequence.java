@@ -61,9 +61,9 @@ public class IntakeSequence extends SequentialCommandGroup {
     addRequirements(claw, arm, elevator, climb);
     /* revert to manual control if we don't see a tag */
     addCommands(
+      moveArmElevatorClaw,
         new ConditionalCommand(
-            new ParallelCommandGroup(
-              moveArmElevatorClaw,
+            new SequentialCommandGroup(
                 /* we saw a tag */
                 new InstantCommand(
                     () -> {

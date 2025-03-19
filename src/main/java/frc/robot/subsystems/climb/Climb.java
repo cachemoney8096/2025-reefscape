@@ -34,7 +34,7 @@ public class Climb extends SubsystemBase {
 
   private TreeMap<ClimbPosition, Double> climbPositionMap;
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
-  private boolean allowClimbMovement = true; //TODO
+  private boolean allowClimbMovement = false; //TODO
 
   private int currentSlot = 1;
 
@@ -90,7 +90,7 @@ public class Climb extends SubsystemBase {
     //return (climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() / 2) - (120 / 360);
     double rawRotations = climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
     if (rawRotations < 0.32) {
-      rawRotations += 1;
+      return rawRotations/2 + 0.5;
     }
     return (rawRotations / 2);
   }
@@ -171,9 +171,9 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // if (allowClimbMovement) {
-    //   controlPosition(climbPositionMap.get(this.desiredPosition));
-    // }
+     //if (allowClimbMovement) {
+       //controlPosition(climbPositionMap.get(this.desiredPosition));
+     //}
     // controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
 
