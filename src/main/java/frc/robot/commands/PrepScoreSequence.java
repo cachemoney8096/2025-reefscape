@@ -42,31 +42,38 @@ public class PrepScoreSequence extends SequentialCommandGroup {
       MatchStateUtil msu,
       Lights lights) {
     addRequirements(arm, elevator, scoringLimelight);
-    PrepStateUtil.SCORE_HEIGHT pHeight = prepStateUtil.getPrepScoreHeight();
     final ArmPosition p;
     final ElevatorHeight height;
-    if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
-      p = ArmPosition.L2;
-      height = ElevatorHeight.SCORE_L2;
-    } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
-      p = ArmPosition.L3;
-      height = ElevatorHeight.SCORE_L3;
-    } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
-      p = ArmPosition.L4;
-      height = ElevatorHeight.SCORE_L4;
-    } else {
-      p = ArmPosition.L1;
-      height = ElevatorHeight.SCORE_L1;
-    }
     final PrepStateUtil.SCORE_LOCATION location = prepStateUtil.getPrepScoreLocation();
-
-    SequentialCommandGroup setPositions =
-        new SequentialCommandGroup(
-            new InstantCommand(() -> elevator.setDesiredPosition(height)),
-            new WaitUntilCommand(elevator::armMovementAllowed),
-            new InstantCommand(() -> arm.setDesiredPosition(p)));
+//     InstantCommand setHeight = new InstantCommand(()->{PrepStateUtil.SCORE_HEIGHT pHeight = prepStateUtil.getPrepScoreHeight();
+    
+//     if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
+//       p = ArmPosition.L2;
+//       height = ElevatorHeight.SCORE_L2;
+//     } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L3) {
+//       p = ArmPosition.L3;
+//       height = ElevatorHeight.SCORE_L3;
+//     } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L4) {
+//       p = ArmPosition.L4;
+//       height = ElevatorHeight.SCORE_L4;
+//     } else {
+//       p = ArmPosition.L1;
+//       height = ElevatorHeight.SCORE_L1;
+//     }
+//     System.out.println("arm: " + p + " and elevator: " + height);
+// });
+    
+    // SequentialCommandGroup setPositions =
+    //     new SequentialCommandGroup(
+    //         new InstantCommand(() -> elevator.setDesiredPosition(height)),
+    //         new WaitUntilCommand(elevator::armMovementAllowed),
+    //         new InstantCommand(() -> arm.setDesiredPosition(p)));
 
     addCommands(
+        new SequentialCommandGroup(
+            new InstantCommand(() -> elevator.setDesiredPosition(prepStateUtil.getElevatorHeight())),
+            new WaitUntilCommand(elevator::armMovementAllowed),
+            new InstantCommand(() -> arm.setDesiredPosition(prepStateUtil.getArmPosition()))),
         new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
         /* check for a tag first so we can start driving. fall back onto manual driving */
         new ConditionalCommand(
@@ -154,7 +161,6 @@ public class PrepScoreSequence extends SequentialCommandGroup {
               }
               return false;
             }),
-        setPositions,
         new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_SCORE)));
   }
 }

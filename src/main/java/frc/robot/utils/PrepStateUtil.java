@@ -1,5 +1,8 @@
 package frc.robot.utils;
 
+import frc.robot.subsystems.arm.Arm.ArmPosition;
+import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
+
 public class PrepStateUtil {
     public enum SCORE_HEIGHT {
         L1,
@@ -17,7 +20,7 @@ public class PrepStateUtil {
         RIGHT
     }
 
-    private SCORE_HEIGHT prepScoreHeight = SCORE_HEIGHT.L4;
+    private SCORE_HEIGHT prepScoreHeight = SCORE_HEIGHT.L2;
     private INTAKE_CLIMB_LOCATION prepIntakeClimbLocation = INTAKE_CLIMB_LOCATION.CENTER;
     private SCORE_LOCATION prepScoreLocation = SCORE_LOCATION.LEFT;
 
@@ -39,5 +42,29 @@ public class PrepStateUtil {
     }
     public SCORE_LOCATION getPrepScoreLocation() {
         return this.prepScoreLocation;
+    }
+
+    public ElevatorHeight getElevatorHeight(){
+        if (prepScoreHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
+              return ElevatorHeight.SCORE_L2;
+            } else if (prepScoreHeight == PrepStateUtil.SCORE_HEIGHT.L3) {
+              return ElevatorHeight.SCORE_L3;
+            } else if (prepScoreHeight == PrepStateUtil.SCORE_HEIGHT.L4) {
+              return ElevatorHeight.SCORE_L4;
+            } else {
+              return ElevatorHeight.SCORE_L1;
+            }
+    }
+
+    public ArmPosition getArmPosition(){
+        if (prepScoreHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
+              return ArmPosition.L2;
+            } else if (prepScoreHeight == PrepStateUtil.SCORE_HEIGHT.L3) {
+              return ArmPosition.L3;
+            } else if (prepScoreHeight == PrepStateUtil.SCORE_HEIGHT.L4) {
+              return ArmPosition.L4;
+            } else {
+              return ArmPosition.L1;
+            }
     }
 }

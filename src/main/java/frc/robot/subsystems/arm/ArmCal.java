@@ -6,12 +6,12 @@ package frc.robot.subsystems.arm;
       ARM_POSITION_L1_DEGREES = 106.0 + 42,
       ARM_POSITION_L2_DEGREES = 106.0 + 42,
       ARM_POSITION_L3_DEGREES = 106.0 + 42 + 13,
-      ARM_POSITION_L4_DEGREES = 220.0,
-      ARM_POSITION_DEEP_CLIMB_DEGREES = 177.0; // 141.5 + 29;
+      ARM_POSITION_L4_DEGREES = 225.0,
+      ARM_POSITION_DEEP_CLIMB_DEGREES = 140.0; // 141.5 + 29;
   public static final double ARM_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       ARM_STATOR_CURRENT_LIMIT_AMPS = 80.0;
 
-  public static final double ARM_MARGIN_DEGREES = 7.0;
+  public static final double ARM_MARGIN_DEGREES = 9.0;
   public static final double TEST_ARM_MOVEMENT_VOLTAGE = 6.0;
 
   public static final double ARM_MOTOR_P = 0.5, // 0.75, // should be 2.5 when not having coral

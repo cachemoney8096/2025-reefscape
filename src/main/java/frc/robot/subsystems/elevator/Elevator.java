@@ -89,6 +89,7 @@ public class Elevator extends SubsystemBase {
     toApply.Slot0.kI = ElevatorCal.ELEVATOR_SCORE_I;
     toApply.Slot0.kD = ElevatorCal.ELEVATOR_SCORE_D;
     toApply.Slot0.kV = ElevatorCal.ELEVATOR_SCORE_FF;
+    //[\]
     toApply.Slot0.kG = 0.25;
 
     toApply.Slot1.kP = ElevatorCal.ELEVATOR_CLIMB_P;

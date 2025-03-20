@@ -45,7 +45,9 @@ public class IntakeSequence extends SequentialCommandGroup {
     SequentialCommandGroup moveArmElevatorClaw =
         new SequentialCommandGroup(
             new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.INTAKE)),
+            new InstantCommand(() -> System.out.println("elevator desired set to intake")),
             new WaitUntilCommand(elevator::armMovementAllowed),
+            new InstantCommand(() -> System.out.println("arm movement allowed")),
             new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
             new WaitUntilCommand(
                 () -> {
