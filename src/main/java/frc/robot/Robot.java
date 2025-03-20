@@ -64,9 +64,9 @@ public class Robot extends TimedRobot {
   public static Transform2d robotToTag;
   @Override
   public void disabledPeriodic() {
-    m_robotContainer.scoringLimelight.resetOdometryWithTags(m_robotContainer.drivetrain);
+    /*m_robotContainer.scoringLimelight.resetOdometryWithTags(m_robotContainer.drivetrain);
     /* for testing, TODO remove */
-    BooleanSupplier checkForTag =
+    /*BooleanSupplier checkForTag =
         () -> {
           Optional<Transform2d> robotToTagOptional = m_robotContainer.scoringLimelight.checkForTag();
           if (robotToTagOptional.isPresent()) {
@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
         };
     if(checkForTag.getAsBoolean()){
       System.out.println("current pose: " + m_robotContainer.drivetrain.getState().Pose + "\nrobot to tag : " + robotToTag.toString() + "\n") ; Pose2d targetPose = m_robotContainer.drivetrain.getState().Pose.plus(robotToTag); System.out.println("target pose: " + targetPose.toString() + "\n");
-    }
+    }*/
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

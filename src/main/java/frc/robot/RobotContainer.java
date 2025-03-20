@@ -680,7 +680,7 @@ public class RobotContainer implements Sendable {
 
         private void configureOperatorBindings() {
                 /* Left right and center for intake and climb */
-                
+                /* 
                   operatorController
                   .povLeft()
                   .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT)));
@@ -690,7 +690,7 @@ public class RobotContainer implements Sendable {
                   operatorController
                   .povRight()
                   .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.RIGHT)));
-
+                */
                 //   /* elevator height */
                   
                   operatorController
@@ -709,7 +709,7 @@ public class RobotContainer implements Sendable {
                 //   /* Left and right for scoring
                 //  */
 
-                 
+                 /* 
                   operatorController
                  .leftBumper()
                   .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreLocation(PrepStateUtil.SCORE_LOCATION.LEFT)));
@@ -717,7 +717,7 @@ public class RobotContainer implements Sendable {
                   .rightBumper()
                   .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreLocation(PrepStateUtil.SCORE_LOCATION.RIGHT)));
                   new Rotation2d(); 
-                  
+                  */
 
                 // Testing code for climb, arm, and elevator
                 // /*
@@ -776,13 +776,13 @@ public class RobotContainer implements Sendable {
                 operatorController.a().onFalse(new InstantCommand(() -> claw.stopMotors()));*/
                 // operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
-                operatorController.povUp().onTrue(new
+                /*operatorController.povUp().onTrue(new
                 InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
                 operatorController.povDown().onTrue(new
                 InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
                 operatorController.povLeft().onTrue(new
                 InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
-                operatorController.povRight().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)));
+                operatorController.povRight().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)));*/
 
                 // operatorController.x().onTrue(new InstantCommand(() ->
                 // arm.stopArmMovement()));
@@ -888,8 +888,9 @@ public class RobotContainer implements Sendable {
                 operatorController
                                 .start()
                                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-                                /* 
-                operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));*/
+                                
+                operatorController.back().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
+                operatorController.back().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
                 
                 //operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));

@@ -150,7 +150,7 @@ public class PrepScoreSequence extends SequentialCommandGroup {
                 } else {
                   return false;
                 }
-                return true;
+                return false;
               }
               return false;
             }),

@@ -34,7 +34,7 @@ public class Climb extends SubsystemBase {
 
   private TreeMap<ClimbPosition, Double> climbPositionMap;
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
-  private boolean allowClimbMovement = true; //TODO
+  private boolean allowClimbMovement = false; //TODO
 
   private int currentSlot = 1;
 
@@ -83,7 +83,8 @@ public class Climb extends SubsystemBase {
 
 
   public void zeroMotorEncoders() {
-    climbTalonLeft.setPosition(getPositionClimbRotationsReal()*ClimbConstants.MOTOR_TO_CLIMB_RATIO);
+    //climbTalonLeft.setPosition(getPositionClimbRotationsReal()*ClimbConstants.MOTOR_TO_CLIMB_RATIO);
+    climbTalonLeft.setPosition(ClimbConstants.MOTOR_TO_CLIMB_RATIO*(ClimbCal.CLIMB_STOWED_POSITION_DEGREES/360));
   }
 
   public double getPositionClimbRotationsReal(){
@@ -129,7 +130,7 @@ public class Climb extends SubsystemBase {
 
   public void setDesiredClimbPosition(ClimbPosition pos) {
     this.desiredPosition = pos;
-    //this.allowClimbMovement = true;
+    this.allowClimbMovement = true;
   }
 
   public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
@@ -169,10 +170,10 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void periodic() {
-     /*if (allowClimbMovement) {
+     if (allowClimbMovement) {
        controlPosition(climbPositionMap.get(this.desiredPosition));
-     }*/
-     controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
+     }
+     //controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
 
   @Override

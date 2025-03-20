@@ -106,7 +106,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                       drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
-            checkForTag),
+            ()->false),
         deepClimbPrep,
         new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_CLIMB)));
   }
