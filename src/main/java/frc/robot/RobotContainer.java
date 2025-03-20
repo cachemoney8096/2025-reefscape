@@ -36,6 +36,7 @@ import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.DriveToTag;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
+import frc.robot.commands.GoHomeSequenceFake;
 import frc.robot.commands.IntakeSequence;
 import frc.robot.commands.PrepScoreSequence;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
@@ -111,7 +112,8 @@ public class RobotContainer implements Sendable {
         public enum PrepState {
                 OFF,
                 SCORE,
-                CLIMB
+                CLIMB,
+                INTAKE
         }
 
         /* Prep states */
@@ -157,7 +159,7 @@ public class RobotContainer implements Sendable {
         // DriveRequestType.OpenLoopVoltage);
         private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
         private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-        private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
+        private final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         private final SwerveRequest.FieldCentricFacingAngle driveWithAngleController = new SwerveRequest.FieldCentricFacingAngle()
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -179,7 +181,7 @@ public class RobotContainer implements Sendable {
                 claw = new Claw();
                 climb = new Climb();
                 // drive = new DriveSubsystem(ms);
-                driveWithAngleController.HeadingController.setPID(2.5, 0, 0); //TODO was 10
+                driveWithAngleController.HeadingController.setPID(8.5, 0, 0); //TODO was 10
                 elevator = new Elevator();
                 lights = new Lights();
                 scoringLimelight = new ScoringLimelight(
@@ -494,11 +496,25 @@ public class RobotContainer implements Sendable {
                                                                 elevator,
                                                                 lights)
                                                                 .beforeStarting(() -> prepState = PrepState.CLIMB));
+
+
+                                                                Command rumbleBriefly =
+                                                                new SequentialCommandGroup(
+                                                                    new InstantCommand(
+                                                                        () -> {
+                                                                          driverController.getHID().setRumble(RumbleType.kBothRumble, 1.0);
+                                                                        }),
+                                                                    new WaitCommand(0.25),
+                                                                    new InstantCommand(
+                                                                        () -> {
+                                                                          driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+                                                                        }));
                 /* intake */
                 driverController
                                 .rightTrigger()
                                 .whileTrue(
                                                 new SequentialCommandGroup(
+                                                        new InstantCommand(()->prepState = PrepState.INTAKE),
                                                                 new IntakeSequence(
                                                                                 claw,
                                                                                 intakeLimelight,
@@ -508,21 +524,19 @@ public class RobotContainer implements Sendable {
                                                                                 prepStateUtil,
                                                                                 drivetrain,
                                                                                 lights),
-                                                                // new InstantCommand(() -> lights.setLEDColor(
-                                                                // LightCode.READY_TO_INTAKE)),
-                                                                // new InstantCommand(() -> claw.runMotorsIntaking()),
-                                                                // new WaitUntilCommand(claw::beamBreakSeesObject),
-                                                                // new InstantCommand(() -> claw.stopMotors()
-                                                                // new SequentialCommandGroup(
                                                                 new InstantCommand(() -> claw.runMotorsIntaking()),
                                                                 new WaitUntilCommand(claw::beamBreakSeesObject),
-                                
                                                                 new InstantCommand(() -> claw.stopMotors()),
+                                                                new WaitCommand(0.3),
+                                                                rumbleBriefly,
+                                                                new WaitCommand(1.7),
+                                                                new GoHomeSequenceFake(climb, elevator, arm, claw, lights),
+                                                                new InstantCommand(()->prepState = PrepState.OFF),                                                       
                                                                 new ConditionalCommand(new InstantCommand(() -> lights
                                                                                 .setLEDColor(LightCode.HAS_CORAL)),
                                                                                 new InstantCommand(),
                                                                                 claw::beamBreakSeesObject)));
-                driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                driverController.leftTrigger().onFalse(new InstantCommand(() -> {claw.stopMotors();prepState = PrepState.OFF;}));
 
                 TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
 
@@ -607,6 +621,25 @@ public class RobotContainer implements Sendable {
                                                                                 .withVelocityY(drivetrain
                                                                                                 .getState().Speeds.vyMetersPerSecond)));
 
+                
+                // TODO speed being zero makes this bad
+                driverController.povUp().onTrue(
+                        drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
+                                Rotation2d.fromDegrees(drivetrain.getState().Pose.getRotation().getDegrees()+15)
+                        ).withVelocityX(drivetrain
+                        .getState().Speeds.vxMetersPerSecond)
+        .withVelocityY(drivetrain
+                        .getState().Speeds.vyMetersPerSecond))
+                );
+
+                driverController.povDown().onTrue(
+                        drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
+                                Rotation2d.fromDegrees(drivetrain.getState().Pose.getRotation().getDegrees()-15)
+                        ).withVelocityX(drivetrain
+                        .getState().Speeds.vxMetersPerSecond)
+        .withVelocityY(drivetrain
+                        .getState().Speeds.vyMetersPerSecond))
+                );
                 /* TODO: CHANGE BINDINGS LATER */
 
                 // driverController
@@ -635,6 +668,14 @@ public class RobotContainer implements Sendable {
                                                                                         // TODO this needs to be
                                                                                         // uncommented but fixed first
                                                                                 }));
+        }
+
+        public void makeRobotRelative(){
+                drivetrain.applyRequest(
+                        ()->robotCentricDrive.withVelocityX(-driverController.getLeftY() * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward)
+                                .withVelocityY(-driverController.getLeftX() * MaxSpeed* elevator.linearSpeedThrottle()) // Drive left with negative X (left)
+                                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left)
+                );
         }
 
         private void configureOperatorBindings() {
