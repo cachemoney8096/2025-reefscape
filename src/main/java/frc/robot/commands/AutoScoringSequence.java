@@ -14,9 +14,9 @@ public class AutoScoringSequence extends SequentialCommandGroup {
         new WaitUntilCommand(
             () -> {
               return arm.atDesiredArmPosition() && elevator.atDesiredPosition();
-            }),
+            }).withTimeout(2.0),
         new InstantCommand(() -> claw.runMotorsScoring()),
-        new WaitUntilCommand(1.5),
+        new WaitUntilCommand(3.0),
         new InstantCommand(() -> claw.stopMotors()));
   }
 }

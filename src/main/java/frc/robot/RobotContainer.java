@@ -181,7 +181,7 @@ public class RobotContainer implements Sendable {
                 claw = new Claw();
                 climb = new Climb();
                 // drive = new DriveSubsystem(ms);
-                driveWithAngleController.HeadingController.setPID(5.0, 0.0, 0); //TODO was 10
+                driveWithAngleController.HeadingController.setPID(7.0, 0.0, 0); //TODO was 10
                 elevator = new Elevator();
                 lights = new Lights();
                 /* Named commands here */
@@ -199,12 +199,23 @@ public class RobotContainer implements Sendable {
                                         new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
                                         new AutoScoringPrepSequence(elevator, arm, claw, lights)));
 
-                NamedCommands.registerCommand(
+                /*NamedCommands.registerCommand(
                                 "AUTO SCORING SEQUENCE",
                                 new SequentialCommandGroup(
                                         new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
                                                 new AutoScoringSequence(arm, elevator, claw)
-                                ));
+                                ));*/
+                NamedCommands.registerCommand(
+                        "AUTO SCORING SEQUENCE",
+                        new SequentialCommandGroup(
+                                new InstantCommand(() -> System.out.println("auto scoring ran")),
+                                new InstantCommand(()->claw.runMotorsScoring()),
+                                new WaitCommand(5.0),
+                                new InstantCommand(() -> System.out.println("auto scoring finished wait")),
+                                new InstantCommand(()->claw.stopMotors()),
+                                new InstantCommand(() -> System.out.println("auto scoring finished full"))
+                        )
+                );
                 matchState = ms;
                 drivetrain = TunerConstants.createDrivetrain();
                 
@@ -229,6 +240,7 @@ public class RobotContainer implements Sendable {
                 Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
                 Shuffleboard.getTab("Subsystems").add(climb.getName(), climb);
                 Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
+                Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
 
                 driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
                 operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
@@ -648,26 +660,27 @@ public class RobotContainer implements Sendable {
                 
                 driverController.povUp().onTrue(
                         new SequentialCommandGroup(
-                                new InstantCommand(()->prepStateUtil.setDegrees(drivetrain.getState().Pose.getRotation().getDegrees()+15)),
+                                new InstantCommand(()->prepStateUtil.setDegrees((drivetrain.getState().Pose.getRotation().getDegrees()+15+180)%360)),
+                                new InstantCommand(()->System.out.println("degrees:" + prepStateUtil.getDegrees())),
                                 drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
                                 Rotation2d.fromDegrees(prepStateUtil.getDegrees())
                         ).withVelocityX(drivetrain
                         .getState().Speeds.vxMetersPerSecond)
         .withVelocityY(drivetrain
                         .getState().Speeds.vyMetersPerSecond))
-                        )
+                        ).withTimeout(0.5)
                 );
 
                 driverController.povDown().onTrue(
                         new SequentialCommandGroup(
-                                new InstantCommand(()->prepStateUtil.setDegrees(drivetrain.getState().Pose.getRotation().getDegrees()-15)),
+                                new InstantCommand(()->prepStateUtil.setDegrees((drivetrain.getState().Pose.getRotation().getDegrees()-15+180)%360)),
                                 drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
                                 Rotation2d.fromDegrees(prepStateUtil.getDegrees())
                         ).withVelocityX(drivetrain
                         .getState().Speeds.vxMetersPerSecond)
         .withVelocityY(drivetrain
                         .getState().Speeds.vyMetersPerSecond))
-                        )
+                        ).withTimeout(0.5)
                 );
                 /* TODO: CHANGE BINDINGS LATER */
 
@@ -734,6 +747,20 @@ public class RobotContainer implements Sendable {
                   operatorController
                   .y()
                   .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L1)));
+
+
+
+                  operatorController
+                  .leftBumper()
+                  .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.ALGAE_PREP)));
+                  operatorController
+                  .rightBumper()
+                  .onTrue(new InstantCommand(()-> arm.setDesiredPosition(ArmPosition.L4)));
+
+
+                  operatorController.rightTrigger().whileTrue(new InstantCommand(()->claw.rollerMotor.set(0.3)));
+                  operatorController.rightTrigger().onFalse(new InstantCommand(()->claw.rollerMotor.set(0.0)));
+
                   
                 //   /* Left and right for scoring
                 //  */
@@ -918,8 +945,8 @@ public class RobotContainer implements Sendable {
                                 .start()
                                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
                                 
-                operatorController.back().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
-                operatorController.back().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
+                operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
                 
                 //operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
@@ -943,13 +970,14 @@ public class RobotContainer implements Sendable {
 
         @Override
         public void initSendable(SendableBuilder builder) {
-                //super.initSendable(builder);
+                // super.initSendable(builder);
                 builder.addStringProperty("Prep State", () -> prepState.toString(), null);
-                builder.addStringProperty("Prepped Location", () -> preppedLocation.toString(), null);
-                builder.addStringProperty("Prepped Height", () -> preppedHeight.toString(), null);
+                builder.addStringProperty("Path CMD", () -> pathCmd, null);
+                builder.addStringProperty("Prepped Intake/Climb", () -> prepStateUtil.getPrepIntakeClimbLocation().toString(), null);
+                builder.addStringProperty("Prepped Height", () -> prepStateUtil.getPrepScoreHeight().toString(), null);
                 builder.addStringProperty(
-                                "Prepped Scoring Location", () -> preppedScoringLocation.toString(), null);
-                builder.addDoubleProperty("runNumber", () -> 1.0, null);
+                                "Prepped Scoring Location", () -> prepStateUtil.getPrepScoreLocation().toString(), null);
+                builder.addDoubleProperty("PrepStateUtil deg", () -> prepStateUtil.getDegrees(), null);
                 builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
                 builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
                 builder.addDoubleProperty("odometry rotation deg",

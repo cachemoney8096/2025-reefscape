@@ -7,6 +7,8 @@ package frc.robot;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+import javax.print.DocFlavor.URL;
+
 import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.RobotContainer.PrepState;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
+// import org.littletonrobotics.urcl.URCL;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -40,6 +43,11 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer(matchState);
+    DataLogManager.start();
+    DriverStation.startDataLog(DataLogManager.getLog()); // log joystick data
+    // URL.start();
+    SignalLogger.setPath("/u/logs/");
+    SignalLogger.start();
   }
 
   /**
@@ -63,11 +71,6 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     matchState.setTeleop(false);
     m_robotContainer.lights.setLEDColor(LightCode.DISABLED);
-    DataLogManager.start();
-    DriverStation.startDataLog(DataLogManager.getLog()); // log joystick data
-
-    SignalLogger.setPath("/u/logs/");
-    SignalLogger.start();
   }
 
   public static Transform2d robotToTag;

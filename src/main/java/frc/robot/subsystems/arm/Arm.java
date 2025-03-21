@@ -39,7 +39,9 @@ public class Arm extends SubsystemBase {
     L1,
     L2,
     L3,
-    L4
+    L4,
+    ALGAE_PREP
+    
   }
 
   /** Map each of our arm positions to an actual position on our arm (degrees) */
@@ -48,6 +50,7 @@ public class Arm extends SubsystemBase {
   private ArmPosition armDesiredPosition = ArmPosition.HOME;
 
   public Arm() {
+    armPositions.put(ArmPosition.ALGAE_PREP, ArmCal.ARM_POSITION_ALGAE_PREP);
 
     armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
     armPositions.put(ArmPosition.INTAKE, ArmCal.ARM_POSITION_INTAKE_DEGREES);
