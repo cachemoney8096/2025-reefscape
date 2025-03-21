@@ -76,6 +76,8 @@ import frc.robot.utils.PrepStateUtil;
 
 import java.lang.annotation.ElementType;
 import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -181,7 +183,7 @@ public class RobotContainer implements Sendable {
                 claw = new Claw();
                 climb = new Climb();
                 // drive = new DriveSubsystem(ms);
-                driveWithAngleController.HeadingController.setPID(2.0, 0, 0); //TODO was 10
+                driveWithAngleController.HeadingController.setPID(5.0, 0.0, 0); //TODO was 10
                 elevator = new Elevator();
                 lights = new Lights();
                 scoringLimelight = new ScoringLimelight(
@@ -529,22 +531,32 @@ public class RobotContainer implements Sendable {
                                                                                 lights),
                                                                 new InstantCommand(() -> claw.runMotorsIntaking()),
                                                                 new WaitUntilCommand(claw::beamBreakSeesObject),
-                                                                new InstantCommand(() -> claw.stopMotors()),
-                                                                new WaitCommand(0.3),
-                                                                rumbleBriefly,
-                                                                new WaitCommand(1.7),                                                                
-                                                                new GoHomeSequenceFake(climb, elevator, arm, claw, lights),
+                                                                new InstantCommand(() -> claw.stopMotors()),                                                                
                                                                 new InstantCommand(()->prepState = PrepState.OFF),                                                       
                                                                 new ConditionalCommand(new InstantCommand(() -> lights
                                                                                 .setLEDColor(LightCode.HAS_CORAL)),
                                                                                 new InstantCommand(),
                                                                                 claw::beamBreakSeesObject)));
-                driverController.leftTrigger().onFalse(new InstantCommand(() -> {claw.stopMotors();prepState = PrepState.OFF;}));
+                driverController.rightTrigger().onFalse(
+                        new SequentialCommandGroup(
+                                new InstantCommand(() -> {claw.stopMotors();prepState = PrepState.OFF;}),
+                                new ConditionalCommand(new SequentialCommandGroup(
+                                        new WaitCommand(0.5),
+                                        new GoHomeSequenceFake(climb, elevator, arm, claw, lights)
+                                ),
+                                new InstantCommand(),
+                                ()->claw.beamBreakSeesObject())
+                        )
+                );
 
                 TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
 
                 selectCommandMap.put(
-                                PrepState.SCORE, new FinishScore(claw, elevator, arm, preppedHeight, lights));
+                                PrepState.SCORE, new SequentialCommandGroup(
+                                        new FinishScore(claw, elevator, arm, preppedHeight, lights)
+                                        // new WaitUntilCommand(()->!claw.beamBreakSeesObject()),
+                                        // new GoHomeSequenceFake(climb, elevator, arm, claw, lights)
+                                ));
                 selectCommandMap.put(PrepState.CLIMB, new DeepClimbScoringSequence(climb, elevator, lights));
 
                 SelectCommand<PrepState> driverRightTriggerCommand = new SelectCommand<PrepState>(
@@ -556,7 +568,7 @@ public class RobotContainer implements Sendable {
                                 });
                 
                 /* finish score */
-                driverController
+               /* driverController
                                 .leftTrigger()
                                 .onTrue(
                                                 new ConditionalCommand(
@@ -565,15 +577,18 @@ public class RobotContainer implements Sendable {
                                                                 () -> prepState == PrepState.OFF).beforeStarting(new InstantCommand(()->System.out.println("right trigger"))));
 
                 driverController
-                                .rightTrigger()
+                                .leftTrigger()
                                 .onFalse(
                                                 new ConditionalCommand(
                                                                 new InstantCommand(() -> claw.stopMotors()),
                                                                 new InstantCommand(),
                                                                 () -> prepState == PrepState.OFF).beforeStarting(new InstantCommand(()->System.out.println("right trigger"))));
-
+*/
+                driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
+                driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
                 // TODO these don't work
-                /*driverController
+
+                driverController
                                 .y()
                                 .onTrue(
                                                 drivetrain.applyRequest(
@@ -584,7 +599,7 @@ public class RobotContainer implements Sendable {
                                                                                 .withVelocityX(drivetrain
                                                                                                 .getState().Speeds.vxMetersPerSecond)
                                                                                 .withVelocityY(drivetrain
-                                                                                                .getState().Speeds.vyMetersPerSecond)));
+                                                                                                .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
                 driverController
                                 .b()
                                 .onTrue(
@@ -596,7 +611,7 @@ public class RobotContainer implements Sendable {
                                                                                 .withVelocityX(drivetrain
                                                                                                 .getState().Speeds.vxMetersPerSecond)
                                                                                 .withVelocityY(drivetrain
-                                                                                                .getState().Speeds.vyMetersPerSecond)));
+                                                                                                .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
                 driverController
                                 .a()
                                 .onTrue(
@@ -609,7 +624,7 @@ public class RobotContainer implements Sendable {
                                                                                 .withVelocityX(drivetrain
                                                                                                 .getState().Speeds.vxMetersPerSecond)
                                                                                 .withVelocityY(drivetrain
-                                                                                                .getState().Speeds.vyMetersPerSecond)));
+                                                                                                .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
                 driverController
                                 .x()
                                 .onTrue(
@@ -622,28 +637,33 @@ public class RobotContainer implements Sendable {
                                                                                 .withVelocityX(drivetrain
                                                                                                 .getState().Speeds.vxMetersPerSecond)
                                                                                 .withVelocityY(drivetrain
-                                                                                                .getState().Speeds.vyMetersPerSecond)));
-                */
+                                                                                                .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
                 
                 // TODO speed being zero makes this bad
-                /* 
+                
                 driverController.povUp().onTrue(
-                        drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
-                                Rotation2d.fromDegrees(drivetrain.getState().Pose.getRotation().getDegrees()+15)
+                        new SequentialCommandGroup(
+                                new InstantCommand(()->prepStateUtil.setDegrees(drivetrain.getState().Pose.getRotation().getDegrees()+15)),
+                                drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
+                                Rotation2d.fromDegrees(prepStateUtil.getDegrees())
                         ).withVelocityX(drivetrain
                         .getState().Speeds.vxMetersPerSecond)
         .withVelocityY(drivetrain
                         .getState().Speeds.vyMetersPerSecond))
+                        )
                 );
 
                 driverController.povDown().onTrue(
-                        drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
-                                Rotation2d.fromDegrees(drivetrain.getState().Pose.getRotation().getDegrees()-15)
+                        new SequentialCommandGroup(
+                                new InstantCommand(()->prepStateUtil.setDegrees(drivetrain.getState().Pose.getRotation().getDegrees()-15)),
+                                drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
+                                Rotation2d.fromDegrees(prepStateUtil.getDegrees())
                         ).withVelocityX(drivetrain
                         .getState().Speeds.vxMetersPerSecond)
         .withVelocityY(drivetrain
                         .getState().Speeds.vyMetersPerSecond))
-                );*/
+                        )
+                );
                 /* TODO: CHANGE BINDINGS LATER */
 
                 // driverController

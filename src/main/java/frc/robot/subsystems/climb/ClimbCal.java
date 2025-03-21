@@ -1,11 +1,11 @@
 package frc.robot.subsystems.climb;
 
 public class ClimbCal {
-  public static final double CLIMBING_P = 7.0,
+  public static final double CLIMBING_P = 4.0,
       CLIMBING_I = 0.0,
       CLIMBING_D = 0.0,
       CLIMBING_FF = 0.0;
-  public static final double POSITIONING_P = 7.0,
+  public static final double POSITIONING_P = 4.0,
       POSITIONING_I = 0.0,
       POSITIONING_D = 0.0,
       POSITIONING_FF = 0.0;

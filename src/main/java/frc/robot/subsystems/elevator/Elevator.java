@@ -110,14 +110,14 @@ public class Elevator extends SubsystemBase {
 
   public double linearSpeedThrottle() {
     if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4 || desiredPosition == ElevatorHeight.INTAKE) {
-      return 0.3;
+      return 0.15;
     }
     return 1.0;
   }
 
   public double angularSpeedThrottle() {
     if (this.desiredPosition == ElevatorHeight.SCORE_L2 || desiredPosition == ElevatorHeight.SCORE_L3 || desiredPosition == ElevatorHeight.SCORE_L4 || desiredPosition == ElevatorHeight.INTAKE) {
-      return 0.3;
+      return 0.15;
     }
     return 1.0;
   }

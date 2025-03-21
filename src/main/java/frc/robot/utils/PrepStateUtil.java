@@ -67,4 +67,12 @@ public class PrepStateUtil {
               return ArmPosition.L1;
             }
     }
+
+    public double degrees = 0;
+    public void setDegrees(double d){
+      degrees = d;
+    }
+    public double getDegrees(){
+      return degrees;
+    }
 }

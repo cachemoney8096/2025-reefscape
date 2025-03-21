@@ -170,9 +170,9 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void periodic() {
-     if (allowClimbMovement) {
-       controlPosition(climbPositionMap.get(this.desiredPosition));
-     }
+     //if (allowClimbMovement) {
+       //controlPosition(climbPositionMap.get(this.desiredPosition));
+     //}
      //controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
 
