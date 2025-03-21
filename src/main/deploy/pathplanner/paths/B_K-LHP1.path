@@ -36,7 +36,12 @@
       "name": "AUTO INTAKE SEQUENCE",
       "waypointRelativePos": 0.5438605305466238,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AUTO INTAKE SEQUENCE"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -52,7 +57,7 @@
     "rotation": 123.69006752597979
   },
   "reversed": false,
-  "folder": "B_S1",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 120.06858282186246

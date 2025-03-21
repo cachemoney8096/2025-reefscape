@@ -170,14 +170,12 @@ public class RobotContainer implements Sendable {
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
 
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        public final CommandSwerveDrivetrain drivetrain;
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer(MatchStateUtil ms) {
-                matchState = ms;
-
                 /* Subsystems */
                 arm = new Arm();
                 claw = new Claw();
@@ -186,6 +184,30 @@ public class RobotContainer implements Sendable {
                 driveWithAngleController.HeadingController.setPID(5.0, 0.0, 0); //TODO was 10
                 elevator = new Elevator();
                 lights = new Lights();
+                /* Named commands here */
+
+                NamedCommands.registerCommand(
+                                "AUTO INTAKE SEQUENCE",
+                                new SequentialCommandGroup(
+                                        new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
+                                        new AutoIntakeSequence(elevator, arm, claw, lights)
+                                ));
+
+                NamedCommands.registerCommand(
+                                "AUTO SCORING PREP SEQUENCE",
+                                new SequentialCommandGroup(
+                                        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
+                                        new AutoScoringPrepSequence(elevator, arm, claw, lights)));
+
+                NamedCommands.registerCommand(
+                                "AUTO SCORING SEQUENCE",
+                                new SequentialCommandGroup(
+                                        new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
+                                                new AutoScoringSequence(arm, elevator, claw)
+                                ));
+                matchState = ms;
+                drivetrain = TunerConstants.createDrivetrain();
+                
                 scoringLimelight = new ScoringLimelight(
                                 ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,
                                 ScoringLimelightConstants.SCORING_LIMELIGHT_HEIGHT_METERS,
@@ -196,23 +218,6 @@ public class RobotContainer implements Sendable {
                                 0.0); // ""
 
                 drivetrain.registerTelemetry(logger::telemeterize);
-
-                /* Named commands here */
-
-                NamedCommands.registerCommand(
-                                "AUTO INTAKE SEQUENCE",
-                                new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE")
-                                                .andThen(new AutoIntakeSequence(elevator, arm, claw, lights)));
-
-                NamedCommands.registerCommand(
-                                "AUTO SCORING PREP SEQUENCE",
-                                new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE")
-                                                .andThen(new AutoScoringPrepSequence(elevator, arm, claw, lights)));
-
-                NamedCommands.registerCommand(
-                                "AUTO SCORING SEQUENCE",
-                                new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE")
-                                                .andThen(new AutoScoringSequence(arm, elevator, claw)));
 
                 /* Configure controller bindings */
                 configureDriverBindings();

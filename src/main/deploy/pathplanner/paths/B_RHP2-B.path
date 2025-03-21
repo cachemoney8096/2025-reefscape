@@ -36,13 +36,23 @@
       "name": "AUTO SCORING PREP SEQUENCE",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AUTO SCORING PREP SEQUENCE"
+        }
+      }
     },
     {
       "name": "AUTO SCORING SEQUENCE",
       "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AUTO SCORING SEQUENCE"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -58,7 +68,7 @@
     "rotation": 179.49297093908524
   },
   "reversed": false,
-  "folder": "B_S2",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -125.21759296819272

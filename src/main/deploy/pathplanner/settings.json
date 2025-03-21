@@ -2,14 +2,7 @@
   "robotWidth": 0.8382,
   "robotLength": 0.838,
   "holonomicMode": true,
-  "pathFolders": [
-    "B_S1",
-    "B_S2",
-    "R_S1",
-    "R_S2",
-    "S3_B",
-    "S3_R"
-  ],
+  "pathFolders": [],
   "autoFolders": [
     "B_S1",
     "R_S1",
