@@ -197,7 +197,7 @@ public class RobotContainer implements Sendable {
                                 "AUTO SCORING PREP SEQUENCE",
                                 new SequentialCommandGroup(
                                         new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
-                                        new AutoScoringPrepSequence(elevator, arm, claw, lights)));
+                                        new AutoScoringPrepSequence(elevator, arm, claw, lights)).withTimeout(1.7));
 
                 /*NamedCommands.registerCommand(
                                 "AUTO SCORING SEQUENCE",
@@ -481,11 +481,13 @@ public class RobotContainer implements Sendable {
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
                         drivetrain.applyRequest(() ->
-                            drive.withVelocityX(-driverController.getLeftY() * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward)
-                                .withVelocityY(-driverController.getLeftX() * MaxSpeed* elevator.linearSpeedThrottle()) // Drive left with negative X (left)
-                                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left)
+                            drive.withVelocityX(-driverController.getLeftY() * MaxSpeed * climb.getThrottle()) // Drive forward with negative Y (forward)
+                                .withVelocityY(-driverController.getLeftX() * MaxSpeed  * climb.getThrottle()) // Drive left with negative X (left)
+                                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * climb.getThrottle()) // Drive counterclockwise with negative X (left)
                         )
                     );
+                
+
                 /* prep score */
                 driverController
                                 .leftBumper()
@@ -735,7 +737,7 @@ public class RobotContainer implements Sendable {
                 */
                 //   /* elevator height */
                   
-                  operatorController
+                  /*operatorController
                   .a()
                   .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L4)));
                   operatorController
@@ -746,16 +748,16 @@ public class RobotContainer implements Sendable {
                   .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L2)));
                   operatorController
                   .y()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L1)));
+                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L1)));*/
 
 
 
-                  operatorController
-                  .leftBumper()
-                  .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.ALGAE_PREP)));
-                  operatorController
-                  .rightBumper()
-                  .onTrue(new InstantCommand(()-> arm.setDesiredPosition(ArmPosition.L4)));
+                //   operatorController
+                //   .leftBumper()
+                //   .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.ALGAE_PREP)));
+                //   operatorController
+                //   .rightBumper()
+                //   .onTrue(new InstantCommand(()-> arm.setDesiredPosition(ArmPosition.L4)));
 
 
                   operatorController.rightTrigger().whileTrue(new InstantCommand(()->claw.rollerMotor.set(0.3)));
@@ -839,6 +841,8 @@ public class RobotContainer implements Sendable {
                 operatorController.povLeft().onTrue(new
                 InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
                 operatorController.povRight().onTrue(new InstantCommand(()->climb.stopClimbMovement()));
+
+                operatorController.rightBumper().onTrue(new InstantCommand(()->climb.setServoLocked(true)));
 
                 // operatorController.x().onTrue(new InstantCommand(() ->
                 // arm.stopArmMovement()));

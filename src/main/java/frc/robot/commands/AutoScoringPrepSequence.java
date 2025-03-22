@@ -13,7 +13,7 @@ import frc.robot.subsystems.lights.Lights.LightCode;
 
 public class AutoScoringPrepSequence extends SequentialCommandGroup {
   public AutoScoringPrepSequence(Elevator elevator, Arm arm, Claw claw, Lights lights) {
-    addRequirements(elevator, arm, claw);
+    addRequirements(elevator, arm);
     addCommands(
         new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
         new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)),

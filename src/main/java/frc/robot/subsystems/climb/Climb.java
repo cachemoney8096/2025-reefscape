@@ -57,7 +57,7 @@ public class Climb extends SubsystemBase {
     toApply.CurrentLimits.SupplyCurrentLimit = ClimbCal.CLIMB_TALONS_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit = ClimbCal.CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.SupplyCurrentLimitEnable = true;
-    toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     toApply.Slot0.kP = ClimbCal.CLIMBING_P;
     toApply.Slot0.kI = ClimbCal.CLIMBING_I;
@@ -136,8 +136,12 @@ public class Climb extends SubsystemBase {
   public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
     if (lockServo) {
       climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+
     } else {
       climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+
     }
   }
 
@@ -168,11 +172,20 @@ public class Climb extends SubsystemBase {
     climbTalonLeft.setVoltage(-1 * ClimbCal.TEST_CLIMB_MOVEMENT_VOLTAGE);
   }
 
+  public double getThrottle(){
+    if(desiredPosition != ClimbPosition.STOWED){
+      return 0.1;
+    }
+    else{
+      return 1.0;
+    }
+  }
+
   @Override
   public void periodic() {
-     //if (allowClimbMovement) {
-       //controlPosition(climbPositionMap.get(this.desiredPosition));
-     //}
+     if (allowClimbMovement) {
+       controlPosition(climbPositionMap.get(this.desiredPosition));
+     }
      //controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
 

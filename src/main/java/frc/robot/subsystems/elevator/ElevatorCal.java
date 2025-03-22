@@ -13,7 +13,7 @@ public class ElevatorCal {
       ELEVATOR_CLIMB_FF = 0.001;
   public static final double ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0;
-  public static final double POSITION_INTAKE_INCHES = 22.00, // 22.00,
+  public static final double POSITION_INTAKE_INCHES = 22.5, // 22.00,
       POSITION_HOME_INCHES = 1.0,
       POSITION_SCORE_L4_INCHES = 30.4,
       POSITION_SCORE_L3_INCHES = 29.75, //21.75
