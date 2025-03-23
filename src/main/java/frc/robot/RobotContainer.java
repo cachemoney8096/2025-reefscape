@@ -727,14 +727,6 @@ public class RobotContainer implements Sendable {
                                                                                 }));
         }
 
-        public void makeRobotRelative(){
-                drivetrain.applyRequest(
-                        ()->robotCentricDrive.withVelocityX(-driverController.getLeftY() * MaxSpeed * elevator.linearSpeedThrottle()) // Drive forward with negative Y (forward)
-                                .withVelocityY(-driverController.getLeftX() * MaxSpeed* elevator.linearSpeedThrottle()) // Drive left with negative X (left)
-                                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * elevator.angularSpeedThrottle()) // Drive counterclockwise with negative X (left)
-                );
-        }
-
         private void configureOperatorBindings() {
                 /* Left right and center for intake and climb */
                 /* 
@@ -960,7 +952,7 @@ public class RobotContainer implements Sendable {
                 */
                 operatorController
                                 .start()
-                                .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+                                .onTrue(new InstantCommand(()->driveController.rezeroControllerAndYawToMsuDefault()));
                                 
                 operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
                 operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));

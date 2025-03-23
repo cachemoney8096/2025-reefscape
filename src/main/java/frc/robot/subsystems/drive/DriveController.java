@@ -16,10 +16,9 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.utils.MatchStateUtil;
 
 public class DriveController {
-    public final double maxVelocityMetersPerSecond = 6.0;
-    public final double maxAccelerationMetersPerSecond = 10.0;
+    public final double maxAngularVelocityRadiansPerSecond = 1.5 * Math.PI; 
 
-    public ProfiledFieldCentricFacingAngle fieldController = new ProfiledFieldCentricFacingAngle(new TrapezoidProfile.Constraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecond)).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    public ProfiledFieldCentricFacingAngle fieldController = new ProfiledFieldCentricFacingAngle(new TrapezoidProfile.Constraints(maxAngularVelocityRadiansPerSecond, maxAngularVelocityRadiansPerSecond/0.25)).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     public final RobotCentric robotController = new RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public final Pigeon2 gyro;
