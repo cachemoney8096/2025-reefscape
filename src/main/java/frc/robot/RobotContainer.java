@@ -67,6 +67,7 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.drive.DriveController;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
@@ -172,6 +173,8 @@ public class RobotContainer implements Sendable {
 
         public final CommandSwerveDrivetrain drivetrain;
 
+        public DriveController driveController;
+
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
@@ -218,6 +221,8 @@ public class RobotContainer implements Sendable {
                 );
                 matchState = ms;
                 drivetrain = TunerConstants.createDrivetrain();
+                driveController = new DriveController(drivetrain, matchState, driverController);
+
                 
                 scoringLimelight = new ScoringLimelight(
                                 ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,
@@ -477,15 +482,15 @@ public class RobotContainer implements Sendable {
          * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
          * joysticks}.
          */
-        private void configureDriverBindings() { // maybe add ternerary for robot relative based on prep staet? TODO
-                drivetrain.setDefaultCommand(
+        private void configureDriverBindings() { // maybe add ternerary for robot relative based on prep state? TODO
+               /* drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
                         drivetrain.applyRequest(() ->
                             drive.withVelocityX(-driverController.getLeftY() * MaxSpeed * climb.getThrottle()) // Drive forward with negative Y (forward)
                                 .withVelocityY(-driverController.getLeftX() * MaxSpeed  * climb.getThrottle()) // Drive left with negative X (left)
                                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate * climb.getThrottle()) // Drive counterclockwise with negative X (left)
                         )
-                    );
+                    );*/
                 
 
                 /* prep score */
@@ -605,9 +610,17 @@ public class RobotContainer implements Sendable {
 */
                 driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
                 driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
+
+                driverController.y().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 0 : 180)));
+                driverController.b().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 90 : 270)));
+                driverController.a().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 180 : 0)));
+                driverController.x().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 270 : 90)));
+                driverController.povUp().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()+15)));
+                driverController.povDown().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()+15)));
+
                 // TODO these don't work
 
-                driverController
+                /*driverController
                                 .y()
                                 .onTrue(
                                                 drivetrain.applyRequest(
@@ -683,7 +696,7 @@ public class RobotContainer implements Sendable {
         .withVelocityY(drivetrain
                         .getState().Speeds.vyMetersPerSecond))
                         ).withTimeout(0.5)
-                );
+                );*/
                 /* TODO: CHANGE BINDINGS LATER */
 
                 // driverController
