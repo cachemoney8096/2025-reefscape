@@ -2,6 +2,7 @@ package frc.robot.utils;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import java.util.HashMap;
 
@@ -90,6 +91,6 @@ public class ReefAngleCalcUtil {
         break;
     }
 
-    return new Translation2d(updatedVector.getFirst(), updatedVector.getSecond());
+    return new Translation2d(Units.inchesToMeters(updatedVector.getFirst()), Units.inchesToMeters(updatedVector.getSecond()));
   }
 }
