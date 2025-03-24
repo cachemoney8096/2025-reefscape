@@ -991,5 +991,8 @@ public class RobotContainer implements Sendable {
                 builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
                 builder.addDoubleProperty("odometry rotation deg",
                                 () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
+                builder.addBooleanProperty("robot relative enabled", ()->driveController.robotCentric, null);
+                builder.addDoubleProperty("desired heading", ()->driveController.getDesiredHeading(), null);
+                builder.addDoubleProperty("gyro rotation deg", ()->drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
         }
 }

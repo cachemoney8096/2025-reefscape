@@ -35,11 +35,15 @@ public class DriveController {
     public boolean robotCentric = false;
     public ParallelRaceGroup robotCentricDrive;
 
+    public double fieldControllerP = 5.0;
+    public double fieldControllerI = 0.0;
+    public double fieldControllerD = 0.0;
+
     public DriveController(CommandSwerveDrivetrain drivetrain, MatchStateUtil msu, CommandXboxController driverController){
         gyro = drivetrain.getPigeon2();
         this.msu = msu;
         this.drivetrain = drivetrain;
-        fieldController.HeadingController.setPID(5.0, 0.0, 0.0); //TODO
+        fieldController.HeadingController.setPID(fieldControllerP, fieldControllerI, fieldControllerD); 
         rezeroControllerAndYawToMsuDefault();
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
