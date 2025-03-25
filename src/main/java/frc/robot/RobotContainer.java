@@ -763,7 +763,7 @@ public class RobotContainer implements Sendable {
                 //   operatorController
                 //   .rightBumper()
                 //   .onTrue(new InstantCommand(()-> arm.setDesiredPosition(ArmPosition.L4)));
-                operatorController.leftTrigger().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotCentric)));
+                operatorController.leftTrigger().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
 
                   operatorController.rightTrigger().whileTrue(new InstantCommand(()->claw.rollerMotor.set(0.3)));
                   operatorController.rightTrigger().onFalse(new InstantCommand(()->claw.rollerMotor.set(0.0)));
@@ -993,7 +993,7 @@ public class RobotContainer implements Sendable {
                 builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
                 builder.addDoubleProperty("odometry rotation deg",
                                 () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
-                builder.addBooleanProperty("robot relative enabled", ()->driveController.robotCentric, null);
+                builder.addBooleanProperty("robot relative enabled", ()->driveController.robotRelativeActive, null);
                 builder.addDoubleProperty("desired heading", ()->driveController.getDesiredHeading(), null);
                 builder.addDoubleProperty("gyro rotation deg", ()->drivetrain.getPigeon2().getRotation2d().getDegrees(), null);        }
 }

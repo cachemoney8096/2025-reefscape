@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
@@ -10,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -37,14 +40,14 @@ public class DriveController {
 
     public double desiredHeading = 0.0;
 
-    public boolean robotCentric = false;
-    public ParallelRaceGroup robotCentricDrive;
-
     public double fieldControllerP = 5.0;
     public double fieldControllerI = 0.0;
     public double fieldControllerD = 0.0;
 
     public CommandXboxController driverController;
+
+    public boolean robotRelativeActive = false;
+    public BooleanSupplier getRobotRelativeActive = ()->robotRelativeActive;
 
     public DriveController(CommandSwerveDrivetrain drivetrain, MatchStateUtil msu, CommandXboxController driverController){
         gyro = drivetrain.getPigeon2();
@@ -55,6 +58,22 @@ public class DriveController {
         rezeroControllerAndYawToMsuDefault();
         rezeroControllerAndYawToMsuDefault();
         drivetrain.setDefaultCommand(
+            new ConditionalCommand(
+                new ParallelCommandGroup(
+                  new RunCommand(()->desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees()),
+                  drivetrain.applyRequest(()->robotController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
+                    .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle()) 
+                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate * this.getThrottle()))
+                ),
+                new ParallelCommandGroup(
+                    new RunCommand(()->determineDesiredHeading()),
+                    drivetrain.applyRequest(() ->fieldController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
+                       .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle())
+                       .withTargetDirection(Rotation2d.fromDegrees(desiredHeading)) )
+                ),
+                getRobotRelativeActive
+            )
+        );
             /*new ParallelCommandGroup(
                 new RunCommand(determineDesiredHeading),
                               drivetrain.runOnce(() -> fieldController.resetProfile(drivetrain.getState().Pose.getRotation()))
@@ -67,10 +86,10 @@ public class DriveController {
                                   )
                 
             )*/
-            drivetrain.applyRequest(()->robotController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
+          /*   drivetrain.applyRequest(()->robotController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
         .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle()) 
-        .withRotationalRate(-driverController.getRightX() * MaxAngularRate * this.getThrottle()))
-        );
+        .withRotationalRate(-driverController.getRightX() * MaxAngularRate * this.getThrottle()))*/
+        
         //no apply request here
         //robotCentricDrive = new RunCommand().until(()->!robotCentric);
     }
@@ -78,7 +97,7 @@ public class DriveController {
     public void determineDesiredHeading(){
         double input = Math.abs(JoystickUtil.squareAxis(
             MathUtil.applyDeadband(-driverController.getRightX(), 0.05))*8);
-        if(input <= 0.01){
+        if(input <= 0.1){
             desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees();
         }
         else{
@@ -94,13 +113,11 @@ public class DriveController {
     public void rezeroControllerAndYawToMsuDefault(){
         gyro.setYaw(msu.isBlue()?0:180);
         fieldController.resetProfile(Rotation2d.fromDegrees(msu.isBlue()?0:180));
-        drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue()?0:180));    }
+        drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue()?0:180));    
+    }
 
     public void setRobotCentric(boolean enabled){
-        robotCentric = enabled;
-        if(enabled){
-            robotCentricDrive.schedule();
-        }
+        robotRelativeActive = enabled;
     }
 
     public void rezeroDriveToPose(Pose2d pose){
