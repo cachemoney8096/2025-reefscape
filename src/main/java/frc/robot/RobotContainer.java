@@ -616,7 +616,7 @@ public class RobotContainer implements Sendable {
                 driverController.a().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 180 : 0)));
                 driverController.x().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 270 : 90)));
                 driverController.povUp().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()+15)));
-                driverController.povDown().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()+15)));
+                driverController.povDown().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()-15)));
 
                 // TODO these don't work
 
@@ -763,7 +763,7 @@ public class RobotContainer implements Sendable {
                 //   operatorController
                 //   .rightBumper()
                 //   .onTrue(new InstantCommand(()-> arm.setDesiredPosition(ArmPosition.L4)));
-
+                operatorController.leftTrigger().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotCentric)));
 
                   operatorController.rightTrigger().whileTrue(new InstantCommand(()->claw.rollerMotor.set(0.3)));
                   operatorController.rightTrigger().onFalse(new InstantCommand(()->claw.rollerMotor.set(0.0)));
@@ -848,6 +848,8 @@ public class RobotContainer implements Sendable {
                 operatorController.povRight().onTrue(new InstantCommand(()->climb.stopClimbMovement()));
 
                 operatorController.rightBumper().onTrue(new InstantCommand(()->climb.setServoLocked(true)));
+                operatorController.leftBumper().onTrue(new InstantCommand(()->climb.setServoLocked(false)));
+
 
                 // operatorController.x().onTrue(new InstantCommand(() ->
                 // arm.stopArmMovement()));
@@ -993,6 +995,5 @@ public class RobotContainer implements Sendable {
                                 () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
                 builder.addBooleanProperty("robot relative enabled", ()->driveController.robotCentric, null);
                 builder.addDoubleProperty("desired heading", ()->driveController.getDesiredHeading(), null);
-                builder.addDoubleProperty("gyro rotation deg", ()->drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
-        }
+                builder.addDoubleProperty("gyro rotation deg", ()->drivetrain.getPigeon2().getRotation2d().getDegrees(), null);        }
 }
