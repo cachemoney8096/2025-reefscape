@@ -56,8 +56,7 @@ public class DriveController {
         rezeroControllerAndYawToMsuDefault();
         drivetrain.setDefaultCommand(
             /*new ParallelCommandGroup(
-                new RunCommand(()->desiredHeading+=JoystickUtil.squareAxis(
-                              MathUtil.applyDeadband(-driverController.getRightX(), 0.05))*5),
+                new RunCommand(determineDesiredHeading),
                               drivetrain.runOnce(() -> fieldController.resetProfile(drivetrain.getState().Pose.getRotation()))
                               .andThen(
                                       drivetrain.applyRequest(() ->
