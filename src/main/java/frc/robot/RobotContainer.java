@@ -748,7 +748,10 @@ public class RobotContainer implements Sendable {
               
                 operatorController
                                 .start()
-                                .onTrue(new InstantCommand(()->driveController.rezeroControllerAndYawToMsuDefault()));
+                                .onTrue(new InstantCommand(()-> {
+                                        driveController.rezeroControllerAndYawToMsuDefault();
+                                        driveController.rezeroControllerAndYawToMsuDefault();
+                                }));
                                 
                 operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
                 operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
