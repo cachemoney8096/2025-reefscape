@@ -728,116 +728,10 @@ public class RobotContainer implements Sendable {
         }
 
         private void configureOperatorBindings() {
-                /* Left right and center for intake and climb */
-                /* 
-                  operatorController
-                  .povLeft()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT)));
-                  operatorController
-                  .povUp()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.CENTER)));
-                  operatorController
-                  .povRight()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepIntakeClimbLocation(PrepStateUtil.INTAKE_CLIMB_LOCATION.RIGHT)));
-                */
-                //   /* elevator height */
-                  
-                  /*operatorController
-                  .a()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L4)));
-                  operatorController
-                  .b()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L3)));
-                  operatorController
-                  .x()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L2)));
-                  operatorController
-                  .y()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(PrepStateUtil.SCORE_HEIGHT.L1)));*/
-
-
-
-                //   operatorController
-                //   .leftBumper()
-                //   .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.ALGAE_PREP)));
-                //   operatorController
-                //   .rightBumper()
-                //   .onTrue(new InstantCommand(()-> arm.setDesiredPosition(ArmPosition.L4)));
                 operatorController.leftTrigger().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
 
-                  operatorController.rightTrigger().whileTrue(new InstantCommand(()->claw.rollerMotor.set(0.3)));
-                  operatorController.rightTrigger().onFalse(new InstantCommand(()->claw.rollerMotor.set(0.0)));
-
-                  
-                //   /* Left and right for scoring
-                //  */
-
-                 /* 
-                  operatorController
-                 .leftBumper()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreLocation(PrepStateUtil.SCORE_LOCATION.LEFT)));
-                  operatorController
-                  .rightBumper()
-                  .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreLocation(PrepStateUtil.SCORE_LOCATION.RIGHT)));
-                  new Rotation2d(); 
-                  */
-
-                // Testing code for climb, arm, and elevator
-                // /*
-                /*
-                 * operatorController
-                 * .y()
-                 * .whileTrue(new InstantCommand(() -> arm.testArmMovementUp()));
-                 * operatorController
-                 * .y()
-                 * .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
-                 * operatorController
-                 * .a()
-                 * .whileTrue(new InstantCommand(() -> arm.testArmMovementDown()));
-                 * operatorController
-                 * .a()
-                 * .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
-                 */
-
-                // operatorController.b()
-                // .onTrue(new InstantCommand(() ->
-                // elevator.setDesiredPosition(ElevatorHeight.INTAKE)));
-                // operatorController.x()
-                // .onTrue(new InstantCommand(() ->
-                // elevator.setDesiredPosition(ElevatorHeight.HOME)));
-                // // operatorController.a().onTrue(new
-                // // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
-                // operatorController.povDown().onTrue(new InstantCommand(() ->
-                // claw.runMotorsIntaking()));
-                // operatorController.povDown().onFalse(new InstantCommand(() ->
-                // claw.stopMotors()));
-
-                // operatorController.a().onTrue(new InstantCommand(() ->
-                // arm.setDesiredPosition(ArmPosition.INTAKE)));
-                // operatorController.y().onTrue(new InstantCommand(() ->
-                // arm.setDesiredPosition(ArmPosition.HOME)));
-
-                /*operatorController.b()
-                                .whileTrue(new SequentialCommandGroup(
-                                                new InstantCommand(() -> claw.runMotorsIntaking()),
-                                                new WaitUntilCommand(claw::beamBreakSeesObject),
-                                                new InstantCommand(() -> System.out.println("saw object\n")),
-                                                new InstantCommand(() -> claw.runMotorsSlowIntaking()),
-                                                new WaitCommand(0.25),
-                                                new InstantCommand(() -> claw.stopMotors())));
-                operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));*/
-
-                // operatorController.y().whileTrue(new ConditionalCommand(new InstantCommand(),
-                // new InstantCommand(() -> claw.runMotorsIntaking()), () ->
-                // claw.beamBreakSeesObject()));
-
-                /*operatorController.x().onTrue(new InstantCommand(() -> claw.stopMotors()));
-                operatorController.y().whileTrue(
-                                new SequentialCommandGroup(new InstantCommand(() -> claw.runMotorsOuttake())));
-                operatorController.y().onFalse(new InstantCommand(() -> claw.stopMotors()));
-                operatorController.a().whileTrue(new InstantCommand(() -> claw.runMotorsScoring()));
-                operatorController.a().onFalse(new InstantCommand(() -> claw.stopMotors()));*/
-                // operatorController.b().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                operatorController.rightTrigger().whileTrue(new InstantCommand(()->claw.rollerMotor.set(0.3)));
+                operatorController.rightTrigger().onFalse(new InstantCommand(()->claw.rollerMotor.set(0.0)));
 
                 operatorController.povUp().onTrue(new
                 InstantCommand(()->{climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);}));
@@ -851,123 +745,13 @@ public class RobotContainer implements Sendable {
                 operatorController.leftBumper().onTrue(new InstantCommand(()->climb.setServoLocked(false)));
 
 
-                // operatorController.x().onTrue(new InstantCommand(() ->
-                // arm.stopArmMovement()));
-                /*
-                 * operatorController
-                 * .povUp()
-                 * .whileTrue(new InstantCommand(() -> climb.testClimbMovementUp()));
-                 * operatorController
-                 * .povUp()
-                 * .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
-                 * operatorController
-                 * .povDown()
-                 * .whileTrue(new InstantCommand(() -> climb.testClimbMovementDown()));
-                 * operatorController
-                 * .povDown()
-                 * .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
-                 */
-
-                // operatorController.povUp().whileTrue(new InstantCommand(() ->
-                // climb.testClimbMovementUp()));
-                // operatorController.povUp().onFalse(new InstantCommand(() ->
-                // climb.stopClimbMovement()));
-
-                // operatorController.povDown().whileTrue(new InstantCommand(() ->
-                // climb.testClimbMovementDown()));
-                // operatorController.povDown().onFalse(new InstantCommand(() ->
-                // climb.stopClimbMovement()));
-
-                // operatorController.povUp().onTrue(
-                // new InstantCommand(() ->
-                // climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
-                // operatorController.povDown().onTrue(
-                // new InstantCommand(() ->
-                // climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
-                // operatorController.povRight()
-                // .onTrue(new InstantCommand(() ->
-                // climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
-                // operatorController.povLeft().onTrue(new InstantCommand(() ->
-                // climb.climbTalonLeft.stopMotor()));
-
-               // operatorController.leftBumper().onTrue(new DriveToTag(drivetrain, scoringLimelight));
-                /*
-                 * operatorController //these are backwards for up and down
-                 * .povRight()
-                 * .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementUp()));
-                 * operatorController
-                 * .povRight()
-                 * .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
-                 * operatorController
-                 * .povLeft()
-                 * .whileTrue(new InstantCommand(() -> elevator.testElevatorMovementDown()));
-                 * operatorController
-                 * .povLeft()
-                 * .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
-                 */
-                // operatorController.povRight().onTrue(new
-                // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
-                // operatorController.povLeft().onTrue(new
-                // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
-
-                // operatorController.povUp().onTrue(new
-                // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)));
-                // operatorController.povDown().onTrue(new InstantCommand(() ->
-                // elevator.setDesiredPosition(ElevatorHeight.HOME)));
-                // operatorController.povRight().onTrue(new InstantCommand(() ->
-                // arm.setDesiredPosition(ArmPosition.L2)));
-                // operatorController.povLeft().onTrue(new InstantCommand(() ->
-                // arm.setDesiredPosition(ArmPosition.L3)));
-
-                // operatorController.povUp().onTrue(new
-                // InstantCommand(()->arm.testArmMovementDown()));
-                // operatorController.povLeft().onTrue(new
-                // InstantCommand(()->arm.stopArmMovement()));
-                // operatorController.povDown().onTrue(new
-                // InstantCommand(()->arm.testArmMovementUp()));
-                // operatorController.a().onTrue(new
-                // InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
-                // operatorController.b().onTrue(new
-                // InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
-                // operatorController.povUp().onTrue(new
-                // InstantCommand(()->claw.runMotorsIntaking()).until(() ->
-                // claw.beamBreakSeesObject()).andThen(new InstantCommand(() ->
-                // claw.stopMotors())));
-                // operatorController.povDown().onTrue(new
-                // InstantCommand(()->claw.stopMotors()));
-                // operatorController.x().onTrue(new
-                // InstantCommand(()->claw.rollerMotor.setVoltage(9.0)));
-                // operatorController.y().onTrue(new
-                // InstantCommand(()->claw.rollerMotor.setVoltage(0.0)));
-                // operatorController.a().onTrue(new
-                // InstantCommand(()->claw.rollerMotor.setVoltage(-9.0)));
-
-                /*operatorController.a().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)));
-                operatorController.b().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
-                operatorController.x().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)));
-
-                operatorController.povLeft().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
-                operatorController.povRight().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L2)));
-                operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L4)));
-                operatorController.povDown().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
-
-                */
+              
                 operatorController
                                 .start()
                                 .onTrue(new InstantCommand(()->driveController.rezeroControllerAndYawToMsuDefault()));
                                 
                 operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
                 operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
-
-                
-                //operatorController.a().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
-                //operatorController.b().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
-                //operatorController.x().onTrue(new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
-                //operatorController.a().onTrue(new InstantCommand(()->climb.testClimbMovementUp()));
-                //operatorController.b().onTrue(new InstantCommand(()->climb.stopClimbMovement()));
-                //operatorController.x().onTrue(new InstantCommand(()->climb.testClimbMovementDown()));
-
-
         }
 
         /**
@@ -995,5 +779,12 @@ public class RobotContainer implements Sendable {
                                 () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
                 builder.addBooleanProperty("robot relative enabled", ()->driveController.robotRelativeActive, null);
                 builder.addDoubleProperty("desired heading", ()->driveController.getDesiredHeading(), null);
-                builder.addDoubleProperty("gyro rotation deg", ()->drivetrain.getPigeon2().getRotation2d().getDegrees(), null);        }
+                builder.addDoubleProperty("gyro rotation deg", ()->drivetrain.getPigeon2().getRotation2d().getDegrees(), null); 
+                builder.addDoubleProperty("broken module encoder 2", ()->drivetrain.getModule(2).getEncoder().getAbsolutePosition().getValueAsDouble(), null); 
+                builder.addDoubleProperty("good module encoder 1", ()->drivetrain.getModule(1).getEncoder().getAbsolutePosition().getValueAsDouble(), null); 
+                builder.addDoubleProperty("good module encoder 0", ()->drivetrain.getModule(0).getEncoder().getAbsolutePosition().getValueAsDouble(), null); 
+                builder.addDoubleProperty("good module encoder 3", ()->drivetrain.getModule(3).getEncoder().getAbsolutePosition().getValueAsDouble(), null); 
+
+
+        }
 }

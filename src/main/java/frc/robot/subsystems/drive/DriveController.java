@@ -42,12 +42,15 @@ public class DriveController {
 
     public double fieldControllerP = 5.0;
     public double fieldControllerI = 0.0;
+
     public double fieldControllerD = 0.0;
 
     public CommandXboxController driverController;
 
     public boolean robotRelativeActive = false;
     public BooleanSupplier getRobotRelativeActive = ()->robotRelativeActive;
+
+    public boolean joysticksActive = false;
 
     public DriveController(CommandSwerveDrivetrain drivetrain, MatchStateUtil msu, CommandXboxController driverController){
         gyro = drivetrain.getPigeon2();
@@ -60,16 +63,16 @@ public class DriveController {
         drivetrain.setDefaultCommand(
             new ConditionalCommand(
                 new ParallelCommandGroup(
-                  new RunCommand(()->desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees()),
+                  new InstantCommand(()->desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees()),
                   drivetrain.applyRequest(()->robotController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle()) 
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate * this.getThrottle()))
                 ),
                 new ParallelCommandGroup(
-                    new RunCommand(()->determineDesiredHeading()),
+                    new InstantCommand(()->determineDesiredHeading()),
                     drivetrain.applyRequest(() ->fieldController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
                        .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle())
-                       .withTargetDirection(Rotation2d.fromDegrees(desiredHeading)) )
+                       .withTargetDirection(Rotation2d.fromDegrees(desiredHeading)))
                 ),
                 getRobotRelativeActive
             )
@@ -97,11 +100,13 @@ public class DriveController {
     public void determineDesiredHeading(){
         double input = Math.abs(JoystickUtil.squareAxis(
             MathUtil.applyDeadband(-driverController.getRightX(), 0.05))*8);
-        if(input <= 0.1){
+        if(input <= 0.1 && joysticksActive){
             desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees();
+            joysticksActive = false;
         }
-        else{
+        else if(input > 0.1){
             desiredHeading += input;
+            joysticksActive = true;
         }
     }
 
