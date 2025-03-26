@@ -4,7 +4,9 @@ import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
+import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentricFacingAngle;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 
 import edu.wpi.first.math.MathUtil;
@@ -50,6 +52,8 @@ public class DriveController {
     public boolean robotRelativeActive = false;
     public BooleanSupplier getRobotRelativeActive = ()->robotRelativeActive;
 
+    public RobotCentricFacingAngle robotCentricFacingAngle = new RobotCentricFacingAngle().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
     public boolean joysticksActive = false;
 
     public DriveController(CommandSwerveDrivetrain drivetrain, MatchStateUtil msu, CommandXboxController driverController){
@@ -58,24 +62,60 @@ public class DriveController {
         this.driverController = driverController;
         this.drivetrain = drivetrain;
         fieldController.HeadingController.setPID(fieldControllerP, fieldControllerI, fieldControllerD); 
+        robotCentricFacingAngle.HeadingController.setPID(fieldControllerP, fieldControllerI, fieldControllerD);
         rezeroControllerAndYawToMsuDefault();
         rezeroControllerAndYawToMsuDefault();
+
         drivetrain.setDefaultCommand(
-            new ConditionalCommand(
+            /*new RunCommand(
+                ()->{
+                    if(robotRelativeActive){
+                        new RunCommand(()->desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees()).until(()->!robotRelativeActive).schedule();
+                        drivetrain.applyRequest(()->robotController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
+                        .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle()) 
+                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate * this.getThrottle())).until(()->!robotRelativeActive).schedule();
+                        
+                    }
+                    else{
+                        new RunCommand(this::determineDesiredHeading).until(()->robotRelativeActive).schedule();
+                        drivetrain.applyRequest(() ->fieldController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
+                       .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle())
+                       .withTargetDirection(Rotation2d.fromDegrees(desiredHeading))).until(getRobotRelativeActive).schedule();
+                    }
+                }, drivetrain
+            )*/
+            new RunCommand(
+                ()->{
+                    if(robotRelativeActive){
+                        new RunCommand(this::determineDesiredHeading).until(()->!robotRelativeActive).schedule();
+                        drivetrain.applyRequest(()->robotCentricFacingAngle.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
+                        .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle()) 
+                        .withTargetDirection(Rotation2d.fromDegrees(desiredHeading))).until(()->!robotRelativeActive).schedule();
+                        
+                    }
+                    else{
+                        new RunCommand(this::determineDesiredHeading).until(()->robotRelativeActive).schedule();
+                        drivetrain.applyRequest(() ->fieldController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
+                       .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle())
+                       .withTargetDirection(Rotation2d.fromDegrees(desiredHeading))).until(getRobotRelativeActive).schedule();
+                    }
+                }, drivetrain
+            )
+            /*new ConditionalCommand(
                 new ParallelCommandGroup(
-                  new InstantCommand(()->desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees()),
+                  new RunCommand(()->desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees()),
                   drivetrain.applyRequest(()->robotController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle()) 
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate * this.getThrottle()))
                 ),
                 new ParallelCommandGroup(
-                    new InstantCommand(()->determineDesiredHeading()),
+                    new RunCommand(()->determineDesiredHeading()),
                     drivetrain.applyRequest(() ->fieldController.withVelocityX(-driverController.getLeftY() * MaxSpeed * this.getThrottle()) 
                        .withVelocityY(-driverController.getLeftX() * MaxSpeed * this.getThrottle())
                        .withTargetDirection(Rotation2d.fromDegrees(desiredHeading)))
                 ),
                 getRobotRelativeActive
-            )
+            )*/
         );
             /*new ParallelCommandGroup(
                 new RunCommand(determineDesiredHeading),
@@ -98,16 +138,17 @@ public class DriveController {
     }
 
     public void determineDesiredHeading(){
-        double input = Math.abs(JoystickUtil.squareAxis(
-            MathUtil.applyDeadband(-driverController.getRightX(), 0.05))*8);
-        if(input <= 0.1 && joysticksActive){
-            desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees();
+        double input = JoystickUtil.squareAxis(
+            MathUtil.applyDeadband(-driverController.getRightX(), 0.05))*6;
+        /*if(Math.abs(input) <= 0.1 && joysticksActive){
+            //desiredHeading = drivetrain.getState().Pose.getRotation().getDegrees();
             joysticksActive = false;
         }
-        else if(input > 0.1){
+        else if(Math.abs(input) > 0.1){
             desiredHeading += input;
             joysticksActive = true;
-        }
+        }*/
+        desiredHeading += input;
     }
 
     public void rezeroControllerToGyro(){
@@ -122,6 +163,9 @@ public class DriveController {
     }
 
     public void setRobotCentric(boolean enabled){
+        if(!enabled){
+            rezeroControllerToGyro();
+        }
         robotRelativeActive = enabled;
     }
 

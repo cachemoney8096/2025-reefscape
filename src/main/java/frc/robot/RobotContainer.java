@@ -615,8 +615,8 @@ public class RobotContainer implements Sendable {
                 driverController.b().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 90 : 270)));
                 driverController.a().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 180 : 0)));
                 driverController.x().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 270 : 90)));
-                driverController.povUp().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()+15)));
-                driverController.povDown().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()-15)));
+                driverController.povUp().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()+30)));
+                driverController.povDown().onTrue(new InstantCommand(()->driveController.setDesiredHeading(driveController.getDesiredHeading()-30)));
 
                 // TODO these don't work
 
