@@ -3,7 +3,7 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants;
 
 public class ElevatorCal {
-  public static final double ELEVATOR_SCORE_P = 5.0, // 5.0 // TODO change these back after elevator is fixed
+  public static final double ELEVATOR_SCORE_P = 2.0, // 5.0 // TODO change these back after elevator is fixed
       ELEVATOR_SCORE_I = 0.0000, // 0.0005,
       ELEVATOR_SCORE_D = 0.0,
       ELEVATOR_SCORE_FF = 0.000; // 0.005
@@ -13,12 +13,12 @@ public class ElevatorCal {
       ELEVATOR_CLIMB_FF = 0.001;
   public static final double ELEVATOR_MOTOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0,
       ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS = 80.0;
-  public static final double POSITION_INTAKE_INCHES = 22.5, // 22.00,
-      POSITION_HOME_INCHES = 1.0,
-      POSITION_SCORE_L4_INCHES = 30.4,
-      POSITION_SCORE_L3_INCHES = 29.75, //21.75
-      POSITION_SCORE_L2_INCHES = 17.0, //10.0,
-      POSITION_SCORE_L1_INCHES = 10.0,
+  public static final double POSITION_INTAKE_INCHES = 15.0, // 22.00,
+      POSITION_HOME_INCHES = 0.0,
+      POSITION_SCORE_L4_INCHES = 15.0,
+      POSITION_SCORE_L3_INCHES = 15.0, //21.75
+      POSITION_SCORE_L2_INCHES = 15.0, //10.0,
+      POSITION_SCORE_L1_INCHES = 15.0,
       POSITION_ARM_CLEAR_OF_CLIMB_INCHES = 7.75,
       POSITION_ALGAE_INCHES = Constants.PLACEHOLDER_DOUBLE,
       POSITION_SHALLOW_PREP_INCHES = Constants.PLACEHOLDER_DOUBLE,

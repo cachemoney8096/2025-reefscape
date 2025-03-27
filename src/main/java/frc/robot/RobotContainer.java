@@ -74,6 +74,7 @@ import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.PrepStateUtil;
+import frc.robot.utils.PrepStateUtil.SCORE_HEIGHT;
 
 import java.lang.annotation.ElementType;
 import java.util.TreeMap;
@@ -134,7 +135,7 @@ public class RobotContainer implements Sendable {
         public PrepState prepState = PrepState.OFF;
         public IntakeClimbLocation preppedLocation = IntakeClimbLocation.LEFT;
         // public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
-        public static ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
+        public static ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L3;
         public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
         /* Garbage from phoenix tuner */
@@ -729,6 +730,7 @@ public class RobotContainer implements Sendable {
 
         private void configureOperatorBindings() {
                 operatorController.leftTrigger().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
+                /*operatorController.leftTrigger().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
 
                 operatorController.rightTrigger().whileTrue(new InstantCommand(()->claw.rollerMotor.set(0.3)));
                 operatorController.rightTrigger().onFalse(new InstantCommand(()->claw.rollerMotor.set(0.0)));
@@ -744,6 +746,10 @@ public class RobotContainer implements Sendable {
                 operatorController.rightBumper().onTrue(new InstantCommand(()->climb.setServoLocked(true)));
                 operatorController.leftBumper().onTrue(new InstantCommand(()->climb.setServoLocked(false)));
 
+                operatorController.y().onTrue(new InstantCommand(()->prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L1)));
+                operatorController.x().onTrue(new InstantCommand(()->prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L2)));
+                operatorController.b().onTrue(new InstantCommand(()->prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L3)));
+
 
               
                 operatorController
@@ -754,7 +760,18 @@ public class RobotContainer implements Sendable {
                                 }));
                                 
                 operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
-                operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));*/
+                operatorController.a().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
+                operatorController.b().onTrue(new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
+
+                operatorController.povUp().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L3)));
+                operatorController.povDown().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
+                operatorController.povLeft().onTrue(new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
+
+                operatorController.y().onTrue(new InstantCommand(()->claw.runMotorsIntaking()));
+                operatorController.y().onFalse(new InstantCommand(()->claw.stopMotors()));
+
+
         }
 
         /**
