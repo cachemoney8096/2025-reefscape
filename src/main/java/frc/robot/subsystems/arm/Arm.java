@@ -58,7 +58,7 @@ public class Arm extends SubsystemBase {
     armPositions.put(ArmPosition.L1, ArmCal.ARM_POSITION_L1_DEGREES);
     armPositions.put(ArmPosition.L2, ArmCal.ARM_POSITION_L2_DEGREES);
     armPositions.put(ArmPosition.L3, ArmCal.ARM_POSITION_L3_DEGREES);
-    armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
+    // armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
     initArmTalons();
     rezeroArm();
     // armLeftEncoderAbs.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
@@ -76,7 +76,7 @@ public class Arm extends SubsystemBase {
     toApply.Slot0.kI = ArmCal.ARM_MOTOR_I;
     toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
     toApply.Slot0.kV = ArmCal.ARM_MOTOR_FF;
-    toApply.Slot0.kG = 0.55; // 0.5;
+    toApply.Slot0.kG = 0.45; // 0.5;
     armMotorLeft.getConfigurator().apply(toApply);
     //armMotorRight.setControl(new Follower(armMotorLeft.getDeviceID(), true));
     CANcoderConfiguration cfg = new CANcoderConfiguration();
