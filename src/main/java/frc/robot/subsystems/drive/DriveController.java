@@ -159,8 +159,8 @@ public class DriveController implements Sendable {
         gyro.setYaw(msu.isBlue()?0:180);
         setDesiredHeading(msu.isBlue()?0:180);
         fieldCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue()?0:180));
-        // robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble()));
-        // drivetrain.resetRotation(gyro.getRotation2d());
+        robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble()));
+        drivetrain.resetRotation(gyro.getRotation2d());
     }
 
     public void setRobotCentric(boolean enabled){
