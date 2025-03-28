@@ -27,6 +27,9 @@ import frc.robot.utils.ReefAngleCalcUtil;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 public class PrepScoreSequence extends SequentialCommandGroup {
   public static int tagId = 0;
   public static Transform2d robotToTag;

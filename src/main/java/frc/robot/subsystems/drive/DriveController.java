@@ -12,13 +12,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.utils.JoystickUtil;
 import frc.robot.utils.MatchStateUtil;
 
-public class DriveController {
+public class DriveController implements Sendable {
     public final double maxAngularVelocityRadiansPerSecond = 1.5 * Math.PI; 
 
     public final ProfiledFieldCentricFacingAngle fieldCentricFacingAngle = new ProfiledFieldCentricFacingAngle(new TrapezoidProfile.Constraints(maxAngularVelocityRadiansPerSecond, maxAngularVelocityRadiansPerSecond/0.25)).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -57,7 +59,7 @@ public class DriveController {
         fieldCentricFacingAngle.HeadingController.setPID(robotHeadingP, robotHeadingI, robotHeadingD); 
         robotCentricFacingAngle.HeadingController.setPID(robotHeadingP, robotHeadingI, robotHeadingD);
         rezeroControllerAndYawToMsuDefault();
-        rezeroControllerAndYawToMsuDefault();
+        // rezeroControllerAndYawToMsuDefault();
 
         drivetrain.setDefaultCommand(
             new RunCommand(
@@ -150,11 +152,15 @@ public class DriveController {
         drivetrain.resetRotation(gyro.getRotation2d());
     }
 
+    /** 
+     * 
+     */
     public void rezeroControllerAndYawToMsuDefault(){
         gyro.setYaw(msu.isBlue()?0:180);
+        setDesiredHeading(msu.isBlue()?0:180);
         fieldCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue()?0:180));
-        robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue()?0:180));
-        drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue()?0:180));    
+        // robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble()));
+        // drivetrain.resetRotation(gyro.getRotation2d());
     }
 
     public void setRobotCentric(boolean enabled){
@@ -182,5 +188,10 @@ public class DriveController {
 
     public void setDesiredHeading(double d){
         desiredHeading = d;
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty("Gyro Rotation (deg)", (() -> gyro.getRotation2d().getDegrees()), null);
     }
 }
