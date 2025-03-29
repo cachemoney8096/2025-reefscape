@@ -42,17 +42,6 @@
           "name": "AUTO SCORING PREP SEQUENCE"
         }
       }
-    },
-    {
-      "name": "AUTO SCORING SEQUENCE",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "AUTO SCORING SEQUENCE"
-        }
-      }
     }
   ],
   "globalConstraints": {

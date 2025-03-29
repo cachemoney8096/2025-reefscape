@@ -19,9 +19,6 @@ public class AutoIntakeSequence extends SequentialCommandGroup {
             () -> {
               return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
             }),
-        new InstantCommand(() -> claw.runMotorsIntaking()),
-        new WaitUntilCommand(claw::beamBreakSeesObject), // TODO used to have a timeout here
-        new InstantCommand(() -> claw.stopMotors()),
-        new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)));
+        new InstantCommand(() -> claw.runMotorsIntaking()));
   }
 }

@@ -9,6 +9,12 @@
           "data": {
             "pathName": "B_S2-G"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING SEQUENCE"
+          }
         }
       ]
     }
