@@ -14,13 +14,13 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
-
 import java.util.TreeMap;
 
 public class Climb extends SubsystemBase {
   public final TalonFX climbTalonLeft = new TalonFX(RobotMap.CLIMBING_LEFT_MOTOR_CAN_ID, "rio");
   public final TalonFX climbTalonRight = new TalonFX(RobotMap.CLIMBING_RIGHT_MOTOR_CAN_ID, "rio");
-  private final CANcoder climbAbsoluteEncoder = new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID, "rio");
+  private final CANcoder climbAbsoluteEncoder =
+      new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID, "rio");
   // private final Encoder climbAbsoluteEncoder =
   // new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
   private final Servo climbServoLeft = new Servo(RobotMap.CLIMBING_SERVO_LEFT_DIO);
@@ -34,7 +34,7 @@ public class Climb extends SubsystemBase {
 
   private TreeMap<ClimbPosition, Double> climbPositionMap;
   private ClimbPosition desiredPosition = ClimbPosition.STOWED;
-  private boolean allowClimbMovement = false; //TODO
+  private boolean allowClimbMovement = false; // TODO
 
   private int currentSlot = 1;
 
@@ -80,18 +80,17 @@ public class Climb extends SubsystemBase {
     climbAbsoluteEncoder.getConfigurator().apply(cfg);
   }
 
-
-
   public void zeroMotorEncoders() {
-    //climbTalonLeft.setPosition(getPositionClimbRotationsReal()*ClimbConstants.MOTOR_TO_CLIMB_RATIO);
-    climbTalonLeft.setPosition(ClimbConstants.MOTOR_TO_CLIMB_RATIO*(ClimbCal.CLIMB_STOWED_POSITION_DEGREES/360));
+    // climbTalonLeft.setPosition(getPositionClimbRotationsReal()*ClimbConstants.MOTOR_TO_CLIMB_RATIO);
+    climbTalonLeft.setPosition(
+        ClimbConstants.MOTOR_TO_CLIMB_RATIO * (ClimbCal.CLIMB_STOWED_POSITION_DEGREES / 360));
   }
 
-  public double getPositionClimbRotationsReal(){
-    // return 1 - (0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble()); 
-    //return (climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() / 2) - (120 / 360);
+  public double getPositionClimbRotationsReal() {
+    // return 1 - (0.5 + climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
+    // return (climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() / 2) - (120 / 360);
     double rawRotations = climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
-    return rawRotations/2;
+    return rawRotations / 2;
   }
 
   public void setClimbingPID() {
@@ -114,18 +113,22 @@ public class Climb extends SubsystemBase {
 
     climbTalonLeft.setControl(tRequest);*/
     final TrapezoidProfile trapezoidProfile =
-      new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(
-              ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS, ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
-    TrapezoidProfile.State tGoal = new TrapezoidProfile.State(inputPositionDegrees / 360.0 * ClimbConstants.MOTOR_TO_CLIMB_RATIO, 0.0);
+        new TrapezoidProfile(
+            new TrapezoidProfile.Constraints(
+                ClimbCal.CLIMB_MOTOR_MAX_VELOCITY_RPS,
+                ClimbCal.CLIMB_MOTOR_MAX_ACCELERATION_RPS_SQUARED));
+    TrapezoidProfile.State tGoal =
+        new TrapezoidProfile.State(
+            inputPositionDegrees / 360.0 * ClimbConstants.MOTOR_TO_CLIMB_RATIO, 0.0);
     TrapezoidProfile.State setpoint =
-        new TrapezoidProfile.State(climbTalonLeft.getPosition().getValueAsDouble(), climbTalonLeft.getVelocity().getValueAsDouble());
+        new TrapezoidProfile.State(
+            climbTalonLeft.getPosition().getValueAsDouble(),
+            climbTalonLeft.getVelocity().getValueAsDouble());
     final PositionVoltage request = new PositionVoltage(0).withSlot(0);
     setpoint = trapezoidProfile.calculate(0.020, setpoint, tGoal);
     request.Position = setpoint.position;
     request.Velocity = setpoint.velocity;
     climbTalonLeft.setControl(request);
-
   }
 
   public void setDesiredClimbPosition(ClimbPosition pos) {
@@ -135,15 +138,14 @@ public class Climb extends SubsystemBase {
 
   public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
     if (lockServo) {
-      //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
-      //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      // climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
       climbServoLeft.set(0.0);
       climbServoRight.set(0.0);
 
-
     } else {
-      //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
-      //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      // climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
       climbServoLeft.set(1.0);
       climbServoRight.set(1.0);
     }
@@ -176,21 +178,20 @@ public class Climb extends SubsystemBase {
     climbTalonLeft.setVoltage(-1 * ClimbCal.TEST_CLIMB_MOVEMENT_VOLTAGE);
   }
 
-  public double getThrottle(){
-    if(desiredPosition != ClimbPosition.STOWED){
+  public double getThrottle() {
+    if (desiredPosition != ClimbPosition.STOWED) {
       return 0.1;
-    }
-    else{
+    } else {
       return 1.0;
     }
   }
 
   @Override
   public void periodic() {
-     if (allowClimbMovement) {
-       controlPosition(climbPositionMap.get(this.desiredPosition));
-     }
-     //controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
+    if (allowClimbMovement) {
+      controlPosition(climbPositionMap.get(this.desiredPosition));
+    }
+    // controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
 
   @Override
@@ -217,15 +218,14 @@ public class Climb extends SubsystemBase {
     //     null);
     builder.addDoubleProperty(
         "Climb ABSOLUTE REAL (deg)",
-        () -> /*climbAbsoluteEncoder.getDistance() * 360*/
-            getPositionClimbRotationsReal() * 360,
+        () -> /*climbAbsoluteEncoder.getDistance() * 360*/ getPositionClimbRotationsReal() * 360,
         null);
 
-        builder.addDoubleProperty(
-          "Climb ABSOLUTE RAW (deg)",
-          () -> /*climbAbsoluteEncoder.getDistance() * 360*/
-              climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
-          null);
+    builder.addDoubleProperty(
+        "Climb ABSOLUTE RAW (deg)",
+        () -> /*climbAbsoluteEncoder.getDistance() * 360*/
+            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+        null);
 
     builder.addStringProperty(
         "Climb PID Slot",
@@ -244,9 +244,12 @@ public class Climb extends SubsystemBase {
         },
         null);
 
-    builder.addDoubleProperty("servo 8 commanded position", ()->climbServoLeft.get(), null);
-    builder.addDoubleProperty("servo 7 commanded position", ()->climbServoRight.get(), null);
+    builder.addDoubleProperty("servo 8 commanded position", () -> climbServoLeft.get(), null);
+    builder.addDoubleProperty("servo 7 commanded position", () -> climbServoRight.get(), null);
     builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
-    builder.addDoubleProperty("Output voltage commanded", ()->climbTalonLeft.getMotorVoltage().getValueAsDouble(), null);
+    builder.addDoubleProperty(
+        "Output voltage commanded",
+        () -> climbTalonLeft.getMotorVoltage().getValueAsDouble(),
+        null);
   }
 }

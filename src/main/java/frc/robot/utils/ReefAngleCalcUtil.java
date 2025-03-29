@@ -91,6 +91,8 @@ public class ReefAngleCalcUtil {
         break;
     }
 
-    return new Translation2d(Units.inchesToMeters(updatedVector.getFirst()), Units.inchesToMeters(updatedVector.getSecond()));
+    return new Translation2d(
+        Units.inchesToMeters(updatedVector.getFirst()),
+        Units.inchesToMeters(updatedVector.getSecond()));
   }
 }

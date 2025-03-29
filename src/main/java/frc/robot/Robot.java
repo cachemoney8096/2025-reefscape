@@ -4,21 +4,13 @@
 
 package frc.robot;
 
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-
-import javax.print.DocFlavor.URL;
-
 import com.ctre.phoenix6.SignalLogger;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.RobotContainer.PrepState;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
 // import org.littletonrobotics.urcl.URCL;
@@ -74,6 +66,7 @@ public class Robot extends TimedRobot {
   }
 
   public static Transform2d robotToTag;
+
   @Override
   public void disabledPeriodic() {
     /*m_robotContainer.scoringLimelight.resetOdometryWithTags(m_robotContainer.drivetrain);
@@ -124,9 +117,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {

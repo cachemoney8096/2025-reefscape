@@ -3,7 +3,8 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants;
 
 public class ElevatorCal {
-  public static final double ELEVATOR_SCORE_P = 2.0, // 5.0 // TODO change these back after elevator is fixed
+  public static final double
+      ELEVATOR_SCORE_P = 2.0, // 5.0 // TODO change these back after elevator is fixed
       ELEVATOR_SCORE_I = 0.0000, // 0.0005,
       ELEVATOR_SCORE_D = 0.0,
       ELEVATOR_SCORE_FF = 0.000; // 0.005
@@ -16,8 +17,8 @@ public class ElevatorCal {
   public static final double POSITION_INTAKE_INCHES = 0.0, // 22.00,
       POSITION_HOME_INCHES = 0.0,
       POSITION_SCORE_L4_INCHES = 0.0,
-      POSITION_SCORE_L3_INCHES = 15.0, //21.75
-      POSITION_SCORE_L2_INCHES = 0.0, //10.0,
+      POSITION_SCORE_L3_INCHES = 15.0, // 21.75
+      POSITION_SCORE_L2_INCHES = 0.0, // 10.0,
       POSITION_SCORE_L1_INCHES = 0.0,
       POSITION_ARM_CLEAR_OF_CLIMB_INCHES = 0.0,
       POSITION_ALGAE_INCHES = Constants.PLACEHOLDER_DOUBLE,

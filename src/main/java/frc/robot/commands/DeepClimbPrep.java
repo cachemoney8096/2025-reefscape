@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
@@ -23,7 +22,6 @@ import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.PrepStateUtil;
-
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -106,7 +104,7 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                       drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
-            ()->false),
+            () -> false),
         deepClimbPrep,
         new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_CLIMB)));
   }

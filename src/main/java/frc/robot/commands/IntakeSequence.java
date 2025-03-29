@@ -6,10 +6,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
@@ -22,7 +20,6 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.utils.HPUtil;
 import frc.robot.utils.PrepStateUtil;
-
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -40,7 +37,7 @@ public class IntakeSequence extends SequentialCommandGroup {
       CommandSwerveDrivetrain drive,
       Lights lights) {
     /* mechanical intake sequence */
-      final PrepStateUtil.INTAKE_CLIMB_LOCATION location = prepStateUtil.getPrepIntakeClimbLocation();
+    final PrepStateUtil.INTAKE_CLIMB_LOCATION location = prepStateUtil.getPrepIntakeClimbLocation();
 
     SequentialCommandGroup moveArmElevatorClaw =
         new SequentialCommandGroup(
@@ -67,7 +64,7 @@ public class IntakeSequence extends SequentialCommandGroup {
     addRequirements(claw, arm, elevator, climb);
     /* revert to manual control if we don't see a tag */
     addCommands(
-      moveArmElevatorClaw,
+        moveArmElevatorClaw,
         new ConditionalCommand(
             new SequentialCommandGroup(
                 /* we saw a tag */
@@ -124,6 +121,6 @@ public class IntakeSequence extends SequentialCommandGroup {
                       drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
-            ()->false));
+            () -> false));
   }
 }

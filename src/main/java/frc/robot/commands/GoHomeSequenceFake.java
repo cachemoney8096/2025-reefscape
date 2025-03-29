@@ -7,7 +7,6 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;

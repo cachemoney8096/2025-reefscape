@@ -206,10 +206,11 @@ public class IntakeLimelight extends SubsystemBase {
     throw new NoSuchTargetException("Can't find ID: " + id);
   }
 
-  public void resetOdometryWithTags(CommandSwerveDrivetrain drivetrain){
-    if(checkForTag().isPresent()){
-      drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME));
-      //drivetrain.addVisionMeasurement(LimelightHelpers.getBotPose2d_wpiBlue(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME), Timer.getFPGATimestamp()); //TODO change this
+  public void resetOdometryWithTags(CommandSwerveDrivetrain drivetrain) {
+    if (checkForTag().isPresent()) {
+      drivetrain.resetPose(
+          LimelightHelpers.getBotPose2d_wpiBlue(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME));
+      // drivetrain.addVisionMeasurement(LimelightHelpers.getBotPose2d_wpiBlue(IntakeLimelightConstants.INTAKE_LIMELIGHT_NAME), Timer.getFPGATimestamp()); //TODO change this
     }
   }
 

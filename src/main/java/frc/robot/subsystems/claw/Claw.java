@@ -54,19 +54,19 @@ public class Claw extends SubsystemBase {
   }
 
   public void runMotorsIntaking() {
-     rollerMotor.set(ClawCal.CLAW_ROLLERS_INTAKING_SPEED_PERCENT);
+    rollerMotor.set(ClawCal.CLAW_ROLLERS_INTAKING_SPEED_PERCENT);
   }
 
   public void runMotorsScoring() {
-     rollerMotor.set(ClawCal.CLAW_ROLLERS_SCORING_SPEED_PERCENT);
+    rollerMotor.set(ClawCal.CLAW_ROLLERS_SCORING_SPEED_PERCENT);
   }
 
   public void runMotorsOuttake() {
-     rollerMotor.set(ClawCal.CLAW_ROLLERS_OUTTAKING_SPEED_PERCENT);
+    rollerMotor.set(ClawCal.CLAW_ROLLERS_OUTTAKING_SPEED_PERCENT);
   }
 
   public void stopMotors() {
-     rollerMotor.set(0.0);
+    rollerMotor.set(0.0);
   }
 
   @Override
@@ -78,7 +78,9 @@ public class Claw extends SubsystemBase {
     builder.addBooleanProperty("Claw Beam Break Bottom Status", this::beamBreakBottom, null);
     // builder.addBooleanProperty("Claw Color Sensor Status", this::colorSensor, null);
     builder.addDoubleProperty("Claw current speed (percent)", () -> rollerMotor.get(), null);
-    builder.addDoubleProperty("Output voltage commanded", ()->rollerMotor.getMotorVoltage().getValueAsDouble(), null);
-    builder.addDoubleProperty("Output amps", ()->rollerMotor.getTorqueCurrent().getValueAsDouble(), null);
+    builder.addDoubleProperty(
+        "Output voltage commanded", () -> rollerMotor.getMotorVoltage().getValueAsDouble(), null);
+    builder.addDoubleProperty(
+        "Output amps", () -> rollerMotor.getTorqueCurrent().getValueAsDouble(), null);
   }
 }

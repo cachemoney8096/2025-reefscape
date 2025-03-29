@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
@@ -26,9 +25,6 @@ import frc.robot.utils.PrepStateUtil;
 import frc.robot.utils.ReefAngleCalcUtil;
 import java.util.Optional;
 import java.util.TreeMap;
-
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class PrepScoreSequence extends SequentialCommandGroup {
   public static int tagId = 0;
@@ -48,24 +44,25 @@ public class PrepScoreSequence extends SequentialCommandGroup {
     final ArmPosition p;
     final ElevatorHeight height;
     final PrepStateUtil.SCORE_LOCATION location = prepStateUtil.getPrepScoreLocation();
-//     InstantCommand setHeight = new InstantCommand(()->{PrepStateUtil.SCORE_HEIGHT pHeight = prepStateUtil.getPrepScoreHeight();
-    
-//     if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
-//       p = ArmPosition.L2;
-//       height = ElevatorHeight.SCORE_L2;
-//     } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L3) {
-//       p = ArmPosition.L3;
-//       height = ElevatorHeight.SCORE_L3;
-//     } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L4) {
-//       p = ArmPosition.L4;
-//       height = ElevatorHeight.SCORE_L4;
-//     } else {
-//       p = ArmPosition.L1;
-//       height = ElevatorHeight.SCORE_L1;
-//     }
-//     System.out.println("arm: " + p + " and elevator: " + height);
-// });
-    
+    //     InstantCommand setHeight = new InstantCommand(()->{PrepStateUtil.SCORE_HEIGHT pHeight =
+    // prepStateUtil.getPrepScoreHeight();
+
+    //     if (pHeight == PrepStateUtil.SCORE_HEIGHT.L2) {
+    //       p = ArmPosition.L2;
+    //       height = ElevatorHeight.SCORE_L2;
+    //     } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L3) {
+    //       p = ArmPosition.L3;
+    //       height = ElevatorHeight.SCORE_L3;
+    //     } else if (pHeight == PrepStateUtil.SCORE_HEIGHT.L4) {
+    //       p = ArmPosition.L4;
+    //       height = ElevatorHeight.SCORE_L4;
+    //     } else {
+    //       p = ArmPosition.L1;
+    //       height = ElevatorHeight.SCORE_L1;
+    //     }
+    //     System.out.println("arm: " + p + " and elevator: " + height);
+    // });
+
     // SequentialCommandGroup setPositions =
     //     new SequentialCommandGroup(
     //         new InstantCommand(() -> elevator.setDesiredPosition(height)),
@@ -74,7 +71,8 @@ public class PrepScoreSequence extends SequentialCommandGroup {
 
     addCommands(
         new SequentialCommandGroup(
-            new InstantCommand(() -> elevator.setDesiredPosition(prepStateUtil.getElevatorHeight())),
+            new InstantCommand(
+                () -> elevator.setDesiredPosition(prepStateUtil.getElevatorHeight())),
             new WaitUntilCommand(elevator::armMovementAllowed),
             new InstantCommand(() -> arm.setDesiredPosition(prepStateUtil.getArmPosition()))),
         new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
