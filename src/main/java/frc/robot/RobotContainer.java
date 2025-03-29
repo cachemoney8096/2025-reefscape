@@ -499,7 +499,7 @@ public class RobotContainer implements Sendable {
                       System.out.println(prepStateUtil.getPrepScoreHeight().toString());
                     }));
     /* climb prep */
-    driverController
+    /*driverController
         .back()
         .onTrue(
             new DeepClimbPrep(
@@ -511,7 +511,7 @@ public class RobotContainer implements Sendable {
                     drivetrain,
                     elevator,
                     lights)
-                .beforeStarting(() -> prepState = PrepState.CLIMB));
+                .beforeStarting(() -> prepState = PrepState.CLIMB));*/
 
     Command rumbleBriefly =
         new SequentialCommandGroup(
@@ -609,7 +609,7 @@ public class RobotContainer implements Sendable {
         .b()
         .onTrue(
             new InstantCommand(
-                () -> driveController.setDesiredHeading(matchState.isBlue() ? 90 : 270)));
+                () -> driveController.setDesiredHeading(matchState.isBlue() ? 270 : 90)));
     driverController
         .a()
         .onTrue(
@@ -619,7 +619,7 @@ public class RobotContainer implements Sendable {
         .x()
         .onTrue(
             new InstantCommand(
-                () -> driveController.setDesiredHeading(matchState.isBlue() ? 270 : 90)));
+                () -> driveController.setDesiredHeading(matchState.isBlue() ? 90 : 270)));
     driverController
         .povUp()
         .onTrue(
@@ -631,87 +631,6 @@ public class RobotContainer implements Sendable {
             new InstantCommand(
                 () -> driveController.setDesiredHeading(driveController.getDesiredHeading() - 30)));
 
-    // TODO these don't work
-
-    /*driverController
-                            .y()
-                            .onTrue(
-                                            drivetrain.applyRequest(
-                                                            () -> driveWithAngleController.withTargetDirection(
-                                                                            Rotation2d.fromDegrees(
-                                                                                            matchState.isBlue() ? 0
-                                                                                                            : 180))
-                                                                            .withVelocityX(drivetrain
-                                                                                            .getState().Speeds.vxMetersPerSecond)
-                                                                            .withVelocityY(drivetrain
-                                                                                            .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
-            driverController
-                            .b()
-                            .onTrue(
-                                            drivetrain.applyRequest(
-                                                            () -> driveWithAngleController.withTargetDirection(
-                                                                            Rotation2d.fromDegrees(
-                                                                                            matchState.isBlue() ? 90
-                                                                                                            : 270))
-                                                                            .withVelocityX(drivetrain
-                                                                                            .getState().Speeds.vxMetersPerSecond)
-                                                                            .withVelocityY(drivetrain
-                                                                                            .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
-            driverController
-                            .a()
-                            .onTrue(
-                                            drivetrain.applyRequest(
-                                                            () -> driveWithAngleController.withTargetDirection(
-                                                                            Rotation2d.fromDegrees(
-                                                                                            matchState.isBlue()
-                                                                                                            ? 180
-                                                                                                            : 0))
-                                                                            .withVelocityX(drivetrain
-                                                                                            .getState().Speeds.vxMetersPerSecond)
-                                                                            .withVelocityY(drivetrain
-                                                                                            .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
-            driverController
-                            .x()
-                            .onTrue(
-                                            drivetrain.applyRequest(
-                                                            () -> driveWithAngleController.withTargetDirection(
-                                                                            Rotation2d.fromDegrees(
-                                                                                            matchState.isBlue()
-                                                                                                            ? 270
-                                                                                                            : 90))
-                                                                            .withVelocityX(drivetrain
-                                                                                            .getState().Speeds.vxMetersPerSecond)
-                                                                            .withVelocityY(drivetrain
-                                                                                            .getState().Speeds.vyMetersPerSecond)).withTimeout(1.0));
-
-            // TODO speed being zero makes this bad
-
-            driverController.povUp().onTrue(
-                    new SequentialCommandGroup(
-                            new InstantCommand(()->prepStateUtil.setDegrees((drivetrain.getState().Pose.getRotation().getDegrees()+15+180)%360)),
-                            new InstantCommand(()->System.out.println("degrees:" + prepStateUtil.getDegrees())),
-                            drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
-                            Rotation2d.fromDegrees(prepStateUtil.getDegrees())
-                    ).withVelocityX(drivetrain
-                    .getState().Speeds.vxMetersPerSecond)
-    .withVelocityY(drivetrain
-                    .getState().Speeds.vyMetersPerSecond))
-                    ).withTimeout(0.5)
-            );
-
-            driverController.povDown().onTrue(
-                    new SequentialCommandGroup(
-                            new InstantCommand(()->prepStateUtil.setDegrees((drivetrain.getState().Pose.getRotation().getDegrees()-15+180)%360)),
-                            drivetrain.applyRequest(()->driveWithAngleController.withTargetDirection(
-                            Rotation2d.fromDegrees(prepStateUtil.getDegrees())
-                    ).withVelocityX(drivetrain
-                    .getState().Speeds.vxMetersPerSecond)
-    .withVelocityY(drivetrain
-                    .getState().Speeds.vyMetersPerSecond))
-                    ).withTimeout(0.5)
-            );*/
-    /* TODO: CHANGE BINDINGS LATER */
-
     // driverController
     // .povRight()
     // .onTrue(new AlgaeKnockoff(elevator));
@@ -722,22 +641,13 @@ public class RobotContainer implements Sendable {
      * povDown = top right back button
      * povLeft = bottom right back button
      */
+
     /* Go home */
     driverController
         .povLeft()
         .onTrue(
             new GoHomeSequence(climb, elevator, arm, claw, lights)
-                .beforeStarting(
-                    () -> {
-                      /*prepState = PrepState.OFF;
-                      if(drivetrain.driveToPoint.isScheduled()){
-                             System.out.println("killing");
-                      drivetrain.killDriveToPose();
-
-                      }*/
-                      // TODO this needs to be
-                      // uncommented but fixed first
-                    }));
+        );
   }
 
   private void configureOperatorBindings() {
@@ -746,8 +656,6 @@ public class RobotContainer implements Sendable {
         .onTrue(
             new InstantCommand(
                 () -> driveController.setRobotCentric(!driveController.robotRelativeActive)));
-    // operatorController.leftTrigger().onTrue(new
-    // InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
 
     operatorController
         .rightTrigger()
@@ -768,7 +676,8 @@ public class RobotContainer implements Sendable {
     operatorController
         .povLeft()
         .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
-    operatorController.povRight().onTrue(new InstantCommand(() -> climb.stopClimbMovement()));
+    //operatorController.povRight().onTrue(new InstantCommand(() -> climb.stopClimbMovement()));
+    operatorController.povRight().onTrue(new InstantCommand(()->climb.bringClimbInFiveDegrees()));
 
     operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
     operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
@@ -794,20 +703,6 @@ public class RobotContainer implements Sendable {
 
     operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
     operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
-    // operatorController.a().onTrue(new
-    // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
-    // operatorController.b().onTrue(new
-    // InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
-
-    // operatorController.povUp().onTrue(new
-    // InstantCommand(()->arm.setDesiredPosition(ArmPosition.L3)));
-    // operatorController.povDown().onTrue(new
-    // InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
-    // operatorController.povLeft().onTrue(new
-    // InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE)));
-
-    // operatorController.y().onTrue(new InstantCommand(()->claw.runMotorsIntaking()));
-    // operatorController.y().onFalse(new InstantCommand(()->claw.stopMotors()));
 
   }
 

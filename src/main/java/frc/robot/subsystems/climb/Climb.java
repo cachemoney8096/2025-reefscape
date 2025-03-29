@@ -26,6 +26,8 @@ public class Climb extends SubsystemBase {
   private final Servo climbServoLeft = new Servo(RobotMap.CLIMBING_SERVO_LEFT_DIO);
   private final Servo climbServoRight = new Servo(RobotMap.CLIMBING_SERVO_RIGHT_DIO);
 
+  private double bringClimbInByDegrees = 0;
+
   public enum ClimbPosition {
     CLIMBING_PREP,
     CLIMBING,
@@ -186,10 +188,19 @@ public class Climb extends SubsystemBase {
     }
   }
 
+  public void bringClimbInFiveDegrees(){
+    bringClimbInByDegrees += 5;
+  }
+
   @Override
   public void periodic() {
     if (allowClimbMovement) {
-      controlPosition(climbPositionMap.get(this.desiredPosition));
+      if(this.desiredPosition != ClimbPosition.STOWED){
+        controlPosition(climbPositionMap.get(this.desiredPosition)+bringClimbInByDegrees);
+      }
+      else{
+        controlPosition(climbPositionMap.get(this.desiredPosition));
+      }
     }
     // controlPosition(climbPositionMap.get(this.desiredPosition)); // TODO this must be undone
   }
