@@ -23,8 +23,8 @@ public class Climb extends SubsystemBase {
       new CANcoder(RobotMap.CLIMB_ABS_ENCODER_CAN_ID, "rio");
   // private final Encoder climbAbsoluteEncoder =
   // new Encoder(RobotMap.CLIMBING_ABS_ENCODER_DIO_A, RobotMap.CLIMBING_ABS_ENCODER_DIO_B);
-  private final Servo climbServoLeft = new Servo(RobotMap.CLIMBING_SERVO_LEFT_DIO);
-  private final Servo climbServoRight = new Servo(RobotMap.CLIMBING_SERVO_RIGHT_DIO);
+  private Servo climbServoLeft = new Servo(RobotMap.CLIMBING_SERVO_LEFT_DIO);
+  private Servo climbServoRight = new Servo(RobotMap.CLIMBING_SERVO_RIGHT_DIO);
 
   private double bringClimbInByDegrees = 0;
 
@@ -144,7 +144,6 @@ public class Climb extends SubsystemBase {
       // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
       climbServoLeft.set(0.0);
       climbServoRight.set(0.0);
-
     } else {
       // climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
       // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
@@ -196,7 +195,7 @@ public class Climb extends SubsystemBase {
   public void periodic() {
     if (allowClimbMovement) {
       if(this.desiredPosition != ClimbPosition.STOWED){
-        controlPosition(climbPositionMap.get(this.desiredPosition)+bringClimbInByDegrees);
+        controlPosition(climbPositionMap.get(this.desiredPosition)-bringClimbInByDegrees);
       }
       else{
         controlPosition(climbPositionMap.get(this.desiredPosition));

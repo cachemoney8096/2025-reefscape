@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -193,6 +194,7 @@ public class RobotContainer implements Sendable {
 
     NamedCommands.registerCommand("FINISH INTAKE", 
     new SequentialCommandGroup(
+        new InstantCommand(() -> claw.runMotorsIntaking()),
         new WaitUntilCommand(claw::beamBreakSeesObject),
         new InstantCommand(() -> claw.stopMotors()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL))
@@ -513,7 +515,7 @@ public class RobotContainer implements Sendable {
                       prepState = PrepState.SCORE;
                       System.out.println(prepStateUtil.getPrepScoreHeight().toString());
                       driveController.setRobotCentric(true);
-                    }).finallyDo(()->driveController.setRobotCentric(false))
+                    })
     );
     /* climb prep */
     /*driverController
@@ -546,20 +548,20 @@ public class RobotContainer implements Sendable {
     /* intake */
 
     boolean blue = matchState.isBlue();
+
+    driverController.rightTrigger().onTrue(new InstantCommand(()-> driveController.setRobotCentric(true)));
     driverController
         .rightTrigger()
         .whileTrue(
             new SequentialCommandGroup(
                 new InstantCommand(() -> prepState = PrepState.INTAKE),
-                new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?(blue?36.0:216):(blue?-36.0:144.0))),
-                new InstantCommand(()-> driveController.setRobotCentric(true)),
+                new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?(blue?-56.0:216):(blue?56.0:144.0))),
                 new IntakeSequence(
                     claw, intakeLimelight, arm, elevator, climb, prepStateUtil, drivetrain, lights),
                 new InstantCommand(() -> claw.runMotorsIntaking()),
                 new WaitUntilCommand(claw::beamBreakSeesObject),
                 new InstantCommand(() -> claw.stopMotors()),
                 new InstantCommand(() -> prepState = PrepState.OFF),
-                new InstantCommand(()-> driveController.setRobotCentric(false)),
                 new ConditionalCommand(
                     new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
                     new InstantCommand(),
@@ -585,7 +587,8 @@ public class RobotContainer implements Sendable {
     selectCommandMap.put(
         PrepState.SCORE,
         new SequentialCommandGroup(
-            new FinishScore(claw, elevator, arm, preppedHeight, lights)
+            new FinishScore(claw, elevator, arm, preppedHeight, lights),
+            new InstantCommand(()-> driveController.setRobotCentric(false))
             // new WaitUntilCommand(()->!claw.beamBreakSeesObject()),
             // new GoHomeSequenceFake(climb, elevator, arm, claw, lights)
             ));
@@ -668,7 +671,10 @@ public class RobotContainer implements Sendable {
     driverController
         .povLeft()
         .onTrue(
-            new GoHomeSequence(climb, elevator, arm, claw, lights).andThen(()->driveController.setRobotCentric(false))
+            new ParallelCommandGroup(
+                new GoHomeSequence(climb, elevator, arm, claw, lights),
+                new InstantCommand(()->driveController.setRobotCentric(false))
+            )
         );
   }
 
@@ -681,7 +687,7 @@ public class RobotContainer implements Sendable {
 
     operatorController
         .rightTrigger()
-        .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.3)));
+        .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.2)));
     operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
 
     operatorController
@@ -702,11 +708,11 @@ public class RobotContainer implements Sendable {
     //operatorController.povRight().onTrue(new InstantCommand(() -> climb.stopClimbMovement()));
     operatorController.povRight().onTrue(new InstantCommand(()->climb.bringClimbInFiveDegrees()));
 
-    //operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
-    //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
+    operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
+    operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
 
-    operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
-    operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
+    //operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
+    //operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
 
 
     operatorController.a().onTrue(new AlgaeKnockoff(elevator));

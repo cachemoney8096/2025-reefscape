@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.56,
-        "y": 0.8440625
+        "x": 0.9766695205479452,
+        "y": 0.2911172945205476
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3521875,
-        "y": 1.5753125
+        "x": 1.7688570205479452,
+        "y": 1.0223672945205475
       },
       "isLocked": false,
       "linkedName": "RHP1"
@@ -60,7 +60,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -128.3455749539934
+    "rotation": 55.71939462384017
   },
   "useDefaultConstraints": true
 }
