@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_S3-F"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING SEQUENCE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_F-RHP1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "FINISH INTAKE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_RHP1-E"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING SEQUENCE"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_E-RHP1"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "R_S3",
+  "choreoAuto": false
+}
