@@ -9,13 +9,9 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class AutoScoringSequence extends SequentialCommandGroup {
-  public AutoScoringSequence(Arm arm, Elevator elevator, Claw claw) {
-    addRequirements(arm, elevator, claw);
+  public AutoScoringSequence(Claw claw) {
+    addRequirements(claw);
     addCommands(
-        new WaitUntilCommand(
-            () -> {
-              return arm.atDesiredArmPosition() && elevator.atDesiredPosition();
-            }).withTimeout(2.0),
         new InstantCommand(() -> claw.runMotorsScoring()),
         new WaitCommand(3.0),
         new InstantCommand(() -> claw.stopMotors()));

@@ -59,7 +59,7 @@ public class DriveController implements Sendable {
         fieldCentricFacingAngle.HeadingController.setPID(robotHeadingP, robotHeadingI, robotHeadingD); 
         robotCentricFacingAngle.HeadingController.setPID(robotHeadingP, robotHeadingI, robotHeadingD);
         rezeroControllerAndYawToMsuDefault();
-        // rezeroControllerAndYawToMsuDefault();
+        rezeroControllerAndYawToMsuDefault();
 
         drivetrain.setDefaultCommand(
             new RunCommand(
@@ -147,6 +147,7 @@ public class DriveController implements Sendable {
     }
 
     public void rezeroControllerToGyro(){
+        setDesiredHeading(gyro.getRotation2d().getDegrees());
         fieldCentricFacingAngle.resetProfile(gyro.getRotation2d());
         robotCentricFacingAngle.resetProfile(gyro.getRotation2d());
         drivetrain.resetRotation(gyro.getRotation2d());
@@ -159,9 +160,9 @@ public class DriveController implements Sendable {
         gyro.setYaw(msu.isBlue()?0:180);
         setDesiredHeading(msu.isBlue()?0:180);
         fieldCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue()?0:180));
-        robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble()));
-        drivetrain.resetRotation(gyro.getRotation2d());
-    }
+        robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue()?0:180));
+        drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue()?0:180));
+    } 
 
     public void setRobotCentric(boolean enabled){
         if(!enabled){

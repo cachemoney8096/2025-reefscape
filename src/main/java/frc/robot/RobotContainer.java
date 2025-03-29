@@ -201,24 +201,24 @@ public class RobotContainer implements Sendable {
                                 "AUTO SCORING PREP SEQUENCE",
                                 new SequentialCommandGroup(
                                         new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
-                                        new AutoScoringPrepSequence(elevator, arm, claw, lights)).withTimeout(1.7));
+                                        new AutoScoringPrepSequence(elevator, arm, lights)).withTimeout(1.7));
 
                 /*NamedCommands.registerCommand(
                                 "AUTO SCORING SEQUENCE",
                                 new SequentialCommandGroup(
                                         new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
-                                                new AutoScoringSequence(arm, elevator, claw)
+                                                new AutoScoringSequence(claw)
                                 ));*/
+
+                SequentialCommandGroup score = new SequentialCommandGroup(
+                        new InstantCommand(()->claw.runMotorsScoring()),
+                        new WaitCommand(1.0),
+                        new InstantCommand(()->claw.stopMotors())
+                );
+                                
                 NamedCommands.registerCommand(
                         "AUTO SCORING SEQUENCE",
-                        new SequentialCommandGroup(
-                                new InstantCommand(() -> System.out.println("auto scoring ran")),
-                                new InstantCommand(()->claw.runMotorsScoring()),
-                                new WaitCommand(5.0),
-                                new InstantCommand(() -> System.out.println("auto scoring finished wait")),
-                                new InstantCommand(()->claw.stopMotors()),
-                                new InstantCommand(() -> System.out.println("auto scoring finished full"))
-                        )
+                        new InstantCommand(()->score.schedule())
                 );
                 matchState = ms;
                 drivetrain = TunerConstants.createDrivetrain();
@@ -594,7 +594,7 @@ public class RobotContainer implements Sendable {
                                 });
                 
                 /* finish score */
-               /* driverController
+                driverController
                                 .leftTrigger()
                                 .onTrue(
                                                 new ConditionalCommand(
@@ -609,9 +609,9 @@ public class RobotContainer implements Sendable {
                                                                 new InstantCommand(() -> claw.stopMotors()),
                                                                 new InstantCommand(),
                                                                 () -> prepState == PrepState.OFF).beforeStarting(new InstantCommand(()->System.out.println("right trigger"))));
-*/
-                driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
-                driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
+
+                // driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
+                // driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
 
                 driverController.y().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 0 : 180)));
                 driverController.b().onTrue(new InstantCommand(()->driveController.setDesiredHeading(matchState.isBlue() ? 90 : 270)));
@@ -757,7 +757,7 @@ public class RobotContainer implements Sendable {
                                 .start()
                                 .onTrue(new InstantCommand(()-> {
                                         driveController.rezeroControllerAndYawToMsuDefault();
-                                        // driveController.rezeroControllerAndYawToMsuDefault();
+                                        driveController.rezeroControllerAndYawToMsuDefault();
                                 }));
                                 
                 operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));

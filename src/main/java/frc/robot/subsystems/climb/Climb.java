@@ -58,7 +58,7 @@ public class Climb extends SubsystemBase {
     toApply.CurrentLimits.StatorCurrentLimit = ClimbCal.CLIMB_TALONS_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.SupplyCurrentLimitEnable = true;
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     toApply.Slot0.kP = ClimbCal.CLIMBING_P;
     toApply.Slot0.kI = ClimbCal.CLIMBING_I;
     toApply.Slot0.kD = ClimbCal.CLIMBING_D;
@@ -135,13 +135,17 @@ public class Climb extends SubsystemBase {
 
   public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
     if (lockServo) {
-      climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
-      climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      climbServoLeft.set(0.0);
+      climbServoRight.set(0.0);
+
 
     } else {
-      climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
-      climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
-
+      //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      climbServoLeft.set(1.0);
+      climbServoRight.set(1.0);
     }
   }
 
@@ -239,6 +243,9 @@ public class Climb extends SubsystemBase {
               : "LOCKED";
         },
         null);
+
+    builder.addDoubleProperty("servo 8 commanded position", ()->climbServoLeft.get(), null);
+    builder.addDoubleProperty("servo 7 commanded position", ()->climbServoRight.get(), null);
     builder.addBooleanProperty("Allow Climb Movement", () -> allowClimbMovement, null);
     builder.addDoubleProperty("Output voltage commanded", ()->climbTalonLeft.getMotorVoltage().getValueAsDouble(), null);
   }
