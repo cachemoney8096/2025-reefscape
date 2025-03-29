@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AlgaeKnockoff;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.DeepClimbPrep;
@@ -497,7 +498,9 @@ public class RobotContainer implements Sendable {
                     () -> {
                       prepState = PrepState.SCORE;
                       System.out.println(prepStateUtil.getPrepScoreHeight().toString());
-                    }));
+                      driveController.setRobotCentric(true);
+                    }).finallyDo(()->driveController.setRobotCentric(false))
+    );
     /* climb prep */
     /*driverController
         .back()
@@ -532,12 +535,14 @@ public class RobotContainer implements Sendable {
         .whileTrue(
             new SequentialCommandGroup(
                 new InstantCommand(() -> prepState = PrepState.INTAKE),
+                new InstantCommand(()-> driveController.setRobotCentric(true)),
                 new IntakeSequence(
                     claw, intakeLimelight, arm, elevator, climb, prepStateUtil, drivetrain, lights),
                 new InstantCommand(() -> claw.runMotorsIntaking()),
                 new WaitUntilCommand(claw::beamBreakSeesObject),
                 new InstantCommand(() -> claw.stopMotors()),
                 new InstantCommand(() -> prepState = PrepState.OFF),
+                new InstantCommand(()-> driveController.setRobotCentric(false)),
                 new ConditionalCommand(
                     new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
                     new InstantCommand(),
@@ -669,6 +674,7 @@ public class RobotContainer implements Sendable {
                 () -> {
                   climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
                   arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
+                  driveController.setRobotCentric(true);
                 }));
     operatorController
         .povDown()
@@ -680,7 +686,11 @@ public class RobotContainer implements Sendable {
     operatorController.povRight().onTrue(new InstantCommand(()->climb.bringClimbInFiveDegrees()));
 
     operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
-    operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
+    //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
+
+    operatorController.leftBumper().onTrue(new AlgaeKnockoff(elevator));
+
+    operatorController.back().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
 
     operatorController
         .y()
