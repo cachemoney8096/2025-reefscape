@@ -92,6 +92,8 @@ public class RobotContainer implements Sendable {
   /* Pair of the command for an auto and its name */
   private SendableChooser<Pair<Command, String>> autonChooser = new SendableChooser<>();
 
+  private SendableChooser<String> intakeLocationChooser = new SendableChooser<>();
+
   /* Subsystems */
   public Arm arm;
   public Claw claw;
@@ -257,6 +259,11 @@ public class RobotContainer implements Sendable {
 
     driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
     operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+
+    intakeLocationChooser.addOption("LEFT", "LEFT");
+    intakeLocationChooser.addOption("RIGHT", "RIGHT");
+    SmartDashboard.putData(intakeLocationChooser);
+
 
     /* Autonchooser config */
     // scoring location 1
@@ -476,6 +483,15 @@ public class RobotContainer implements Sendable {
     SmartDashboard.putData(autonChooser);
   }
 
+  public void setDefaultLocation(){
+    if(intakeLocationChooser.getSelected() == "LEFT"){
+        prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT);
+    }
+    else{
+        prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT);
+    }
+  }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -555,7 +571,7 @@ public class RobotContainer implements Sendable {
         .whileTrue(
             new SequentialCommandGroup(
                 new InstantCommand(() -> prepState = PrepState.INTAKE),
-                new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?(blue?-56.0:216):(blue?56.0:144.0))),
+                new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?(blue?-56.0:236):(blue?56.0:124.0))),
                 new IntakeSequence(
                     claw, intakeLimelight, arm, elevator, climb, prepStateUtil, drivetrain, lights),
                 new InstantCommand(() -> claw.runMotorsIntaking()),

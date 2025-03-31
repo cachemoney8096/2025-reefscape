@@ -83,6 +83,7 @@ public class Robot extends TimedRobot {
     if(checkForTag.getAsBoolean()){
       System.out.println("current pose: " + m_robotContainer.drivetrain.getState().Pose + "\nrobot to tag : " + robotToTag.toString() + "\n") ; Pose2d targetPose = m_robotContainer.drivetrain.getState().Pose.plus(robotToTag); System.out.println("target pose: " + targetPose.toString() + "\n");
     }*/
+    m_robotContainer.setDefaultLocation();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
