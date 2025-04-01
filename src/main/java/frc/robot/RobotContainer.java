@@ -713,6 +713,7 @@ public class RobotContainer implements Sendable {
                 () -> {
                   climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
                   arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
+                  elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
                   driveController.setRobotCentric(true);
                 }));
     operatorController
