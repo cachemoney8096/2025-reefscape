@@ -264,7 +264,6 @@ public class RobotContainer implements Sendable {
     intakeLocationChooser.addOption("RIGHT", "RIGHT");
     SmartDashboard.putData(intakeLocationChooser);
 
-
     /* Autonchooser config */
     // scoring location 1
     autonChooser.addOption(
@@ -709,13 +708,25 @@ public class RobotContainer implements Sendable {
     operatorController
         .povUp()
         .onTrue(
-            new InstantCommand(
-                () -> {
+            new SequentialCommandGroup(
+                new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+                new WaitUntilCommand(elevator::atDesiredPosition),
+                new InstantCommand(() -> {
+                    climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
+                    arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
+                    driveController.setRobotCentric(true);
+                })
+
+            ));
+                /** 
+                 * () -> {
+                  elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
+                  
                   climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
                   arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
-                  elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
                   driveController.setRobotCentric(true);
-                }));
+                })
+                 */
     operatorController
         .povDown()
         .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
