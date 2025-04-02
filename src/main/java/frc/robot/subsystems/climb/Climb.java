@@ -211,6 +211,10 @@ public class Climb extends SubsystemBase {
     builder.addStringProperty("Climb DESIRED Pos", () -> desiredPosition.toString(), null);
     builder.addDoubleProperty(
         "Climb DESIRED Pos (Deg)", () -> climbPositionMap.get(desiredPosition), null);
+    builder.addDoubleProperty(
+        "Climb DESIRED Pos (Deg) LIVE", () -> climbPositionMap.get(desiredPosition) - bringClimbInByDegrees, null);
+      builder.addDoubleProperty(
+          "Climb CURRENT Pos (Deg)", () -> climbTalonLeft.getPosition().getValueAsDouble() * 360.0,  null);
     builder.addBooleanProperty("Climb at desired", this::atDesiredPosition, null);
 
     builder.addDoubleProperty(
@@ -226,23 +230,23 @@ public class Climb extends SubsystemBase {
     //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/
     //         climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
     //     null);
-    builder.addDoubleProperty(
-        "Climb ABSOLUTE REAL (deg)",
-        () -> /*climbAbsoluteEncoder.getDistance() * 360*/ getPositionClimbRotationsReal() * 360,
-        null);
+    // builder.addDoubleProperty(
+    //     "Climb ABSOLUTE REAL (deg)",
+    //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/ getPositionClimbRotationsReal() * 360,
+    //     null);
 
-    builder.addDoubleProperty(
-        "Climb ABSOLUTE RAW (deg)",
-        () -> /*climbAbsoluteEncoder.getDistance() * 360*/
-            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
-        null);
+    // builder.addDoubleProperty(
+    //     "Climb ABSOLUTE RAW (deg)",
+    //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/
+    //         climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+    //     null);
 
-    builder.addStringProperty(
-        "Climb PID Slot",
-        () -> {
-          return currentSlot == 0 ? "CLIMBING" : "POSITIONING";
-        },
-        null);
+    // builder.addStringProperty(
+    //     "Climb PID Slot",
+    //     () -> {
+    //       return currentSlot == 0 ? "CLIMBING" : "POSITIONING";
+    //     },
+    //     null);
 
     // this should theoretically work because getAngle() returns the commanded angle
     builder.addStringProperty(

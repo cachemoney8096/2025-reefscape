@@ -1,7 +1,7 @@
 package frc.robot.subsystems.climb;
 
 public class ClimbCal {
-  public static final double CLIMBING_P = 2.5,
+  public static final double CLIMBING_P = 2.8, // 2.5,
       CLIMBING_I = 0.0,
       CLIMBING_D = 0.0,
       CLIMBING_FF = 0.0;
@@ -12,9 +12,9 @@ public class ClimbCal {
   //   public static final double CLIMB_CLIMBING_POSITION_DEGREES = 77.8 + 129.5,
   //       CLIMB_STOWED_POSITION_DEGREES = 0.0 + 129.5,
   //       CLIMB_CLIMBING_PREP_DEGREES = 167.8 + 129.5;7
-  public static final double CLIMB_CLIMBING_POSITION_DEGREES = 45.0 + 100, // 142, // 85 was 27.x
+  public static final double CLIMB_CLIMBING_POSITION_DEGREES = 77.0 + 100.0, // 45.0 + 100, // 142, // 85 was 27.x
       CLIMB_STOWED_POSITION_DEGREES = 1.0 + 100, // 63.7
-      CLIMB_CLIMBING_PREP_DEGREES = 167.0 + 100; // 76
+      CLIMB_CLIMBING_PREP_DEGREES =  143.0 + 100.0;//167.0 + 100; // 76
   public static final double
       CLIMB_MOTOR_MAX_VELOCITY_RPS =
           20000.0, // TODO increase this to speed up climb, might make diff value for positioning vs

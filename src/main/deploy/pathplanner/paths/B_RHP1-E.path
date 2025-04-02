@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4569828356726695,
-        "y": 1.1238682633739416
+        "x": 0.9916952054794521,
+        "y": 1.2527611301369859
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6269828356726697,
-        "y": 1.3676182633739418
+        "x": 2.161695205479452,
+        "y": 1.4965111301369858
       },
       "isLocked": false,
       "linkedName": "RHP1"
     },
     {
       "anchor": {
-        "x": 4.7,
-        "y": 3.0793713585805085
+        "x": 4.793193493150685,
+        "y": 3.1309717465753426
       },
       "prevControl": {
-        "x": 5.404615066225166,
-        "y": 1.655613080434814
+        "x": 5.4978085593758514,
+        "y": 1.707213468429648
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "AUTO SCORING PREP SEQUENCE",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.22372881355932212,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
