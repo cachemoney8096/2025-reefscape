@@ -140,15 +140,15 @@ public class Climb extends SubsystemBase {
 
   public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
     if (lockServo) {
-      // climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
-      // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
-      climbServoLeft.set(0.0);
-      climbServoRight.set(0.0);
+       climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+       climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      //climbServoLeft.set(0.0);
+      //climbServoRight.set(0.0);
     } else {
-      // climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
-      // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
-      climbServoLeft.set(1.0);
-      climbServoRight.set(1.0);
+       climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+       climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      //climbServoLeft.set(1.0);
+      //climbServoRight.set(1.0);
     }
   }
 
@@ -189,6 +189,10 @@ public class Climb extends SubsystemBase {
 
   public void bringClimbInFiveDegrees(){
     bringClimbInByDegrees += 5;
+  }
+
+  public void bringClimbOutFiveDegrees(){
+    bringClimbInByDegrees -= 5;
   }
 
   @Override

@@ -170,23 +170,40 @@ public class DriveController implements Sendable {
         joysticksActive = true;
     }*/
     desiredHeading += input;
+    while(desiredHeading > 180){
+      desiredHeading-=360;
+    }
+    while(desiredHeading < -180){
+      desiredHeading+=360;
+    }
   }
 
   public void rezeroControllerToGyro() {
     setDesiredHeading(gyro.getRotation2d().getDegrees());
     fieldCentricFacingAngle.resetProfile(gyro.getRotation2d());
     robotCentricFacingAngle.resetProfile(gyro.getRotation2d());
-    drivetrain.resetRotation(gyro.getRotation2d());
+    //drivetrain.seedFieldCentric();
+    drivetrain.resetRotation(gyro.getRotation2d()); //.plus(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180))
   }
 
   /** */
   public void rezeroControllerAndYawToMsuDefault() {
-    setDesiredHeading(msu.isBlue() ? 0 : 180);
-    gyro.setYaw(msu.isBlue() ? 0 : 180);
+    //setDesiredHeading(msu.isBlue() ? 0 : 180);
+    //gyro.setYaw(msu.isBlue() ? 0 : 180);
     
-    fieldCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
-    robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
-    drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
+    //fieldCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
+    //robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
+    //drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
+    //drivetrain.seedFieldCentric();
+    gyro.setYaw(0.0);
+    fieldCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(0.0));
+    robotCentricFacingAngle.resetProfile(Rotation2d.fromDegrees(0.0));
+    //drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
+    drivetrain.seedFieldCentric();
+    setDesiredHeading(0.0);
+    //drivetrain.resetRotation(Rotation2d.fromDegrees(msu.isBlue() ? 0 : 180));
+    //setDesiredHeading(msu.isBlue() ? 0 : 180);
+
   }
 
   public void setRobotCentric(boolean enabled) {
@@ -194,7 +211,8 @@ public class DriveController implements Sendable {
       //rezeroControllerToGyro();
     }
     robotRelativeActive = enabled;
-    rezeroControllerToGyro();
+    //rezeroControllerToGyro();
+    //rezeroControllerToGyro();
   }
 
   public void rezeroDriveToPose(Pose2d pose) {
@@ -214,6 +232,7 @@ public class DriveController implements Sendable {
   }
 
   public void setDesiredHeading(double d) {
+
     desiredHeading = d;
   }
 

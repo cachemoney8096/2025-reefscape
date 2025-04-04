@@ -564,13 +564,16 @@ public class RobotContainer implements Sendable {
 
     boolean blue = matchState.isBlue();
 
-    driverController.rightTrigger().onTrue(new InstantCommand(()-> driveController.setRobotCentric(true)));
+    driverController.rightTrigger().onTrue(
+    new SequentialCommandGroup(
+        new InstantCommand(()-> driveController.setRobotCentric(true)),
+        new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?-56.0:56.0))
+    ) );
     driverController
         .rightTrigger()
         .whileTrue(
             new SequentialCommandGroup(
                 new InstantCommand(() -> prepState = PrepState.INTAKE),
-                new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?(blue?-56.0:236):(blue?56.0:124.0))),
                 new IntakeSequence(
                     claw, intakeLimelight, arm, elevator, climb, prepStateUtil, drivetrain, lights),
                 new InstantCommand(() -> claw.runMotorsIntaking()),
@@ -644,22 +647,22 @@ public class RobotContainer implements Sendable {
         .y()
         .onTrue(
             new InstantCommand(
-                () -> driveController.setDesiredHeading(matchState.isBlue() ? 0 : 180)));
+                () -> driveController.setDesiredHeading(0.0)));
     driverController
         .b()
         .onTrue(
             new InstantCommand(
-                () -> driveController.setDesiredHeading(matchState.isBlue() ? 270 : 90)));
+                () -> driveController.setDesiredHeading(270.0)));
     driverController
         .a()
         .onTrue(
             new InstantCommand(
-                () -> driveController.setDesiredHeading(matchState.isBlue() ? 180 : 0)));
+                () -> driveController.setDesiredHeading(180.0)));
     driverController
         .x()
         .onTrue(
             new InstantCommand(
-                () -> driveController.setDesiredHeading(matchState.isBlue() ? 90 : 270)));
+                () -> driveController.setDesiredHeading(90.0)));
     driverController
         .povUp()
         .onTrue(
@@ -727,20 +730,22 @@ public class RobotContainer implements Sendable {
                   driveController.setRobotCentric(true);
                 })
                  */
-    operatorController
+    /*operatorController
         .povDown()
-        .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+        .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));*/
     operatorController
         .povLeft()
         .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
     //operatorController.povRight().onTrue(new InstantCommand(() -> climb.stopClimbMovement()));
     operatorController.povRight().onTrue(new InstantCommand(()->climb.bringClimbInFiveDegrees()));
+    operatorController.povDown().onTrue(new InstantCommand(()->climb.bringClimbOutFiveDegrees()));
 
-    operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
-    operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
 
-    //operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
-    //operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
+    //operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
+    //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
+
+    operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
+    operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
 
 
     operatorController.a().onTrue(new AlgaeKnockoff(elevator));
@@ -764,6 +769,8 @@ public class RobotContainer implements Sendable {
                 () -> {
                   driveController.rezeroControllerAndYawToMsuDefault();
                   driveController.rezeroControllerAndYawToMsuDefault();
+                  //driveController.rezeroControllerToGyro();
+                  //driveController.rezeroControllerToGyro();
                 }));
 
     operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
