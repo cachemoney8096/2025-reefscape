@@ -566,7 +566,7 @@ public class RobotContainer implements Sendable {
 
     driverController.rightTrigger().onTrue(
     new SequentialCommandGroup(
-        new InstantCommand(()-> driveController.setRobotCentric(true)),
+        //new InstantCommand(()-> driveController.setRobotCentric(true)),
         new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?-56.0:56.0))
     ) );
     driverController
@@ -712,6 +712,7 @@ public class RobotContainer implements Sendable {
         .povUp()
         .onTrue(
             new SequentialCommandGroup(
+                new InstantCommand(()->climb.setServoLocked(false)),
                 new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
                 new WaitUntilCommand(elevator::atDesiredPosition),
                 new InstantCommand(() -> {
@@ -741,14 +742,14 @@ public class RobotContainer implements Sendable {
     operatorController.povDown().onTrue(new InstantCommand(()->climb.bringClimbOutFiveDegrees()));
 
 
-    //operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
-    //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
+    operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
+    operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
 
-    operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
-    operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
+    //operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
+    //operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
 
 
-    operatorController.a().onTrue(new AlgaeKnockoff(elevator));
+    operatorController.a().onTrue(new InstantCommand(()->climb.setServoLocked(true)));
 
     operatorController.back().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
 
