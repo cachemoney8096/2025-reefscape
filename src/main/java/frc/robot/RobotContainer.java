@@ -36,6 +36,7 @@ import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.GoHomeSequenceFake;
 import frc.robot.commands.IntakeSequence;
 import frc.robot.commands.PrepScoreSequence;
+import frc.robot.commands.autos.Push;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
 import frc.robot.commands.autos.S1.P2_S1_J_I;
 import frc.robot.commands.autos.S1.P3_S1_I_J_K;
@@ -270,6 +271,19 @@ public class RobotContainer implements Sendable {
         "P2_S1_I_J",
         new Pair<Command, String>(
             new P2_S1_I_J(
+                drivetrain,
+                arm,
+                claw,
+                elevator,
+                intakeLimelight,
+                scoringLimelight,
+                matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "PUSH AUTO",
+        new Pair<Command, String>(
+            new Push(
                 drivetrain,
                 arm,
                 claw,
@@ -698,12 +712,6 @@ public class RobotContainer implements Sendable {
 
   private void configureOperatorBindings() {
     operatorController
-        .leftTrigger()
-        .onTrue(
-            new InstantCommand(
-                () -> driveController.setRobotCentric(!driveController.robotRelativeActive)));
-
-    operatorController
         .rightTrigger()
         .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.2)));
     operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
@@ -714,6 +722,7 @@ public class RobotContainer implements Sendable {
             new SequentialCommandGroup(
                 new InstantCommand(()->climb.setServoLocked(false)),
                 new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+                new InstantCommand(() -> driveController.setThrottle(0.15)),
                 new WaitUntilCommand(elevator::atDesiredPosition),
                 new InstantCommand(() -> {
                     climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
@@ -736,17 +745,16 @@ public class RobotContainer implements Sendable {
         .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));*/
     operatorController
         .povLeft()
-        .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+        .onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
     //operatorController.povRight().onTrue(new InstantCommand(() -> climb.stopClimbMovement()));
-    operatorController.povRight().onTrue(new InstantCommand(()->climb.bringClimbInFiveDegrees()));
+    operatorController.povRight().onTrue(new InstantCommand(()->{climb.bringClimbInFiveDegrees();System.out.println("bringing climb in");}));
     operatorController.povDown().onTrue(new InstantCommand(()->climb.bringClimbOutFiveDegrees()));
 
+    //operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
+    //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
 
-    operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
-    operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
-
-    //operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
-    //operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
+    operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
+    operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
 
 
     operatorController.a().onTrue(new InstantCommand(()->climb.setServoLocked(true)));

@@ -15,10 +15,6 @@ public class FinishScore extends SequentialCommandGroup {
   public FinishScore(Claw claw, Elevator elevator, Arm arm, ElevatorHeight height, Lights lights) {
     addCommands(
         new InstantCommand(() -> System.out.println("entered finishscore")),
-        new WaitUntilCommand(
-            () -> {
-              return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
-            }),
         new InstantCommand(() -> System.out.println("passed wait")),
         new InstantCommand(() -> claw.runMotorsScoring()),
         new WaitCommand(1.0),

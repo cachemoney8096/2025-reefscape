@@ -142,8 +142,8 @@ public class Climb extends SubsystemBase {
     if (lockServo) {
        //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
        //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
-      climbServoLeft.set(0.75);
-      climbServoRight.set(0.75);
+      climbServoLeft.set(0.65);
+      climbServoRight.set(0.65);
     } else {
        //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
        //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
@@ -256,7 +256,7 @@ public class Climb extends SubsystemBase {
     builder.addStringProperty(
         "Servo DESIRED Pos",
         () -> {
-          return climbServoLeft.getAngle() == ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES
+          return climbServoLeft.getAngle() == 0.65
               ? "UNLOCKED"
               : "LOCKED";
         },
