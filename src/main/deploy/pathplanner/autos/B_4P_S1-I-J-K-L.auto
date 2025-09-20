@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING SEQUENCE"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "B_I-LHP1"
@@ -20,6 +26,12 @@
           "type": "path",
           "data": {
             "pathName": "B_LHP1-J"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING SEQUENCE"
           }
         },
         {

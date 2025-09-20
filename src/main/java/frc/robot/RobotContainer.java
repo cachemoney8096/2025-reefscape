@@ -8,7 +8,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -19,21 +18,25 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AlgaeKnockoff;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
-import frc.robot.commands.AutoScoringSequence;
 import frc.robot.commands.DeepClimbPrep;
 import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
+import frc.robot.commands.GoHomeSequenceFake;
 import frc.robot.commands.IntakeSequence;
 import frc.robot.commands.PrepScoreSequence;
+import frc.robot.commands.autos.Push;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
 import frc.robot.commands.autos.S1.P2_S1_J_I;
 import frc.robot.commands.autos.S1.P3_S1_I_J_K;
@@ -57,14 +60,20 @@ import frc.robot.subsystems.IntakeLimelight.IntakeLimelightConstants;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.drive.DriveController;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
+import frc.robot.utils.PrepStateUtil;
+import frc.robot.utils.PrepStateUtil.INTAKE_CLIMB_LOCATION;
+import frc.robot.utils.PrepStateUtil.SCORE_HEIGHT;
 import java.util.TreeMap;
 
 /**
@@ -84,6 +93,8 @@ public class RobotContainer implements Sendable {
   /* Pair of the command for an auto and its name */
   private SendableChooser<Pair<Command, String>> autonChooser = new SendableChooser<>();
 
+  private SendableChooser<String> intakeLocationChooser = new SendableChooser<>();
+
   /* Subsystems */
   public Arm arm;
   public Claw claw;
@@ -99,7 +110,8 @@ public class RobotContainer implements Sendable {
   public enum PrepState {
     OFF,
     SCORE,
-    CLIMB
+    CLIMB,
+    INTAKE
   }
 
   /* Prep states */
@@ -116,15 +128,22 @@ public class RobotContainer implements Sendable {
 
   public PrepState prepState = PrepState.OFF;
   public IntakeClimbLocation preppedLocation = IntakeClimbLocation.LEFT;
-  public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
+  // public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
+  public static ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L3;
   public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
   /* Garbage from phoenix tuner */
   private double MaxSpeed =
-      TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond); // kSpeedAt12Volts desired top speed
+      TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond); // kSpeedAt12Volts desired
+  // top
+  // speed
   private double MaxAngularRate =
-      Units.RotationsPerSecond.of(0.75).in(Units.RadiansPerSecond); // 3/4 of a rotation per second
+      Units.RotationsPerSecond.of(2.5).in(Units.RadiansPerSecond); // 3/4 of a
+  // rotation
+  // per second
   // max angular velocity
+
+  private PrepStateUtil prepStateUtil = new PrepStateUtil();
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final SwerveRequest.FieldCentric drive =
@@ -133,24 +152,86 @@ public class RobotContainer implements Sendable {
           .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
           .withDriveRequestType(
               DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+  // private final SwerveRequest.FieldCentricFacingAngle drive = new
+  // SwerveRequest.FieldCentricFacingAngle()
+  // .withDeadband(MaxSpeed * 0.1)
+  // .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+  // .withDriveRequestType(
+  // DriveRequestType.OpenLoopVoltage);
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-  private final SwerveRequest.RobotCentric forwardStraight =
+  private final SwerveRequest.RobotCentric robotCentricDrive =
       new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  private final SwerveRequest.FieldCentricFacingAngle driveWithAngleController =
+      new SwerveRequest.FieldCentricFacingAngle()
+          .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  // TODO maybe add withDriveRequestType(DriveRequestType.OpenLoopVoltage) if
+  // encountering issues?
 
-  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  private final Telemetry logger = new Telemetry(MaxSpeed);
+
+  public final CommandSwerveDrivetrain drivetrain;
+
+  public DriveController driveController;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
-    matchState = ms;
-
     /* Subsystems */
     arm = new Arm();
     claw = new Claw();
     climb = new Climb();
     // drive = new DriveSubsystem(ms);
+    driveWithAngleController.HeadingController.setPID(7.0, 0.0, 0); // TODO was 10
     elevator = new Elevator();
     lights = new Lights();
+    /* Named commands here */
+
+    SequentialCommandGroup intake = new SequentialCommandGroup(
+        new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
+        new AutoIntakeSequence(elevator, arm, claw, lights));
+
+    NamedCommands.registerCommand(
+        "AUTO INTAKE SEQUENCE",
+        intake
+        );
+
+    NamedCommands.registerCommand("FINISH INTAKE", 
+    new SequentialCommandGroup(
+        new InstantCommand(() -> claw.runMotorsIntaking()),
+        new WaitUntilCommand(claw::beamBreakSeesObject),
+        new InstantCommand(() -> claw.stopMotors()),
+        new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL))
+    ));
+
+    SequentialCommandGroup prep = new SequentialCommandGroup(
+        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
+        new AutoScoringPrepSequence(elevator, arm, lights));
+
+    NamedCommands.registerCommand(
+        "AUTO SCORING PREP SEQUENCE",
+        prep
+        );
+
+    /*NamedCommands.registerCommand(
+    "AUTO SCORING SEQUENCE",
+    new SequentialCommandGroup(
+            new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
+                    new AutoScoringSequence(claw)
+    ));*/
+
+    SequentialCommandGroup score =
+        new SequentialCommandGroup(
+            new InstantCommand(()->pathCmd = "AUTO SCORING SEQUENCE"),
+            new InstantCommand(() -> claw.runMotorsScoring()),
+            new WaitCommand(1.0),
+            new InstantCommand(() -> claw.stopMotors()));
+
+    NamedCommands.registerCommand(
+        "AUTO SCORING SEQUENCE", score);
+    matchState = ms;
+    drivetrain = TunerConstants.createDrivetrain();
+    driveController = new DriveController(drivetrain, matchState, driverController);
+
     scoringLimelight =
         new ScoringLimelight(
             ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,
@@ -162,36 +243,27 @@ public class RobotContainer implements Sendable {
             IntakeLimelightConstants.INTAKE_LIMELIGHT_HEIGHT_METERS,
             0.0); // ""
 
-    /* Named commands here */
-
-    NamedCommands.registerCommand(
-        "AUTO INTAKE SEQUENCE",
-        new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE")
-            .andThen(new AutoIntakeSequence(elevator, arm, claw, lights)));
-
-    NamedCommands.registerCommand(
-        "AUTO SCORING PREP SEQUENCE",
-        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE")
-            .andThen(new AutoScoringPrepSequence(elevator, arm, claw, lights)));
-
-    NamedCommands.registerCommand(
-        "AUTO SCORING SEQUENCE",
-        new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE")
-            .andThen(new AutoScoringSequence(arm, elevator, claw)));
+    drivetrain.registerTelemetry(logger::telemeterize);
 
     /* Configure controller bindings */
     configureDriverBindings();
     configureOperatorBindings();
 
     /* Shuffleboard */
-    Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
+    // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
     Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
     Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
     Shuffleboard.getTab("Subsystems").add(climb.getName(), climb);
     Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
+    Shuffleboard.getTab("Subsystems").add("Drive Controller", driveController);
+    Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
 
     driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
     operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+
+    intakeLocationChooser.addOption("LEFT", "LEFT");
+    intakeLocationChooser.addOption("RIGHT", "RIGHT");
+    SmartDashboard.putData(intakeLocationChooser);
 
     /* Autonchooser config */
     // scoring location 1
@@ -199,6 +271,19 @@ public class RobotContainer implements Sendable {
         "P2_S1_I_J",
         new Pair<Command, String>(
             new P2_S1_I_J(
+                drivetrain,
+                arm,
+                claw,
+                elevator,
+                intakeLimelight,
+                scoringLimelight,
+                matchState.isRed()),
+            null));
+
+    autonChooser.addOption(
+        "PUSH AUTO",
+        new Pair<Command, String>(
+            new Push(
                 drivetrain,
                 arm,
                 claw,
@@ -411,6 +496,15 @@ public class RobotContainer implements Sendable {
     SmartDashboard.putData(autonChooser);
   }
 
+  public void setDefaultLocation(){
+    if(intakeLocationChooser.getSelected() == "LEFT"){
+        prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT);
+    }
+    else{
+        prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT);
+    }
+  }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -420,82 +514,116 @@ public class RobotContainer implements Sendable {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureDriverBindings() {
-    drivetrain.setDefaultCommand(
+  private void
+      configureDriverBindings() { // maybe add ternerary for robot relative based on prep state?
+    // TODO
+    /* drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(
-            () ->
-                drive
-                    .withVelocityX(
-                        -driverController.getLeftY()
-                            * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(
-                        -driverController.getLeftX()
-                            * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(
-                        -driverController.getRightX()
-                            * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            ));
+        drivetrain.applyRequest(() ->
+            drive.withVelocityX(-driverController.getLeftY() * MaxSpeed * climb.getThrottle()) // Drive forward with negative Y (forward)
+                .withVelocityY(-driverController.getLeftX() * MaxSpeed  * climb.getThrottle()) // Drive left with negative X (left)
+                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * climb.getThrottle()) // Drive counterclockwise with negative X (left)
+        )
+    );*/
+
     /* prep score */
     driverController
-        .rightBumper()
+        .leftBumper()
         .onTrue(
             new PrepScoreSequence(
                     arm,
                     elevator,
                     scoringLimelight,
                     climb,
-                    preppedHeight,
-                    preppedScoringLocation,
+                    prepStateUtil,
                     drivetrain,
                     matchState,
                     lights)
-                .beforeStarting(() -> prepState = PrepState.SCORE));
+                .beforeStarting(
+                    () -> {
+                      prepState = PrepState.SCORE;
+                      System.out.println(prepStateUtil.getPrepScoreHeight().toString());
+                      driveController.setRobotCentric(true);
+                    })
+    );
     /* climb prep */
-    driverController
+    /*driverController
         .back()
         .onTrue(
             new DeepClimbPrep(
                     climb,
                     arm,
                     scoringLimelight,
-                    preppedLocation,
+                    prepStateUtil,
                     matchState,
                     drivetrain,
                     elevator,
                     lights)
-                .beforeStarting(() -> prepState = PrepState.CLIMB));
+                .beforeStarting(() -> prepState = PrepState.CLIMB));*/
+
+    Command rumbleBriefly =
+        new SequentialCommandGroup(
+            new InstantCommand(
+                () -> {
+                  driverController.getHID().setRumble(RumbleType.kBothRumble, 1.0);
+                }),
+            new InstantCommand(() -> System.out.println("rumble set")),
+            new WaitCommand(0.25),
+            new InstantCommand(() -> System.out.println("rumble wait ended")),
+            new InstantCommand(
+                () -> {
+                  driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+                }));
     /* intake */
+
+    boolean blue = matchState.isBlue();
+
+    driverController.rightTrigger().onTrue(
+    new SequentialCommandGroup(
+        //new InstantCommand(()-> driveController.setRobotCentric(true)),
+        new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?-56.0:56.0))
+    ) );
     driverController
-        .leftTrigger()
+        .rightTrigger()
         .whileTrue(
             new SequentialCommandGroup(
+                new InstantCommand(() -> prepState = PrepState.INTAKE),
                 new IntakeSequence(
-                    claw,
-                    intakeLimelight,
-                    arm,
-                    elevator,
-                    climb,
-                    preppedLocation,
-                    drivetrain,
-                    lights),
-                new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_INTAKE)),
-                new RunCommand(() -> claw.runMotorsIntaking())
-                    .until(claw::beamBreakSeesObject)
-                    .andThen(
-                        () -> {
-                          new InstantCommand(() -> claw.stopMotors());
-                          new ConditionalCommand(
-                              new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
-                              new InstantCommand(),
-                              claw::beamBreakSeesObject);
-                        })));
-    driverController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
+                    claw, intakeLimelight, arm, elevator, climb, prepStateUtil, drivetrain, lights),
+                new InstantCommand(() -> claw.runMotorsIntaking()),
+                new WaitUntilCommand(claw::beamBreakSeesObject),
+                new InstantCommand(() -> claw.stopMotors()),
+                new InstantCommand(() -> prepState = PrepState.OFF),
+                new ConditionalCommand(
+                    new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
+                    new InstantCommand(),
+                    claw::beamBreakSeesObject)));
+    driverController
+        .rightTrigger()
+        .onFalse(
+            new SequentialCommandGroup(
+                new InstantCommand(
+                    () -> {
+                      claw.stopMotors();
+                      prepState = PrepState.OFF;
+                    }),
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new WaitCommand(0.5),
+                        new GoHomeSequenceFake(climb, elevator, arm, claw, lights)),
+                    new InstantCommand(),
+                    () -> claw.beamBreakSeesObject())));
 
     TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
 
     selectCommandMap.put(
-        PrepState.SCORE, new FinishScore(claw, elevator, arm, preppedHeight, lights));
+        PrepState.SCORE,
+        new SequentialCommandGroup(
+            new FinishScore(claw, elevator, arm, preppedHeight, lights),
+            new InstantCommand(()-> driveController.setRobotCentric(false))
+            // new WaitUntilCommand(()->!claw.beamBreakSeesObject()),
+            // new GoHomeSequenceFake(climb, elevator, arm, claw, lights)
+            ));
     selectCommandMap.put(PrepState.CLIMB, new DeepClimbScoringSequence(climb, elevator, lights));
 
     SelectCommand<PrepState> driverRightTriggerCommand =
@@ -506,54 +634,59 @@ public class RobotContainer implements Sendable {
               prepState = PrepState.OFF;
               return h;
             });
+
     /* finish score */
     driverController
-        .rightTrigger()
+        .leftTrigger()
         .onTrue(
             new ConditionalCommand(
-                new InstantCommand(() -> claw.runMotorsScoring()),
-                driverRightTriggerCommand,
-                () -> prepState == PrepState.OFF));
+                    new InstantCommand(() -> claw.runMotorsScoring()),
+                    driverRightTriggerCommand,
+                    () -> prepState == PrepState.OFF)
+                .beforeStarting(new InstantCommand(() -> System.out.println("right trigger"))));
 
     driverController
-        .rightTrigger()
+        .leftTrigger()
         .onFalse(
             new ConditionalCommand(
-                new InstantCommand(() -> claw.stopMotors()),
-                new InstantCommand(),
-                () -> prepState == PrepState.OFF));
+                    new InstantCommand(() -> claw.stopMotors()),
+                    new InstantCommand(),
+                    () -> prepState == PrepState.OFF)
+                .beforeStarting(new InstantCommand(() -> System.out.println("right trigger"))));
 
-    // TODO check these
+    // driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
+    // driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
+
     driverController
         .y()
         .onTrue(
-            drivetrain.applyRequest(
-                () ->
-                    point.withModuleDirection(
-                        Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
+            new InstantCommand(
+                () -> driveController.setDesiredHeading(0.0)));
     driverController
         .b()
         .onTrue(
-            drivetrain.applyRequest(
-                () ->
-                    point.withModuleDirection(
-                        Rotation2d.fromDegrees(matchState.isBlue() ? 90 : 270))));
+            new InstantCommand(
+                () -> driveController.setDesiredHeading(270.0)));
     driverController
         .a()
         .onTrue(
-            drivetrain.applyRequest(
-                () ->
-                    point.withModuleDirection(
-                        Rotation2d.fromDegrees(matchState.isBlue() ? 180 : 0))));
+            new InstantCommand(
+                () -> driveController.setDesiredHeading(180.0)));
     driverController
         .x()
         .onTrue(
-            drivetrain.applyRequest(
-                () ->
-                    point.withModuleDirection(
-                        Rotation2d.fromDegrees(matchState.isBlue() ? 270 : 90))));
-
-    /* TODO: CHANGE BINDINGS LATER */
+            new InstantCommand(
+                () -> driveController.setDesiredHeading(90.0)));
+    driverController
+        .povUp()
+        .onTrue(
+            new InstantCommand(
+                () -> driveController.setDesiredHeading(driveController.getDesiredHeading() + 30)));
+    driverController
+        .povDown()
+        .onTrue(
+            new InstantCommand(
+                () -> driveController.setDesiredHeading(driveController.getDesiredHeading() - 30)));
 
     // driverController
     // .povRight()
@@ -565,99 +698,93 @@ public class RobotContainer implements Sendable {
      * povDown = top right back button
      * povLeft = bottom right back button
      */
+
     /* Go home */
     driverController
         .povLeft()
         .onTrue(
-            new GoHomeSequence(climb, elevator, arm, claw, lights)
-                .beforeStarting(
-                    () -> {
-                      prepState = PrepState.OFF;
-                      drivetrain.killDriveToPose();
-                    }));
+            new ParallelCommandGroup(
+                new GoHomeSequence(climb, elevator, arm, claw, lights),
+                new InstantCommand(()->driveController.setRobotCentric(false))
+            )
+        );
   }
 
   private void configureOperatorBindings() {
-    /* Left right and center for intake and climb */
     operatorController
-        .povLeft()
-        .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.LEFT));
+        .rightTrigger()
+        .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.2)));
+    operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
+
     operatorController
         .povUp()
-        .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.CENTER));
+        .onTrue(
+            new SequentialCommandGroup(
+                new InstantCommand(()->climb.setServoLocked(false)),
+                new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
+                new InstantCommand(() -> driveController.setThrottle(0.15)),
+                new WaitUntilCommand(elevator::atDesiredPosition),
+                new InstantCommand(() -> {
+                    climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
+                    arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
+                    driveController.setRobotCentric(true);
+                })
+
+            ));
+                /** 
+                 * () -> {
+                  elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
+                  
+                  climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
+                  arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
+                  driveController.setRobotCentric(true);
+                })
+                 */
+    /*operatorController
+        .povDown()
+        .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));*/
     operatorController
-        .povRight()
-        .onTrue(new InstantCommand(() -> preppedLocation = IntakeClimbLocation.RIGHT));
-    /* Height for scoring */
-    operatorController
-        .a()
-        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L4));
-    operatorController
-        .b()
-        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L3));
-    operatorController
-        .x()
-        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2));
+        .povLeft()
+        .onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
+    //operatorController.povRight().onTrue(new InstantCommand(() -> climb.stopClimbMovement()));
+    operatorController.povRight().onTrue(new InstantCommand(()->{climb.bringClimbInFiveDegrees();System.out.println("bringing climb in");}));
+    operatorController.povDown().onTrue(new InstantCommand(()->climb.bringClimbOutFiveDegrees()));
+
+    //operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
+    //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
+
+    operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
+    operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
+
+
+    operatorController.a().onTrue(new InstantCommand(()->climb.setServoLocked(true)));
+
+    operatorController.back().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
+
     operatorController
         .y()
-        .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
+        .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L1)));
+    operatorController
+        .x()
+        .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L2)));
+    operatorController
+        .b()
+        .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L3)));
 
-    /* Left and right for scoring */
-    operatorController
-        .leftBumper()
-        .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.LEFT));
-    operatorController
-        .rightBumper()
-        .onTrue(new InstantCommand(() -> preppedScoringLocation = ScoringLocation.RIGHT));
-    new Rotation2d();
-    /*
-     * Testing code for climb, arm, and elevator
-     * operatorController
-     * .y()
-     * .whileTrue(new RunCommand(() -> arm.testArmMovementUp()));
-     * operatorController
-     * .y()
-     * .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
-     * operatorController
-     * .a()
-     * .whileTrue(new RunCommand(() -> arm.testArmMovementDown()));
-     * operatorController
-     * .a()
-     * .onFalse(new InstantCommand(() -> arm.stopArmMovement()));
-     * operatorController
-     * .povUp()
-     * .whileTrue(new RunCommand(() -> climb.testClimbMovementUp()));
-     * operatorController
-     * .povUp()
-     * .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
-     * operatorController
-     * .povDown()
-     * .whileTrue(new RunCommand(() -> climb.testClimbMovementDown()));
-     * operatorController
-     * .povDown()
-     * .onFalse(new InstantCommand(() -> climb.stopClimbMovement()));
-     * operatorController
-     * .povRight()
-     * .whileTrue(new RunCommand(() -> elevator.testElevatorMovementUp()));
-     * operatorController
-     * .povRight()
-     * .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
-     * operatorController
-     * .povLeft()
-     * .whileTrue(new RunCommand(() -> elevator.testElevatorMovementDown()));
-     * operatorController
-     * .povLeft()
-     * .onFalse(new InstantCommand(() -> elevator.stopElevatorMovement()));
-     */
     operatorController
         .start()
         .onTrue(
             new InstantCommand(
-                () ->
-                    drivetrain.resetRotation(
-                        Rotation2d.fromDegrees(matchState.isBlue() ? 0 : 180))));
+                () -> {
+                  driveController.rezeroControllerAndYawToMsuDefault();
+                  driveController.rezeroControllerAndYawToMsuDefault();
+                  //driveController.rezeroControllerToGyro();
+                  //driveController.rezeroControllerToGyro();
+                }));
 
-    operatorController.back().whileTrue(new RunCommand(() -> claw.runMotorsOuttake(), claw));
+    operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
+    operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
+
   }
 
   /**
@@ -671,10 +798,40 @@ public class RobotContainer implements Sendable {
 
   @Override
   public void initSendable(SendableBuilder builder) {
+    // super.initSendable(builder);
     builder.addStringProperty("Prep State", () -> prepState.toString(), null);
-    builder.addStringProperty("Prepped Location", () -> preppedLocation.toString(), null);
-    builder.addStringProperty("Prepped Height", () -> preppedHeight.toString(), null);
+    builder.addStringProperty("Path CMD", () -> pathCmd, null);
     builder.addStringProperty(
-        "Prepped Scoring Location", () -> preppedScoringLocation.toString(), null);
+        "Prepped Intake/Climb", () -> prepStateUtil.getPrepIntakeClimbLocation().toString(), null);
+    builder.addStringProperty(
+        "Prepped Height", () -> prepStateUtil.getPrepScoreHeight().toString(), null);
+    builder.addStringProperty(
+        "Prepped Scoring Location", () -> prepStateUtil.getPrepScoreLocation().toString(), null);
+    builder.addDoubleProperty("PrepStateUtil deg", () -> prepStateUtil.getDegrees(), null);
+    builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
+    builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
+    builder.addDoubleProperty(
+        "odometry rotation deg", () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
+    builder.addBooleanProperty(
+        "robot relative enabled", () -> driveController.robotRelativeActive, null);
+    builder.addDoubleProperty("desired heading", () -> driveController.getDesiredHeading(), null);
+    builder.addDoubleProperty(
+        "gyro rotation deg", () -> drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
+    builder.addDoubleProperty(
+        "broken module encoder 2",
+        () -> drivetrain.getModule(2).getEncoder().getAbsolutePosition().getValueAsDouble(),
+        null);
+    builder.addDoubleProperty(
+        "good module encoder 1",
+        () -> drivetrain.getModule(1).getEncoder().getAbsolutePosition().getValueAsDouble(),
+        null);
+    builder.addDoubleProperty(
+        "good module encoder 0",
+        () -> drivetrain.getModule(0).getEncoder().getAbsolutePosition().getValueAsDouble(),
+        null);
+    builder.addDoubleProperty(
+        "good module encoder 3",
+        () -> drivetrain.getModule(3).getEncoder().getAbsolutePosition().getValueAsDouble(),
+        null);
   }
 }

@@ -11,15 +11,33 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING SEQUENCE"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "B_F-RHP1"
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "FINISH INTAKE"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "B_RHP1-E"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING SEQUENCE"
           }
         }
       ]

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.191875,
-        "y": 2.465
+        "x": 5.003553082191781,
+        "y": 3.266202910958904
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.070625,
-        "y": 1.295
+        "x": 5.018081227887144,
+        "y": 1.4356565533430095
       },
       "isLocked": false,
       "linkedName": "E"
     },
     {
       "anchor": {
-        "x": 1.56,
-        "y": 0.8440625
+        "x": 0.9916952054794521,
+        "y": 1.2527611301369859
       },
       "prevControl": {
-        "x": 2.6690625,
-        "y": 1.3071875
+        "x": 2.1007577054794515,
+        "y": 1.7158861301369857
       },
       "nextControl": null,
       "isLocked": false,
@@ -36,7 +36,12 @@
       "name": "AUTO INTAKE SEQUENCE",
       "waypointRelativePos": 0.5078376205787781,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AUTO INTAKE SEQUENCE"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -49,13 +54,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -128.3455749539934
+    "rotation": 55.71939462384017
   },
   "reversed": false,
-  "folder": "S3_R",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.30027744918548
+    "rotation": 119.57715759136376
   },
   "useDefaultConstraints": true
 }

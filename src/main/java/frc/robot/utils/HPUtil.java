@@ -4,7 +4,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 public class HPUtil {
   private static final double OFFSET_X_METERS =
@@ -23,8 +23,8 @@ public class HPUtil {
     CENTER
   }
 
-  private static TreeMap<Pair<Station, Position>, Pair<Double, Double>> blueMap =
-      new TreeMap<Pair<Station, Position>, Pair<Double, Double>>();
+  private static HashMap<Pair<Station, Position>, Pair<Double, Double>> blueMap =
+      new HashMap<Pair<Station, Position>, Pair<Double, Double>>();
 
   public static Translation2d getTranslation(Station station, Position position, boolean isRed) {
     blueMap.put(

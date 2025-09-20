@@ -11,10 +11,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class Claw extends SubsystemBase {
-  public TalonFX rollerMotor = new TalonFX(RobotMap.ROLLER_MOTOR_CAN_ID);
+  public TalonFX rollerMotor = new TalonFX(RobotMap.ROLLER_MOTOR_CAN_ID, "rio");
 
-  public DigitalInput beamBreakLeft = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_LEFT);
-  public DigitalInput beamBreakRight = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_RIGHT);
+  public DigitalInput beamBreakTop = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_TOP);
+  public DigitalInput beamBreakBottom = new DigitalInput(RobotMap.CLAW_BEAM_BREAK_DIO_BOTTOM);
+  // public DigitalInput colorSensor = new DigitalInput(RobotMap.CLAW_COLOR_SENSOR_DIO);
 
   public Claw() {
     initTalons();
@@ -23,7 +24,7 @@ public class Claw extends SubsystemBase {
   private void initTalons() {
     TalonFXConfigurator cfg = rollerMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
-    toApply.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    toApply.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.CurrentLimits.SupplyCurrentLimit = ClawCal.CLAW_ROLLERS_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimit =
@@ -36,16 +37,20 @@ public class Claw extends SubsystemBase {
     cfg.apply(toApply);
   }
 
-  public boolean beamBreakLeft() {
-    return !beamBreakLeft.get();
+  public boolean beamBreakTop() {
+    return !beamBreakTop.get();
   }
 
-  public boolean beamBreakRight() {
-    return !beamBreakRight.get();
+  public boolean beamBreakBottom() {
+    return !beamBreakBottom.get();
   }
+
+  // public boolean colorSensor() {
+  //   return !colorSensor.get();
+  // }
 
   public boolean beamBreakSeesObject() {
-    return beamBreakLeft() || beamBreakRight();
+    return beamBreakTop() || beamBreakBottom();
   }
 
   public void runMotorsIntaking() {
@@ -57,7 +62,7 @@ public class Claw extends SubsystemBase {
   }
 
   public void runMotorsOuttake() {
-    rollerMotor.set(ClawCal.CLAW_ROLLERS_SCORING_SPEED_PERCENT);
+    rollerMotor.set(ClawCal.CLAW_ROLLERS_OUTTAKING_SPEED_PERCENT);
   }
 
   public void stopMotors() {
@@ -69,8 +74,13 @@ public class Claw extends SubsystemBase {
     super.initSendable(builder);
 
     builder.addBooleanProperty("Claw Beam Break Sees Object", () -> beamBreakSeesObject(), null);
-    builder.addBooleanProperty("Claw Beam Break Left Status", this::beamBreakLeft, null);
-    builder.addBooleanProperty("Claw Beam Break Right Status", this::beamBreakRight, null);
+    builder.addBooleanProperty("Claw Beam Break Top Status", this::beamBreakTop, null);
+    builder.addBooleanProperty("Claw Beam Break Bottom Status", this::beamBreakBottom, null);
+    // builder.addBooleanProperty("Claw Color Sensor Status", this::colorSensor, null);
     builder.addDoubleProperty("Claw current speed (percent)", () -> rollerMotor.get(), null);
+    builder.addDoubleProperty(
+        "Output voltage commanded", () -> rollerMotor.getMotorVoltage().getValueAsDouble(), null);
+    builder.addDoubleProperty(
+        "Output amps", () -> rollerMotor.getTorqueCurrent().getValueAsDouble(), null);
   }
 }

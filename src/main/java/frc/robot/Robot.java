@@ -4,11 +4,16 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
+// import org.littletonrobotics.urcl.URCL;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -30,6 +35,11 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer(matchState);
+    DataLogManager.start();
+    DriverStation.startDataLog(DataLogManager.getLog()); // log joystick data
+    // URL.start();
+    SignalLogger.setPath("/u/logs/");
+    SignalLogger.start();
   }
 
   /**
@@ -55,8 +65,26 @@ public class Robot extends TimedRobot {
     m_robotContainer.lights.setLEDColor(LightCode.DISABLED);
   }
 
+  public static Transform2d robotToTag;
+
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    /*m_robotContainer.scoringLimelight.resetOdometryWithTags(m_robotContainer.drivetrain);
+    /* for testing, TODO remove */
+    /*BooleanSupplier checkForTag =
+        () -> {
+          Optional<Transform2d> robotToTagOptional = m_robotContainer.scoringLimelight.checkForTag();
+          if (robotToTagOptional.isPresent()) {
+            robotToTag = robotToTagOptional.get();
+            return true;
+          }
+          return false;
+        };
+    if(checkForTag.getAsBoolean()){
+      System.out.println("current pose: " + m_robotContainer.drivetrain.getState().Pose + "\nrobot to tag : " + robotToTag.toString() + "\n") ; Pose2d targetPose = m_robotContainer.drivetrain.getState().Pose.plus(robotToTag); System.out.println("target pose: " + targetPose.toString() + "\n");
+    }*/
+    m_robotContainer.setDefaultLocation();
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override

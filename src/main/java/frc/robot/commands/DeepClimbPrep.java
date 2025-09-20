@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
 import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
@@ -22,6 +21,7 @@ import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
+import frc.robot.utils.PrepStateUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -33,12 +33,14 @@ public class DeepClimbPrep extends SequentialCommandGroup {
       Climb climb,
       Arm arm,
       ScoringLimelight scoringLimelight,
-      RobotContainer.IntakeClimbLocation location,
+      PrepStateUtil prepStateUtil,
       MatchStateUtil msu,
       CommandSwerveDrivetrain drive,
       Elevator elevator,
       Lights lights) {
     addRequirements(climb, arm);
+
+    final PrepStateUtil.INTAKE_CLIMB_LOCATION location = prepStateUtil.getPrepIntakeClimbLocation();
 
     BooleanSupplier checkForTag =
         () -> {
@@ -74,14 +76,14 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                 new InstantCommand(
                     () -> {
                       // translate as needed
-                      if (location == RobotContainer.IntakeClimbLocation.RIGHT) {
+                      if (location == PrepStateUtil.INTAKE_CLIMB_LOCATION.RIGHT) {
                         robotToTag =
                             robotToTag.plus(
                                 new Transform2d(
                                     ClimbUtil.getClimbTransform(
                                         ClimbUtil.CagePosition.RIGHT, msu.isRed()),
                                     new Rotation2d()));
-                      } else if (location == RobotContainer.IntakeClimbLocation.LEFT) {
+                      } else if (location == PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT) {
                         robotToTag =
                             robotToTag.plus(
                                 new Transform2d(
@@ -99,10 +101,10 @@ public class DeepClimbPrep extends SequentialCommandGroup {
                     }),
                 new InstantCommand(
                     () -> {
-                      drive.driveToPose(targetPose);
+                      drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
-            checkForTag),
+            () -> false),
         deepClimbPrep,
         new InstantCommand(() -> lights.setLEDColor(LightCode.READY_TO_CLIMB)));
   }

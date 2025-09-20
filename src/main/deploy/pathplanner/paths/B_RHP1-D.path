@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.56,
-        "y": 0.8440625
+        "x": 0.9916952054794521,
+        "y": 1.2527611301369859
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.535,
-        "y": 1.3559375
+        "x": 1.9666952054794518,
+        "y": 1.7646361301369853
       },
       "isLocked": false,
       "linkedName": "RHP1"
@@ -36,13 +36,12 @@
       "name": "AUTO SCORING PREP SEQUENCE",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "AUTO SCORING SEQUENCE",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AUTO SCORING PREP SEQUENCE"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -58,10 +57,10 @@
     "rotation": -121.18497465873838
   },
   "reversed": false,
-  "folder": "S3_B",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -128.3455749539934
+    "rotation": 55.71939462384017
   },
   "useDefaultConstraints": true
 }

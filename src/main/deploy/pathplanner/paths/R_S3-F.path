@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 5.4721875,
-        "y": 2.6478125
+        "x": 5.424272260273973,
+        "y": 3.251177226027397
       },
       "prevControl": {
-        "x": 6.3253125,
-        "y": 2.196875
+        "x": 6.277397260273973,
+        "y": 2.800239726027397
       },
       "nextControl": null,
       "isLocked": false,
@@ -36,13 +36,12 @@
       "name": "AUTO SCORING PREP SEQUENCE",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "AUTO SCORING SEQUENCE",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AUTO SCORING PREP SEQUENCE"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -55,13 +54,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.9314171781375
+    "rotation": 121.01729117499967
   },
   "reversed": false,
-  "folder": "S3_R",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

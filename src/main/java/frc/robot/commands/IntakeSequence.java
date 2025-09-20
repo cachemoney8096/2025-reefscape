@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
 import frc.robot.subsystems.IntakeLimelight.IntakeLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
@@ -20,6 +19,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.utils.HPUtil;
+import frc.robot.utils.PrepStateUtil;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -33,14 +33,18 @@ public class IntakeSequence extends SequentialCommandGroup {
       Arm arm,
       Elevator elevator,
       Climb climb,
-      RobotContainer.IntakeClimbLocation location,
+      PrepStateUtil prepStateUtil,
       CommandSwerveDrivetrain drive,
       Lights lights) {
     /* mechanical intake sequence */
+    final PrepStateUtil.INTAKE_CLIMB_LOCATION location = prepStateUtil.getPrepIntakeClimbLocation();
+
     SequentialCommandGroup moveArmElevatorClaw =
         new SequentialCommandGroup(
             new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.INTAKE)),
+            new InstantCommand(() -> System.out.println("elevator desired set to intake")),
             new WaitUntilCommand(elevator::armMovementAllowed),
+            new InstantCommand(() -> System.out.println("arm movement allowed")),
             new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)),
             new WaitUntilCommand(
                 () -> {
@@ -60,6 +64,7 @@ public class IntakeSequence extends SequentialCommandGroup {
     addRequirements(claw, arm, elevator, climb);
     /* revert to manual control if we don't see a tag */
     addCommands(
+        moveArmElevatorClaw,
         new ConditionalCommand(
             new SequentialCommandGroup(
                 /* we saw a tag */
@@ -73,7 +78,7 @@ public class IntakeSequence extends SequentialCommandGroup {
                                   .getEntry("tid")
                                   .getDouble(0.0);
                       HPUtil.Position pos =
-                          location == RobotContainer.IntakeClimbLocation.LEFT
+                          location == PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT
                               ? HPUtil.Position.LEFT
                               : HPUtil.Position.RIGHT;
                       switch (id) {
@@ -113,10 +118,9 @@ public class IntakeSequence extends SequentialCommandGroup {
                     }),
                 new InstantCommand(
                     () -> {
-                      drive.driveToPose(targetPose);
+                      drive.driveToPose(drive.getState().Pose, targetPose);
                     })),
             new InstantCommand(),
-            checkForTag),
-        moveArmElevatorClaw);
+            () -> false));
   }
 }

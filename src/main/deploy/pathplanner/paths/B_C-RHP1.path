@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.56,
-        "y": 0.8440625
+        "x": 0.9916952054794521,
+        "y": 1.2527611301369859
       },
       "prevControl": {
-        "x": 2.4253125,
-        "y": 1.514375
+        "x": 1.857007705479452,
+        "y": 1.9230736301369855
       },
       "nextControl": null,
       "isLocked": false,
@@ -36,7 +36,12 @@
       "name": "AUTO INTAKE SEQUENCE",
       "waypointRelativePos": 0.5054888464630225,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AUTO INTAKE SEQUENCE"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -49,10 +54,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -128.3455749539934
+    "rotation": 55.71939462384017
   },
   "reversed": false,
-  "folder": "S3_B",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -119.62374875117379

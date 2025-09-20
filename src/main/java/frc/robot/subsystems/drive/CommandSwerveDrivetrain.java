@@ -17,9 +17,11 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -205,9 +207,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                       .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
           new PPHolonomicDriveController(
               // PID constants for translation
-              new PIDConstants(10, 0, 0),
+              new PIDConstants(30, 0, 0),
               // PID constants for rotation
-              new PIDConstants(7, 0, 0)),
+              new PIDConstants(15, 0, 0)),
           config,
           // Assume the path needs to be flipped for Red vs Blue, this is normally the case
           () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
@@ -260,17 +262,28 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Otherwise, only check and apply the operator perspective if the DS is disabled.
      * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
      */
+    // if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+    //   DriverStation.getAlliance()
+    //       .ifPresent(
+    //           allianceColor -> {
+    //             setOperatorPerspectiveForward(
+    //                 allianceColor == Alliance.Red
+    //                     ? kRedAlliancePerspectiveRotation
+    //                     : kBlueAlliancePerspectiveRotation);
+    //             m_hasAppliedOperatorPerspective = true;
+    //           });
+    // }
+
     if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
       DriverStation.getAlliance()
           .ifPresent(
               allianceColor -> {
                 setOperatorPerspectiveForward(
-                    allianceColor == Alliance.Red
-                        ? kRedAlliancePerspectiveRotation
-                        : kBlueAlliancePerspectiveRotation);
+                    kBlueAlliancePerspectiveRotation);
                 m_hasAppliedOperatorPerspective = true;
               });
     }
+    
   }
 
   private void startSimThread() {
@@ -324,14 +337,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
   }
 
-  Command driveToPoint;
+  public Command driveToPoint;
   /** Drive to a point */
-  public void driveToPose(Pose2d targetPose) {
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(targetPose);
-    PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI);
+  public void driveToPose(Pose2d currentPose, Pose2d targetPose) {
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(currentPose, targetPose);
+    // prev max speed and acceleration was 3.0, 3.0
+    // 0.0 speed made it slow, 0.00001 made it stop, -0.01 made is fast in same direction
+    PathConstraints constraints =
+        new PathConstraints(2.0, 2.0, 2 * Math.PI, 4 * Math.PI); // TODO why don't these work
     PathPlannerPath path =
         new PathPlannerPath(
-            waypoints, constraints, null, new GoalEndState(0.0, targetPose.getRotation()));
+            waypoints,
+            constraints,
+            new IdealStartingState(0.0, currentPose.getRotation()),
+            new GoalEndState(0.0, targetPose.getRotation()));
     path.preventFlipping = true;
     driveToPoint = AutoBuilder.followPath(path);
     driveToPoint.schedule();

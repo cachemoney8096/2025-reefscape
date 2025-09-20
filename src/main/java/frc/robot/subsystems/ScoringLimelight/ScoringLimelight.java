@@ -4,6 +4,7 @@ import edu.wpi.first.hal.SimBoolean;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.LimelightHelpers.RawFiducial;
 import frc.robot.utils.LimelightHelpersOld.LimelightTarget_Fiducial;
@@ -180,6 +182,14 @@ public class ScoringLimelight extends SubsystemBase {
     // later
   }
 
+  public Pose2d getBotPose2d_wpiBlue() {
+    Pose2d limelightPoseFieldSpace =
+        LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME);
+    return new Pose2d(
+        limelightPoseFieldSpace.getTranslation(),
+        limelightPoseFieldSpace.getRotation().plus(Rotation2d.fromDegrees(173))); // TODO ANGLE HERE
+  }
+
   public RawFiducial getClosestFiducial() {
     if (fiducials == null || fiducials.length == 0) {
       throw new NoSuchTargetException("No fiducials found.");
@@ -195,6 +205,21 @@ public class ScoringLimelight extends SubsystemBase {
       }
     }
     return closest;
+  }
+
+  public void resetOdometryWithTags(CommandSwerveDrivetrain drivetrain) {
+    if (checkForTag().isPresent()) {
+      // drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(ScoringLimelightConstants.SCORING_LIMELIGHT_NAME));
+      // System.out.println("attempted to rezero from tag");
+
+      drivetrain.addVisionMeasurement(
+          getBotPose2d_wpiBlue(),
+          Timer.getFPGATimestamp()); // TODO change this, was using limelight helpers before,
+      // rotation would have been wrong
+      System.out.println("attempted to rezero from vision mesasurement");
+      System.out.println("new drivetrain pose: " + drivetrain.getState().Pose);
+      System.out.println("GET POSE BLUE: " + getBotPose2d_wpiBlue());
+    }
   }
 
   public RawFiducial getFiducialWithId(int id) {

@@ -1,0 +1,146 @@
+warning: in the working copy of 'src/main/deploy/pathplanner/paths/R_S2-G.path', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/main/deploy/pathplanner/paths/R_S2-G.path b/src/main/deploy/pathplanner/paths/R_S2-G.path[m
+[1mindex 98d6db7..8492b1d 100644[m
+[1m--- a/src/main/deploy/pathplanner/paths/R_S2-G.path[m
+[1m+++ b/src/main/deploy/pathplanner/paths/R_S2-G.path[m
+[36m@@ -58,7 +58,7 @@[m
+     "rotation": 0.0[m
+   },[m
+   "reversed": false,[m
+[31m-  "folder": "R_S2",[m
+[32m+[m[32m  "folder": null,[m
+   "idealStartingState": {[m
+     "velocity": 0,[m
+     "rotation": 0.0[m
+[1mdiff --git a/src/main/java/frc/robot/Robot.java b/src/main/java/frc/robot/Robot.java[m
+[1mindex 79212c2..140a99e 100644[m
+[1m--- a/src/main/java/frc/robot/Robot.java[m
+[1m+++ b/src/main/java/frc/robot/Robot.java[m
+[36m@@ -7,9 +7,12 @@[m [mpackage frc.robot;[m
+ import java.util.Optional;[m
+ import java.util.function.BooleanSupplier;[m
+ [m
+[32m+[m[32mimport com.ctre.phoenix6.SignalLogger;[m
+[32m+[m
+ import edu.wpi.first.math.geometry.Pose2d;[m
+ import edu.wpi.first.math.geometry.Transform2d;[m
+ import edu.wpi.first.wpilibj.DataLogManager;[m
+[32m+[m[32mimport edu.wpi.first.wpilibj.DriverStation;[m
+ import edu.wpi.first.wpilibj.TimedRobot;[m
+ import edu.wpi.first.wpilibj2.command.Command;[m
+ import edu.wpi.first.wpilibj2.command.CommandScheduler;[m
+[36m@@ -61,6 +64,10 @@[m [mpublic class Robot extends TimedRobot {[m
+     matchState.setTeleop(false);[m
+     m_robotContainer.lights.setLEDColor(LightCode.DISABLED);[m
+     DataLogManager.start();[m
+[32m+[m[32m    DriverStation.startDataLog(DataLogManager.getLog()); // log joystick data[m
+[32m+[m
+[32m+[m[32m    SignalLogger.setPath("/u/logs/");[m
+[32m+[m[32m    SignalLogger.start();[m
+   }[m
+ [m
+   public static Transform2d robotToTag;[m
+[1mdiff --git a/src/main/java/frc/robot/RobotContainer.java b/src/main/java/frc/robot/RobotContainer.java[m
+[1mindex 1ce89f8..503d896 100644[m
+[1m--- a/src/main/java/frc/robot/RobotContainer.java[m
+[1m+++ b/src/main/java/frc/robot/RobotContainer.java[m
+[36m@@ -170,14 +170,12 @@[m [mpublic class RobotContainer implements Sendable {[m
+ [m
+         private final Telemetry logger = new Telemetry(MaxSpeed);[m
+ [m
+[31m-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();[m
+[32m+[m[32m        public final CommandSwerveDrivetrain drivetrain;[m
+ [m
+         /**[m
+          * The container for the robot. Contains subsystems, OI devices, and commands.[m
+          */[m
+         public RobotContainer(MatchStateUtil ms) {[m
+[31m-                matchState = ms;[m
+[31m-[m
+                 /* Subsystems */[m
+                 arm = new Arm();[m
+                 claw = new Claw();[m
+[36m@@ -186,33 +184,40 @@[m [mpublic class RobotContainer implements Sendable {[m
+                 driveWithAngleController.HeadingController.setPID(5.0, 0.0, 0); //TODO was 10[m
+                 elevator = new Elevator();[m
+                 lights = new Lights();[m
+[31m-                scoringLimelight = new ScoringLimelight([m
+[31m-                                ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,[m
+[31m-                                ScoringLimelightConstants.SCORING_LIMELIGHT_HEIGHT_METERS,[m
+[31m-                                0.0);[m
+[31m-                intakeLimelight = new IntakeLimelight([m
+[31m-                                IntakeLimelightConstants.INTAKE_LIMELIGHT_PITCH_DEGREES,[m
+[31m-                                IntakeLimelightConstants.INTAKE_LIMELIGHT_HEIGHT_METERS,[m
+[31m-                                0.0); // ""[m
+[31m-[m
+[31m-                drivetrain.registerTelemetry(logger::telemeterize);[m
+[31m-[m
+                 /* Named commands here */[m
+ [m
+                 NamedCommands.registerCommand([m
+                                 "AUTO INTAKE SEQUENCE",[m
+[31m-                                new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE")[m
+[31m-                                                .andThen(new AutoIntakeSequence(elevator, arm, claw, lights)));[m
+[32m+[m[32m                                new SequentialCommandGroup([m
+[32m+[m[32m                                        new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),[m
+[32m+[m[32m                                        new AutoIntakeSequence(elevator, arm, claw, lights)[m
+[32m+[m[32m                                ));[m
+ [m
+                 NamedCommands.registerCommand([m
+                                 "AUTO SCORING PREP SEQUENCE",[m
+[31m-                                new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE")[m
+[31m-                                                .andThen(new AutoScoringPrepSequence(elevator, arm, claw, lights)));[m
+[32m+[m[32m                                new SequentialCommandGroup([m
+[32m+[m[32m                                        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),[m
+[32m+[m[32m                                        new AutoScoringPrepSequence(elevator, arm, claw, lights)));[m
+ [m
+                 NamedCommands.registerCommand([m
+                                 "AUTO SCORING SEQUENCE",[m
+[31m-                                new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE")[m
+[31m-                                                .andThen(new AutoScoringSequence(arm, elevator, claw)));[m
+[32m+[m[32m                                new SequentialCommandGroup([m
+[32m+[m[32m                                        new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),[m
+[32m+[m[32m                                                new AutoScoringSequence(arm, elevator, claw)[m
+[32m+[m[32m                                ));[m
+[32m+[m[32m                matchState = ms;[m
+[32m+[m[32m                drivetrain = TunerConstants.createDrivetrain();[m
+[32m+[m[41m                [m
+[32m+[m[32m                scoringLimelight = new ScoringLimelight([m
+[32m+[m[32m                                ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,[m
+[32m+[m[32m                                ScoringLimelightConstants.SCORING_LIMELIGHT_HEIGHT_METERS,[m
+[32m+[m[32m                                0.0);[m
+[32m+[m[32m                intakeLimelight = new IntakeLimelight([m
+[32m+[m[32m                                IntakeLimelightConstants.INTAKE_LIMELIGHT_PITCH_DEGREES,[m
+[32m+[m[32m                                IntakeLimelightConstants.INTAKE_LIMELIGHT_HEIGHT_METERS,[m
+[32m+[m[32m                                0.0); // ""[m
+[32m+[m
+[32m+[m[32m                drivetrain.registerTelemetry(logger::telemeterize);[m
+ [m
+                 /* Configure controller bindings */[m
+                 configureDriverBindings();[m
+[1mdiff --git a/src/main/java/frc/robot/commands/AutoIntakeSequence.java b/src/main/java/frc/robot/commands/AutoIntakeSequence.java[m
+[1mindex d8a925b..d28ff5c 100644[m
+[1m--- a/src/main/java/frc/robot/commands/AutoIntakeSequence.java[m
+[1m+++ b/src/main/java/frc/robot/commands/AutoIntakeSequence.java[m
+[36m@@ -21,7 +21,7 @@[m [mpublic class AutoIntakeSequence extends SequentialCommandGroup {[m
+               return elevator.atDesiredPosition() && arm.atDesiredArmPosition();[m
+             }),[m
+         new InstantCommand(() -> claw.runMotorsIntaking()),[m
+[31m-        new WaitUntilCommand(claw::beamBreakSeesObject).withTimeout(ClawConstants.INTAKE_TIMEOUT),[m
+[32m+[m[32m        new WaitUntilCommand(claw::beamBreakSeesObject), // TODO used to have a timeout here[m
+         new InstantCommand(() -> claw.stopMotors()),[m
+         new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)));[m
+   }[m
+[1mdiff --git a/src/main/java/frc/robot/commands/AutoScoringSequence.java b/src/main/java/frc/robot/commands/AutoScoringSequence.java[m
+[1mindex ca36cea..fda5e39 100644[m
+[1m--- a/src/main/java/frc/robot/commands/AutoScoringSequence.java[m
+[1m+++ b/src/main/java/frc/robot/commands/AutoScoringSequence.java[m
+[36m@@ -16,7 +16,7 @@[m [mpublic class AutoScoringSequence extends SequentialCommandGroup {[m
+               return arm.atDesiredArmPosition() && elevator.atDesiredPosition();[m
+             }),[m
+         new InstantCommand(() -> claw.runMotorsScoring()),[m
+[31m-        new WaitUntilCommand(0.5),[m
+[32m+[m[32m        new WaitUntilCommand(1.5),[m
+         new InstantCommand(() -> claw.stopMotors()));[m
+   }[m
+ }[m

@@ -2,8 +2,9 @@ package frc.robot.utils;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 public class ReefAngleCalcUtil {
 
@@ -19,7 +20,7 @@ public class ReefAngleCalcUtil {
   private static final double scoreTagOffsetInches = Constants.REEF_SCORING_OFFSET_INCHES;
 
   // Where Pair<Double, Double> -> Vector<X, Y>
-  private static TreeMap<ScoreTagPosition, Pair<Double, Double>> tagScoreVectorMap;
+  private static HashMap<ScoreTagPosition, Pair<Double, Double>> tagScoreVectorMap;
 
   /**
    * (Reef is symmetric on both sides of the field). Assume ID_A starts at at ID20 on Blue and ID8
@@ -27,7 +28,7 @@ public class ReefAngleCalcUtil {
    */
   public static Translation2d translateScorePositionOffset(
       ScoreTagPosition desiredTagScorePosition, boolean isRight) {
-    tagScoreVectorMap = new TreeMap<ScoreTagPosition, Pair<Double, Double>>();
+    tagScoreVectorMap = new HashMap<ScoreTagPosition, Pair<Double, Double>>();
     tagScoreVectorMap.put(
         ScoreTagPosition.ID_A,
         new Pair<Double, Double>(
@@ -90,6 +91,8 @@ public class ReefAngleCalcUtil {
         break;
     }
 
-    return new Translation2d(updatedVector.getFirst(), updatedVector.getSecond());
+    return new Translation2d(
+        Units.inchesToMeters(updatedVector.getFirst()),
+        Units.inchesToMeters(updatedVector.getSecond()));
   }
 }
