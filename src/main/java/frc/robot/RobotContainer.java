@@ -6,9 +6,12 @@ package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.units.Units;
+import com.pathplanner.lib.commands.FollowPathCommand;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -27,16 +30,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.commands.AlgaeKnockoff;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
-import frc.robot.commands.DeepClimbPrep;
 import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.GoHomeSequenceFake;
-import frc.robot.commands.IntakeSequence;
-import frc.robot.commands.PrepScoreSequence;
 import frc.robot.commands.autos.Push;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
 import frc.robot.commands.autos.S1.P2_S1_J_I;
@@ -56,17 +55,11 @@ import frc.robot.commands.autos.S3.P3_S3_F_E_D;
 import frc.robot.commands.autos.S3.P4_S3_E_F_D_C;
 import frc.robot.commands.autos.S3.P4_S3_F_E_D_C;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.IntakeLimelight.IntakeLimelight;
-import frc.robot.subsystems.IntakeLimelight.IntakeLimelightConstants;
-import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
-import frc.robot.subsystems.ScoringLimelight.ScoringLimelightConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Climb.ClimbPosition;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
-import frc.robot.subsystems.drive.DriveController;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
@@ -81,6 +74,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -90,11 +84,6 @@ import java.util.TreeMap;
  */
 public class RobotContainer implements Sendable {
   private MatchStateUtil matchState;
-
-  /* Pair of the command for an auto and its name */
-  private SendableChooser<Pair<Command, String>> autonChooser = new SendableChooser<>();
-
-  private SendableChooser<String> intakeLocationChooser = new SendableChooser<>();
 
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -129,6 +118,40 @@ public class RobotContainer implements Sendable {
   private double visionBasedX = 0.0;
   private double visionBasedY = 0.0;
   private double visionBasedRotation = 0.0;
+  /* get the drivecommand to use based on control input.
+  * if we are providing rotational input, use that
+  * otherwise, use our heading controller, which allows for cardinals
+  * rotational control input will always override and terminate a cardinal input
+  */
+  private double degInRange(double deg){
+    return deg % 360;
+  }
+
+  private Supplier<SwerveRequest> driveCommand = ()->{
+    double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), 0.05);
+    double vx = MathUtil.applyDeadband(visionBasedX, 0.05);
+    double vy = MathUtil.applyDeadband(visionBasedY, 0.05);
+    if(Math.abs(rotationJoystickInput) > 0){
+        desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees(); // keep the desired heading updated
+        return drive
+        .withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+        .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+        .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
+    }
+    else if(vx > 0 || vy > 0 || visionBasedRotation > 0){
+        desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+        return fieldCentricFacingAngle
+        .withVelocityX(vx)
+        .withVelocityY(vy)
+        .withTargetDirection(Rotation2d.fromDegrees(desiredHeadingDeg)); // use the desired heading, in this case controlled by vision
+    }
+    else{
+        return fieldCentricFacingAngle
+        .withVelocityX(-driverController.getLeftY() * MaxSpeed)
+        .withVelocityY(-driverController.getLeftX() * MaxSpeed)
+        .withTargetDirection(Rotation2d.fromDegrees(desiredHeadingDeg)); // use the desired heading, either as a keep heading or for cardinals
+    }
+  };
 
   /* Subsystems */
   public Arm arm;
@@ -137,8 +160,6 @@ public class RobotContainer implements Sendable {
   // public DriveSubsystem drive;
   public Elevator elevator;
   public Lights lights;
-  public IntakeLimelight intakeLimelight;
-  public ScoringLimelight scoringLimelight;
 
   public String pathCmd = "";
 
@@ -171,12 +192,24 @@ public class RobotContainer implements Sendable {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
+    /* named commands and such go here */
+
+    /* auto chooser has some nice builtin functionality */
+    autoChooser = AutoBuilder.buildAutoChooser("Tests");
+    SmartDashboard.putData("Auto Mode", autoChooser);
+    fieldCentricFacingAngle.HeadingController.setPID(5.0, 0.0, 0.0);
+
+    /* zero everything */
+    drivetrain.seedFieldCentric();
+    this.desiredHeadingDeg = 0.0;
+
+    // Warmup PathPlanner to avoid Java pauses
+    FollowPathCommand.warmupCommand().schedule();
+
     /* Subsystems */
     arm = new Arm();
     claw = new Claw();
     climb = new Climb();
-    // drive = new DriveSubsystem(ms);
-    driveWithAngleController.HeadingController.setPID(7.0, 0.0, 0); // TODO was 10
     elevator = new Elevator();
     lights = new Lights();
     /* Named commands here */
@@ -225,16 +258,16 @@ public class RobotContainer implements Sendable {
         "AUTO SCORING SEQUENCE", score);
     matchState = ms;
 
-    scoringLimelight =
-        new ScoringLimelight(
-            ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,
-            ScoringLimelightConstants.SCORING_LIMELIGHT_HEIGHT_METERS,
-            0.0);
-    intakeLimelight =
-        new IntakeLimelight(
-            IntakeLimelightConstants.INTAKE_LIMELIGHT_PITCH_DEGREES,
-            IntakeLimelightConstants.INTAKE_LIMELIGHT_HEIGHT_METERS,
-            0.0); // ""
+    // scoringLimelight = TODO: VErify removal
+    //     new ScoringLimelight(
+    //         ScoringLimelightConstants.SCORING_LIMELIGHT_PITCH_DEGREES,
+    //         ScoringLimelightConstants.SCORING_LIMELIGHT_HEIGHT_METERS,
+    //         0.0);
+    // intakeLimelight =
+    //     new IntakeLimelight(
+    //         IntakeLimelightConstants.INTAKE_LIMELIGHT_PITCH_DEGREES,
+    //         IntakeLimelightConstants.INTAKE_LIMELIGHT_HEIGHT_METERS,
+    //         0.0); // ""
 
     drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -248,255 +281,211 @@ public class RobotContainer implements Sendable {
     Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
     Shuffleboard.getTab("Subsystems").add(climb.getName(), climb);
     Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
-    Shuffleboard.getTab("Subsystems").add("Drive Controller", driveController);
+    // Shuffleboard.getTab("Subsystems").add("Drive Controller", driveController);  TODO: VERIFY REMOVAL
     Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
 
     driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
     operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
 
-    intakeLocationChooser.addOption("LEFT", "LEFT");
-    intakeLocationChooser.addOption("RIGHT", "RIGHT");
-    SmartDashboard.putData(intakeLocationChooser);
+    // intakeLocationChooser.addOption("LEFT", "LEFT"); TODO: VERIFY REMOVAL
+    // intakeLocationChooser.addOption("RIGHT", "RIGHT"); TODO: VERIFY REMOVAL
+    // SmartDashboard.putData(intakeLocationChooser); TODO: VERIFY REMOVAL
 
-    /* Autonchooser config */
+    /* autoChooser config */
     // scoring location 1
-    autonChooser.addOption(
+    autoChooser.addOption(
         "P2_S1_I_J",
-        new Pair<Command, String>(
-            new P2_S1_I_J(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
+        new P2_S1_I_J(
+            drivetrain,
+            arm,
+            claw,
+            elevator,
+            matchState.isRed())
+        );
 
-    autonChooser.addOption(
+    autoChooser.addOption(
         "PUSH AUTO",
-        new Pair<Command, String>(
-            new Push(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
+        new Push(
+            drivetrain,
+            arm,
+            claw,
+            elevator,
+            matchState.isRed())
+      );
 
-    autonChooser.addOption(
+    autoChooser.addOption(
         "P2_S1_J_I",
-        new Pair<Command, String>(
-            new P2_S1_J_I(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
+        new P2_S1_J_I(
+            drivetrain,
+            arm,
+            claw,
+            elevator,
+            matchState.isRed())
+      );
 
-    autonChooser.addOption(
-        "P3_S1_I_J_K",
-        new Pair<Command, String>(
-            new P3_S1_I_J_K(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-
-    autonChooser.addOption(
-        "P3_S1_J_I_K",
-        new Pair<Command, String>(
-            new P3_S1_J_I_K(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-
-    autonChooser.addOption(
-        "P4_S1_I_J_K_L",
-        new Pair<Command, String>(
-            new P4_S1_I_J_K_L(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-
-    autonChooser.addOption(
-        "P4_S1_J_I_K_L",
-        new Pair<Command, String>(
-            new P4_S1_J_I_K_L(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
+    autoChooser.addOption(
+      "P3_S1_I_J_K",
+      new P3_S1_I_J_K(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P3_S1_J_I_K",
+      new P3_S1_J_I_K(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P4_S1_I_J_K_L",
+      new P4_S1_I_J_K_L(
+        drivetrain, 
+        arm, 
+        claw, 
+        matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P4_S1_J_I_K_L",
+      new P4_S1_J_I_K_L(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
     // starting location 2
-    autonChooser.addOption(
-        "P1_S2_G",
-        new Pair<Command, String>(
-            new P1_S2_G(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P1_S2_H",
-        new Pair<Command, String>(
-            new P1_S2_H(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P2_S2_G_H",
-        new Pair<Command, String>(
-            new P2_S2_G_H(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P2_S2_H_G",
-        new Pair<Command, String>(
-            new P2_S2_H_G(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-
-    autonChooser.addOption(
-        "P3_S2_G_H_B",
-        new Pair<Command, String>(
-            new P3_S2_G_H_B(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P3_S2_H_G_A",
-        new Pair<Command, String>(
-            new P3_S2_H_G_A(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
+    autoChooser.addOption(
+      "P1_S2_G",
+      new P1_S2_G(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P1_S2_H",
+      new P1_S2_H(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P2_S2_G_H",
+      new P2_S2_G_H(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P2_S2_H_G",
+      new P2_S2_H_G(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P3_S2_G_H_B",
+      new P3_S2_G_H_B(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P3_S2_H_G_A",
+      new P3_S2_H_G_A(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
     // starting location 3
-    autonChooser.addOption(
-        "P2_S3_F_E",
-        new Pair<Command, String>(
-            new P2_S3_F_E(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P3_S3_E_F_D",
-        new Pair<Command, String>(
-            new P3_S3_E_F_D(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P3_S3_F_E_D",
-        new Pair<Command, String>(
-            new P3_S3_F_E_D(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P4_S3_E_F_D_C",
-        new Pair<Command, String>(
-            new P4_S3_E_F_D_C(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
-    autonChooser.addOption(
-        "P4_S3_F_E_D_C",
-        new Pair<Command, String>(
-            new P4_S3_F_E_D_C(
-                drivetrain,
-                arm,
-                claw,
-                elevator,
-                intakeLimelight,
-                scoringLimelight,
-                matchState.isRed()),
-            null));
+    autoChooser.addOption(
+      "P2_S3_F_E",
+      new P2_S3_F_E(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P3_S3_E_F_D",
+      new P3_S3_E_F_D(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P3_S3_F_E_D",
+      new P3_S3_F_E_D(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P4_S3_E_F_D_C",
+      new P4_S3_E_F_D_C(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
+    autoChooser.addOption(
+      "P4_S3_F_E_D_C",
+      new P4_S3_F_E_D_C(
+          drivetrain,
+          arm,
+          claw,
+          elevator,
+          matchState.isRed())
+    );
+    
 
-    SmartDashboard.putData(autonChooser);
+    SmartDashboard.putData(autoChooser);
   }
 
-  public void setDefaultLocation(){
-    if(intakeLocationChooser.getSelected() == "LEFT"){
-        prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT);
-    }
-    else{
-        prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT);
-    }
-  }
+  // public void setDefaultLocation(){ TODO: Verify removal
+  //   if(intakeLocationChooser.getSelected() == "LEFT"){
+  //       prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT);
+  //   }
+  //   else{
+  //       prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT);
+  //   }
+  // }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -520,25 +509,25 @@ public class RobotContainer implements Sendable {
     );*/
 
     /* prep score */
-    driverController
-        .leftBumper()
-        .onTrue(
-            new PrepScoreSequence(
-                    arm,
-                    elevator,
-                    scoringLimelight,
-                    climb,
-                    prepStateUtil,
-                    drivetrain,
-                    matchState,
-                    lights)
-                .beforeStarting(
-                    () -> {
-                      prepState = PrepState.SCORE;
-                      System.out.println(prepStateUtil.getPrepScoreHeight().toString());
-                      driveController.setRobotCentric(true);
-                    })
-    );
+    // driverController
+    //     .leftBumper()
+    //     .onTrue(
+    //         new PrepScoreSequence(
+    //                 arm,
+    //                 elevator,
+    //                 scoringLimelight,
+    //                 climb,
+    //                 prepStateUtil,
+    //                 drivetrain,
+    //                 matchState,
+    //                 lights)
+    //             .beforeStarting(
+    //                 () -> {
+    //                   prepState = PrepState.SCORE;
+    //                   System.out.println(prepStateUtil.getPrepScoreHeight().toString());
+    //                   driveController.setRobotCentric(true);
+    //                 })
+    // ); TODO: FIX PrepScoreSequence
     /* climb prep */
     /*driverController
         .back()
@@ -574,15 +563,15 @@ public class RobotContainer implements Sendable {
     driverController.rightTrigger().onTrue(
     new SequentialCommandGroup(
         //new InstantCommand(()-> driveController.setRobotCentric(true)),
-        new InstantCommand(()->driveController.setDesiredHeading(prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?-56.0:56.0))
+        new InstantCommand(()->this.desiredHeadingDeg = prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?-56.0:56.0)
     ) );
     driverController
         .rightTrigger()
         .whileTrue(
             new SequentialCommandGroup(
                 new InstantCommand(() -> prepState = PrepState.INTAKE),
-                new IntakeSequence(
-                    claw, intakeLimelight, arm, elevator, climb, prepStateUtil, drivetrain, lights),
+                // new IntakeSequence( TODO: FIX INTAKE SEQUENCE
+                //     claw, arm, elevator, climb, prepStateUtil, drivetrain, lights),
                 new InstantCommand(() -> claw.runMotorsIntaking()),
                 new WaitUntilCommand(claw::beamBreakSeesObject),
                 new InstantCommand(() -> claw.stopMotors()),
@@ -612,8 +601,8 @@ public class RobotContainer implements Sendable {
     selectCommandMap.put(
         PrepState.SCORE,
         new SequentialCommandGroup(
-            new FinishScore(claw, elevator, arm, preppedHeight, lights),
-            new InstantCommand(()-> driveController.setRobotCentric(false))
+            new FinishScore(claw, elevator, arm, preppedHeight, lights)
+            // new InstantCommand(()-> driveController.setRobotCentric(false)) TODO: Verify removal
             // new WaitUntilCommand(()->!claw.beamBreakSeesObject()),
             // new GoHomeSequenceFake(climb, elevator, arm, claw, lights)
             ));
@@ -650,36 +639,30 @@ public class RobotContainer implements Sendable {
     // driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
     // driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
 
-    driverController
-        .y()
-        .onTrue(
-            new InstantCommand(
-                () -> driveController.setDesiredHeading(0.0)));
-    driverController
-        .b()
-        .onTrue(
-            new InstantCommand(
-                () -> driveController.setDesiredHeading(270.0)));
-    driverController
-        .a()
-        .onTrue(
-            new InstantCommand(
-                () -> driveController.setDesiredHeading(180.0)));
-    driverController
-        .x()
-        .onTrue(
-            new InstantCommand(
-                () -> driveController.setDesiredHeading(90.0)));
-    driverController
-        .povUp()
-        .onTrue(
-            new InstantCommand(
-                () -> driveController.setDesiredHeading(driveController.getDesiredHeading() + 30)));
-    driverController
-        .povDown()
-        .onTrue(
-            new InstantCommand(
-                () -> driveController.setDesiredHeading(driveController.getDesiredHeading() - 30)));
+    // cardinals
+    driverController.a().onTrue(
+      new InstantCommand(()->this.desiredHeadingDeg = 180.0)
+    );
+
+    driverController.b().onTrue(
+        new InstantCommand(()->this.desiredHeadingDeg = 270.0)
+    );
+
+    driverController.x().onTrue(
+        new InstantCommand(()->this.desiredHeadingDeg = 180.0)
+    );
+
+    driverController.y().onTrue(
+        new InstantCommand(()->this.desiredHeadingDeg = 0.0)
+    );
+
+    driverController.povUp().onTrue(
+        new InstantCommand(()->this.desiredHeadingDeg += 30.0)
+    );
+
+    driverController.povDown().onTrue(
+        new InstantCommand(()->this.desiredHeadingDeg -= 30.0)
+    );
 
     // driverController
     // .povRight()
@@ -697,8 +680,8 @@ public class RobotContainer implements Sendable {
         .povLeft()
         .onTrue(
             new ParallelCommandGroup(
-                new GoHomeSequence(climb, elevator, arm, claw, lights),
-                new InstantCommand(()->driveController.setRobotCentric(false))
+                new GoHomeSequence(climb, elevator, arm, claw, lights)
+                // new InstantCommand(()->driveController.setRobotCentric(false)) TODO: Verify removal
             )
         );
   }
@@ -715,12 +698,12 @@ public class RobotContainer implements Sendable {
             new SequentialCommandGroup(
                 new InstantCommand(()->climb.setServoLocked(false)),
                 new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
-                new InstantCommand(() -> driveController.setThrottle(0.15)),
+                // new InstantCommand(() -> driveController.setThrottle(0.15)), TODO: Verify removal
                 new WaitUntilCommand(elevator::atDesiredPosition),
                 new InstantCommand(() -> {
                     climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
                     arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
-                    driveController.setRobotCentric(true);
+                    // driveController.setRobotCentric(true); TODO: Verify removal
                 })
 
             ));
@@ -752,7 +735,7 @@ public class RobotContainer implements Sendable {
 
     operatorController.a().onTrue(new InstantCommand(()->climb.setServoLocked(true)));
 
-    operatorController.back().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive)));
+    // operatorController.back().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive))); TODO: Verify removal
 
     operatorController
         .y()
@@ -764,16 +747,16 @@ public class RobotContainer implements Sendable {
         .b()
         .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L3)));
 
-    operatorController
-        .start()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  driveController.rezeroControllerAndYawToMsuDefault();
-                  driveController.rezeroControllerAndYawToMsuDefault();
-                  //driveController.rezeroControllerToGyro();
-                  //driveController.rezeroControllerToGyro();
-                }));
+    // operatorController TODO: Verifiy removal
+    //     .start()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               // driveController.rezeroControllerAndYawToMsuDefault(); 
+    //               // driveController.rezeroControllerAndYawToMsuDefault();
+    //               //driveController.rezeroControllerToGyro();
+    //               //driveController.rezeroControllerToGyro();
+    //             }));
 
     operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
     operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
@@ -786,7 +769,7 @@ public class RobotContainer implements Sendable {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autonChooser.getSelected().getFirst();
+    return autoChooser.getSelected();
   }
 
   @Override
@@ -805,9 +788,9 @@ public class RobotContainer implements Sendable {
     builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
     builder.addDoubleProperty(
         "odometry rotation deg", () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
-    builder.addBooleanProperty(
-        "robot relative enabled", () -> driveController.robotRelativeActive, null);
-    builder.addDoubleProperty("desired heading", () -> driveController.getDesiredHeading(), null);
+    // builder.addBooleanProperty(
+    //     "robot relative enabled", () -> driveController.robotRelativeActive, null);
+    builder.addDoubleProperty("desired heading deg", () -> this.desiredHeadingDeg, null);
     builder.addDoubleProperty(
         "gyro rotation deg", () -> drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
     builder.addDoubleProperty(
