@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.commands.AlgaeKnockoff;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
@@ -74,6 +75,11 @@ import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.PrepStateUtil;
 import frc.robot.utils.PrepStateUtil.INTAKE_CLIMB_LOCATION;
 import frc.robot.utils.PrepStateUtil.SCORE_HEIGHT;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import java.util.TreeMap;
 
 /**
@@ -85,15 +91,44 @@ import java.util.TreeMap;
 public class RobotContainer implements Sendable {
   private MatchStateUtil matchState;
 
-  private final CommandXboxController driverController =
-      new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
-  private final CommandXboxController operatorController =
-      new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
-
   /* Pair of the command for an auto and its name */
   private SendableChooser<Pair<Command, String>> autonChooser = new SendableChooser<>();
 
   private SendableChooser<String> intakeLocationChooser = new SendableChooser<>();
+
+  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+  /* Setting up bindings for necessary control of the swerve drive platform */
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+  private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle = new SwerveRequest.FieldCentricFacingAngle()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) 
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); 
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+  private final Telemetry logger = new Telemetry(MaxSpeed);
+
+  private final CommandXboxController driverController =
+    new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private final CommandXboxController operatorController =
+    new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+
+  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+  /* Path follower */
+  private final SendableChooser<Command> autoChooser;
+
+  /* Drive control code, this setup is genuinely the dumbest thing ever */
+  private double desiredHeadingDeg = 0.0; //desired heading
+  private double visionBasedX = 0.0;
+  private double visionBasedY = 0.0;
+  private double visionBasedRotation = 0.0;
 
   /* Subsystems */
   public Arm arm;
@@ -132,47 +167,7 @@ public class RobotContainer implements Sendable {
   public static ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L3;
   public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
-  /* Garbage from phoenix tuner */
-  private double MaxSpeed =
-      TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond); // kSpeedAt12Volts desired
-  // top
-  // speed
-  private double MaxAngularRate =
-      Units.RotationsPerSecond.of(2.5).in(Units.RadiansPerSecond); // 3/4 of a
-  // rotation
-  // per second
-  // max angular velocity
-
   private PrepStateUtil prepStateUtil = new PrepStateUtil();
-
-  /* Setting up bindings for necessary control of the swerve drive platform */
-  private final SwerveRequest.FieldCentric drive =
-      new SwerveRequest.FieldCentric()
-          .withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-          .withDriveRequestType(
-              DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-  // private final SwerveRequest.FieldCentricFacingAngle drive = new
-  // SwerveRequest.FieldCentricFacingAngle()
-  // .withDeadband(MaxSpeed * 0.1)
-  // .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-  // .withDriveRequestType(
-  // DriveRequestType.OpenLoopVoltage);
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-  private final SwerveRequest.RobotCentric robotCentricDrive =
-      new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-  private final SwerveRequest.FieldCentricFacingAngle driveWithAngleController =
-      new SwerveRequest.FieldCentricFacingAngle()
-          .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-  // TODO maybe add withDriveRequestType(DriveRequestType.OpenLoopVoltage) if
-  // encountering issues?
-
-  private final Telemetry logger = new Telemetry(MaxSpeed);
-
-  public final CommandSwerveDrivetrain drivetrain;
-
-  public DriveController driveController;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
@@ -229,8 +224,6 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
         "AUTO SCORING SEQUENCE", score);
     matchState = ms;
-    drivetrain = TunerConstants.createDrivetrain();
-    driveController = new DriveController(drivetrain, matchState, driverController);
 
     scoringLimelight =
         new ScoringLimelight(
