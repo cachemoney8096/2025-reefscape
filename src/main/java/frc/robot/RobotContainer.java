@@ -275,6 +275,9 @@ public class RobotContainer implements Sendable {
     configureDriverBindings();
     configureOperatorBindings();
 
+    /* Debug Bindings */
+    configureDebugBindings();
+
     /* Shuffleboard */
     // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
     Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
@@ -312,8 +315,7 @@ public class RobotContainer implements Sendable {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void
-      configureDriverBindings() { // maybe add ternerary for robot relative based on prep state?
+    private void configureDriverBindings() { // maybe add ternerary for robot relative based on prep state?
     // TODO
     /* drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
@@ -577,6 +579,45 @@ public class RobotContainer implements Sendable {
     operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
     operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
 
+  }
+
+  // Adds Debug Bindings
+
+  private void configureDebugBindings() {
+    // Set Elevator to score_L4
+    driverController.rightTrigger().onTrue(
+        new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)));
+    // Reset Elevator
+    driverController.rightTrigger().onFalse(
+        new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
+
+    // Set Arm postition to L4
+    driverController.leftTrigger().onTrue(
+        new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L4)));
+    // Reset Arm
+    driverController.leftTrigger().onFalse(
+        new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
+
+    // Intake Claw
+    driverController.povUp().onTrue(
+        new InstantCommand(()->claw.runMotorsIntaking()));
+    // Reset Claw
+    driverController.povUp().onTrue(
+        new InstantCommand(()->claw.stopMotors()));
+
+    // Set Climb to Climbing
+    driverController.povRight().onTrue(
+        new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+    // Reset Climb
+    driverController.povRight().onFalse(
+        new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+
+    // Set Lights to Party Mode
+    driverController.povDown().onTrue(
+        new InstantCommand(()->lights.setLEDColor(LightCode.PARTY_MODE)));
+    // Reset Lights
+    driverController.povDown().onFalse(
+        new InstantCommand(()->lights.setLEDColor(LightCode.OFF)));
   }
 
   /**
