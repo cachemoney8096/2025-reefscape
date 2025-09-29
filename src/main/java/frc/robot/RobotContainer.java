@@ -666,5 +666,9 @@ public class RobotContainer implements Sendable {
         "good module encoder 3",
         () -> drivetrain.getModule(3).getEncoder().getAbsolutePosition().getValueAsDouble(),
         null);
+    builder.addStringProperty(
+        "Current selected auto",
+        () -> this.getAutonomousCommand().getName(),
+        null);
   }
 }
