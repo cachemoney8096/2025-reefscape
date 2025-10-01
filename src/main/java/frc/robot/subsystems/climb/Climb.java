@@ -229,15 +229,15 @@ public class Climb extends SubsystemBase {
         "Climb Right Motor RELATIVE (deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
-    // builder.addDoubleProperty(
-    //     "Climb ABSOLUTE (deg)",
-    //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/
-    //         climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
-    //     null);
-    // builder.addDoubleProperty(
-    //     "Climb ABSOLUTE REAL (deg)",
-    //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/ getPositionClimbRotationsReal() * 360,
-    //     null);
+    builder.addDoubleProperty(
+        "Climb ABSOLUTE (deg)",
+        () -> /*climbAbsoluteEncoder.getDistance() * 360*/
+            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+        null);
+    builder.addDoubleProperty(
+        "Climb ABSOLUTE REAL (deg)",
+        () -> /*climbAbsoluteEncoder.getDistance() * 360*/ getPositionClimbRotationsReal() * 360,
+        null);
 
     // builder.addDoubleProperty(
     //     "Climb ABSOLUTE RAW (deg)",

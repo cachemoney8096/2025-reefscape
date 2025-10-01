@@ -209,7 +209,7 @@ public class RobotContainer implements Sendable {
   public RobotContainer(MatchStateUtil ms) {
     /* Named commands here */
 
-    SequentialCommandGroup intake = new SequentialCommandGroup(
+    /*SequentialCommandGroup intake = new SequentialCommandGroup(
         new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
         new AutoIntakeSequence(elevator, arm, claw, lights));
 
@@ -234,7 +234,7 @@ public class RobotContainer implements Sendable {
         "AUTO SCORING PREP SEQUENCE",
         prep
         );
-
+    */
     /* auto chooser has some nice builtin functionality */
     autoChooser = AutoBuilder.buildAutoChooser("Tests");
     SmartDashboard.putData("Auto Mode", autoChooser);
@@ -627,15 +627,15 @@ public class RobotContainer implements Sendable {
     driverController.povUp().onTrue(
         new InstantCommand(()->claw.runMotorsIntaking()));
     // Reset Claw
-    driverController.povUp().onTrue(
+    driverController.povUp().onFalse(
         new InstantCommand(()->claw.stopMotors()));
 
     // Set Climb to Climbing
-    driverController.povRight().onTrue(
-        new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
-    // Reset Climb
-    driverController.povLeft().onTrue(
-        new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
+    // driverController.povRight().onTrue(
+    //     new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
+    // // Reset Climb
+    // driverController.povLeft().onTrue(
+    //     new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));\][[]\]
 
     // Set Lights to Party Mode
     driverController.povDown().onTrue(

@@ -11,14 +11,14 @@ import frc.robot.subsystems.lights.Lights.LightCode;
 
 public class AutoIntakeSequence extends SequentialCommandGroup {
   public AutoIntakeSequence(Elevator elevator, Arm arm, Claw claw, Lights lights) {
-    addRequirements(elevator, arm, claw);
-    addCommands(
-        new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.INTAKE)),
-        new InstantCommand(() -> arm.setDesiredPosition(Arm.ArmPosition.INTAKE)),
-        new WaitUntilCommand(
-            () -> {
-              return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
-            }),
-        new InstantCommand(() -> claw.runMotorsIntaking()));
+    // addRequirements(elevator, arm, claw);
+    // addCommands(
+    //     new InstantCommand(() -> elevator.setDesiredPosition(Elevator.ElevatorHeight.INTAKE)),
+    //     new InstantCommand(() -> arm.setDesiredPosition(Arm.ArmPosition.INTAKE)),
+    //     new WaitUntilCommand(
+    //         () -> {
+    //           return elevator.atDesiredPosition() && arm.atDesiredArmPosition();
+    //         }),
+    //     new InstantCommand(() -> claw.runMotorsIntaking()));
   }
 }
