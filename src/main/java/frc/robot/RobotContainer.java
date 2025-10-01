@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -74,6 +75,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -126,6 +128,19 @@ public class RobotContainer implements Sendable {
   private double degInRange(double deg){
     return deg % 360;
   }
+
+  private Consumer<Pair<Double, Double>> velocitySetter = (Pair<Double, Double> v)->{
+        this.visionBasedX = v.getFirst().doubleValue();
+        this.visionBasedY = v.getSecond().doubleValue();
+    };
+
+    private Consumer<Double> headingSetter = (Double d)->{
+        this.desiredHeadingDeg = d;
+    };
+
+    private Supplier<Boolean> joystickInput = ()->{
+        return Math.abs(MathUtil.applyDeadband(driverController.getRightX(), 0.05)) > 0 || Math.abs(MathUtil.applyDeadband(driverController.getLeftX(), 0.05)) > 0 || Math.abs(MathUtil.applyDeadband(driverController.getLeftY(), 0.05)) > 0;
+    };
 
   private Supplier<SwerveRequest> driveCommand = ()->{
     double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), 0.05);
@@ -192,26 +207,6 @@ public class RobotContainer implements Sendable {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
-    /* named commands and such go here */
-
-    /* auto chooser has some nice builtin functionality */
-    autoChooser = AutoBuilder.buildAutoChooser("Tests");
-    SmartDashboard.putData("Auto Mode", autoChooser);
-    fieldCentricFacingAngle.HeadingController.setPID(5.0, 0.0, 0.0);
-
-    /* zero everything */
-    drivetrain.seedFieldCentric();
-    this.desiredHeadingDeg = 0.0;
-
-    // Warmup PathPlanner to avoid Java pauses
-    FollowPathCommand.warmupCommand().schedule();
-
-    /* Subsystems */
-    arm = new Arm();
-    claw = new Claw();
-    climb = new Climb();
-    elevator = new Elevator();
-    lights = new Lights();
     /* Named commands here */
 
     SequentialCommandGroup intake = new SequentialCommandGroup(
@@ -239,6 +234,26 @@ public class RobotContainer implements Sendable {
         "AUTO SCORING PREP SEQUENCE",
         prep
         );
+
+    /* auto chooser has some nice builtin functionality */
+    autoChooser = AutoBuilder.buildAutoChooser("Tests");
+    SmartDashboard.putData("Auto Mode", autoChooser);
+    fieldCentricFacingAngle.HeadingController.setPID(2.5, 0.0, 0.0);
+
+    /* zero everything */
+    drivetrain.seedFieldCentric();
+    this.desiredHeadingDeg = 0.0;
+
+    // Warmup PathPlanner to avoid Java pauses
+    FollowPathCommand.warmupCommand().schedule();
+
+    /* Subsystems */
+    arm = new Arm();
+    claw = new Claw();
+    climb = new Climb();
+    elevator = new Elevator();
+    lights = new Lights();
+    
 
     /*NamedCommands.registerCommand(
     "AUTO SCORING SEQUENCE",
@@ -272,8 +287,8 @@ public class RobotContainer implements Sendable {
     drivetrain.registerTelemetry(logger::telemeterize);
 
     /* Configure controller bindings */
-    configureDriverBindings();
-    configureOperatorBindings();
+    //configureDriverBindings();
+    //configureOperatorBindings();
 
     /* Debug Bindings */
     configureDebugBindings();
@@ -316,6 +331,10 @@ public class RobotContainer implements Sendable {
    * joysticks}.
    */
     private void configureDriverBindings() { // maybe add ternerary for robot relative based on prep state?
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(driveCommand) // Drive counterclockwise with negative X (left)
+        );
     // TODO
     /* drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
@@ -375,8 +394,6 @@ public class RobotContainer implements Sendable {
                   driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
                 }));
     /* intake */
-
-    boolean blue = matchState.isBlue();
 
     driverController.rightTrigger().onTrue(
     new SequentialCommandGroup(
@@ -584,19 +601,27 @@ public class RobotContainer implements Sendable {
   // Adds Debug Bindings
 
   private void configureDebugBindings() {
+    drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(driveCommand) // Drive counterclockwise with negative X (left)
+        );
     // Set Elevator to score_L4
     driverController.rightTrigger().onTrue(
-        new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L4)));
+        new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
     // Reset Elevator
-    driverController.rightTrigger().onFalse(
+    driverController.rightBumper().onTrue(
         new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.HOME)));
 
-    // Set Arm postition to L4
-    driverController.leftTrigger().onTrue(
-        new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L4)));
+    // Set Arm postition to L3
+    driverController.a().onTrue(
+        new InstantCommand(()->arm.setDesiredPosition(ArmPosition.L3)));
     // Reset Arm
-    driverController.leftTrigger().onFalse(
+    driverController.b().onTrue(
         new InstantCommand(()->arm.setDesiredPosition(ArmPosition.HOME)));
+    //set pos to intake
+    driverController.x().onTrue(
+        new InstantCommand(()->arm.setDesiredPosition(ArmPosition.INTAKE))
+    );
 
     // Intake Claw
     driverController.povUp().onTrue(
@@ -609,7 +634,7 @@ public class RobotContainer implements Sendable {
     driverController.povRight().onTrue(
         new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
     // Reset Climb
-    driverController.povRight().onFalse(
+    driverController.povLeft().onTrue(
         new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
 
     // Set Lights to Party Mode
