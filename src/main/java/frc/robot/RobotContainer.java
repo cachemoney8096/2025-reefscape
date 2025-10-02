@@ -635,7 +635,7 @@ public class RobotContainer implements Sendable {
     //     new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));
     // // Reset Climb
     // driverController.povLeft().onTrue(
-    //     new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));\][[]\]
+    //     new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
 
     // Set Lights to Party Mode
     driverController.povDown().onTrue(
