@@ -34,6 +34,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.DeepClimbScoringSequence;
+import frc.robot.commands.DriveToTag;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.GoHomeSequenceFake;
@@ -74,6 +75,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.time.Instant;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -287,11 +289,11 @@ public class RobotContainer implements Sendable {
     drivetrain.registerTelemetry(logger::telemeterize);
 
     /* Configure controller bindings */
-    //configureDriverBindings();
-    //configureOperatorBindings();
+    configureDriverBindings();
+    configureOperatorBindings();
 
     /* Debug Bindings */
-    configureDebugBindings();
+    //configureDebugBindings();
 
     /* Shuffleboard */
     // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
@@ -333,7 +335,116 @@ public class RobotContainer implements Sendable {
     private void configureDriverBindings() { // maybe add ternerary for robot relative based on prep state?
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(driveCommand) // Drive counterclockwise with negative X (left)
+            drivetrain.applyRequest(driveCommand) 
+        );
+
+        Command rumbleBriefly =
+        new SequentialCommandGroup(
+            new InstantCommand(
+                () -> {
+                  driverController.getHID().setRumble(RumbleType.kBothRumble, 1.0);
+                }),
+            new InstantCommand(() -> System.out.println("rumble set")),
+            new WaitCommand(0.25),
+            new InstantCommand(() -> System.out.println("rumble wait ended")),
+            new InstantCommand(
+                () -> {
+                  driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+        }));
+        
+        //INTAKE
+        driverController.leftTrigger().whileTrue(
+            new SequentialCommandGroup(
+                new InstantCommand(()->{
+                    arm.setDesiredPosition(ArmPosition.INTAKE);
+                    elevator.setDesiredPosition(ElevatorHeight.INTAKE);
+                    claw.runMotorsIntaking();
+                }),
+                new WaitUntilCommand(
+                    ()->claw.beamBreakSeesObject()
+                ),
+                new InstantCommand(()->{
+                    claw.stopMotors();
+                }),
+                new WaitCommand(1.0),
+                new InstantCommand(()->{
+                    arm.setDesiredPosition(ArmPosition.HOME);
+                    elevator.setDesiredPosition(ElevatorHeight.HOME);
+                })
+            )
+        );
+
+        //HOME
+        driverController.leftBumper().onTrue(
+            new SequentialCommandGroup(
+                new InstantCommand(()->{
+                    elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
+                    claw.stopMotors();
+                }),
+                new WaitUntilCommand(elevator::atDesiredPosition),
+                new InstantCommand(()->{
+                    arm.setDesiredPosition(ArmPosition.HOME);
+                }),
+                new WaitUntilCommand(arm::atDesiredArmPosition),
+                new InstantCommand(()->{
+                    elevator.setDesiredPosition(ElevatorHeight.HOME);
+                })
+            )
+        );
+
+        //PREP SCORE L3
+        driverController.rightBumper().onTrue(
+            new SequentialCommandGroup(
+                new InstantCommand(()->{
+                    elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
+                }),
+                new WaitUntilCommand(elevator::atDesiredPosition),
+                new InstantCommand(()->{
+                    elevator.setDesiredPosition(ElevatorHeight.SCORE_L3);
+                    arm.setDesiredPosition(ArmPosition.L3);
+                })
+            )
+        );
+
+        //SCORE
+        driverController.rightTrigger().onTrue(
+            new InstantCommand(()->{
+                claw.runMotorsScoring();
+            })
+        );
+        driverController.rightTrigger().onFalse(
+            new InstantCommand(()->{
+                claw.stopMotors();
+            })
+        );
+
+        // cardinals
+        driverController.a().onTrue(
+            new InstantCommand(()->this.desiredHeadingDeg = 180.0)
+        );
+    
+        driverController.b().onTrue(
+            new InstantCommand(()->this.desiredHeadingDeg = 270.0)
+        );
+    
+        driverController.x().onTrue(
+            new InstantCommand(()->this.desiredHeadingDeg = 180.0)
+        );
+    
+        driverController.y().onTrue(
+            new InstantCommand(()->this.desiredHeadingDeg = 0.0)
+        );
+    
+        driverController.povRight().onTrue(
+            new InstantCommand(()->this.desiredHeadingDeg += 30.0)
+        );
+    
+        driverController.povLeft().onTrue(
+            new InstantCommand(()->this.desiredHeadingDeg -= 30.0)
+        );
+
+        driverController.povUp().onTrue(
+            new DriveToTag(velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain, 0.1, 0.0)
         );
     // TODO
     /* drivetrain.setDefaultCommand(
@@ -344,7 +455,7 @@ public class RobotContainer implements Sendable {
                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate * climb.getThrottle()) // Drive counterclockwise with negative X (left)
         )
     );*/
-
+    
     /* prep score */
     // driverController
     //     .leftBumper()
@@ -380,101 +491,88 @@ public class RobotContainer implements Sendable {
                     lights)
                 .beforeStarting(() -> prepState = PrepState.CLIMB));*/
 
-    Command rumbleBriefly =
-        new SequentialCommandGroup(
-            new InstantCommand(
-                () -> {
-                  driverController.getHID().setRumble(RumbleType.kBothRumble, 1.0);
-                }),
-            new InstantCommand(() -> System.out.println("rumble set")),
-            new WaitCommand(0.25),
-            new InstantCommand(() -> System.out.println("rumble wait ended")),
-            new InstantCommand(
-                () -> {
-                  driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-                }));
     /* intake */
 
-    driverController.rightTrigger().onTrue(
-    new SequentialCommandGroup(
-        //new InstantCommand(()-> driveController.setRobotCentric(true)),
-        new InstantCommand(()->this.desiredHeadingDeg = prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?-56.0:56.0)
-    ) );
-    driverController
-        .rightTrigger()
-        .whileTrue(
-            new SequentialCommandGroup(
-                new InstantCommand(() -> prepState = PrepState.INTAKE),
-                // new IntakeSequence( TODO: FIX INTAKE SEQUENCE
-                //     claw, arm, elevator, climb, prepStateUtil, drivetrain, lights),
-                new InstantCommand(() -> claw.runMotorsIntaking()),
-                new WaitUntilCommand(claw::beamBreakSeesObject),
-                new InstantCommand(() -> claw.stopMotors()),
-                new InstantCommand(() -> prepState = PrepState.OFF),
-                new ConditionalCommand(
-                    new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
-                    new InstantCommand(),
-                    claw::beamBreakSeesObject)));
-    driverController
-        .rightTrigger()
-        .onFalse(
-            new SequentialCommandGroup(
-                new InstantCommand(
-                    () -> {
-                      claw.stopMotors();
-                      prepState = PrepState.OFF;
-                    }),
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new WaitCommand(0.5),
-                        new GoHomeSequenceFake(climb, elevator, arm, claw, lights)),
-                    new InstantCommand(),
-                    () -> claw.beamBreakSeesObject())));
+    // driverController.rightTrigger().onTrue(
+    // new SequentialCommandGroup(
+    //     //new InstantCommand(()-> driveController.setRobotCentric(true)),
+    //     new InstantCommand(()->this.desiredHeadingDeg = prepStateUtil.getPrepIntakeClimbLocation()==PrepStateUtil.INTAKE_CLIMB_LOCATION.LEFT?-56.0:56.0)
+    // ) );
+    // driverController
+    //     .rightTrigger()
+    //     .whileTrue(
+    //         new SequentialCommandGroup(
+    //             new InstantCommand(() -> prepState = PrepState.INTAKE),
+    //             // new IntakeSequence( TODO: FIX INTAKE SEQUENCE
+    //             //     claw, arm, elevator, climb, prepStateUtil, drivetrain, lights),
+    //             new InstantCommand(() -> claw.runMotorsIntaking()),
+    //             new WaitUntilCommand(claw::beamBreakSeesObject),
+    //             new InstantCommand(() -> claw.stopMotors()),
+    //             new InstantCommand(() -> prepState = PrepState.OFF),
+    //             new ConditionalCommand(
+    //                 new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL)),
+    //                 new InstantCommand(),
+    //                 claw::beamBreakSeesObject)));
+    // driverController
+    //     .rightTrigger()
+    //     .onFalse(
+    //         new SequentialCommandGroup(
+    //             new InstantCommand(
+    //                 () -> {
+    //                   claw.stopMotors();
+    //                   prepState = PrepState.OFF;
+    //                 }),
+    //             new ConditionalCommand(
+    //                 new SequentialCommandGroup(
+    //                     new WaitCommand(0.5),
+    //                     new GoHomeSequenceFake(climb, elevator, arm, claw, lights)),
+    //                 new InstantCommand(),
+    //                 () -> claw.beamBreakSeesObject())));
 
-    TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
+    // TreeMap<PrepState, Command> selectCommandMap = new TreeMap<PrepState, Command>();
 
-    selectCommandMap.put(
-        PrepState.SCORE,
-        new SequentialCommandGroup(
-            new FinishScore(claw, elevator, arm, preppedHeight, lights)
-            // new InstantCommand(()-> driveController.setRobotCentric(false)) TODO: Verify removal
-            // new WaitUntilCommand(()->!claw.beamBreakSeesObject()),
-            // new GoHomeSequenceFake(climb, elevator, arm, claw, lights)
-            ));
-    selectCommandMap.put(PrepState.CLIMB, new DeepClimbScoringSequence(climb, elevator, lights));
+    // selectCommandMap.put(
+    //     PrepState.SCORE,
+    //     new SequentialCommandGroup(
+    //         new FinishScore(claw, elevator, arm, preppedHeight, lights)
+    //         // new InstantCommand(()-> driveController.setRobotCentric(false)) TODO: Verify removal
+    //         // new WaitUntilCommand(()->!claw.beamBreakSeesObject()),
+    //         // new GoHomeSequenceFake(climb, elevator, arm, claw, lights)
+    //         ));
+    // selectCommandMap.put(PrepState.CLIMB, new DeepClimbScoringSequence(climb, elevator, lights));
 
-    SelectCommand<PrepState> driverRightTriggerCommand =
-        new SelectCommand<PrepState>(
-            selectCommandMap,
-            () -> {
-              PrepState h = prepState;
-              prepState = PrepState.OFF;
-              return h;
-            });
+    // SelectCommand<PrepState> driverRightTriggerCommand =
+    //     new SelectCommand<PrepState>(
+    //         selectCommandMap,
+    //         () -> {
+    //           PrepState h = prepState;
+    //           prepState = PrepState.OFF;
+    //           return h;
+    //         });
 
-    /* finish score */
-    driverController
-        .leftTrigger()
-        .onTrue(
-            new ConditionalCommand(
-                    new InstantCommand(() -> claw.runMotorsScoring()),
-                    driverRightTriggerCommand,
-                    () -> prepState == PrepState.OFF)
-                .beforeStarting(new InstantCommand(() -> System.out.println("right trigger"))));
+    // /* finish score */
+    // driverController
+    //     .leftTrigger()
+    //     .onTrue(
+    //         new ConditionalCommand(
+    //                 new InstantCommand(() -> claw.runMotorsScoring()),
+    //                 driverRightTriggerCommand,
+    //                 () -> prepState == PrepState.OFF)
+    //             .beforeStarting(new InstantCommand(() -> System.out.println("right trigger"))));
 
-    driverController
-        .leftTrigger()
-        .onFalse(
-            new ConditionalCommand(
-                    new InstantCommand(() -> claw.stopMotors()),
-                    new InstantCommand(),
-                    () -> prepState == PrepState.OFF)
-                .beforeStarting(new InstantCommand(() -> System.out.println("right trigger"))));
+    // driverController
+    //     .leftTrigger()
+    //     .onFalse(
+    //         new ConditionalCommand(
+    //                 new InstantCommand(() -> claw.stopMotors()),
+    //                 new InstantCommand(),
+    //                 () -> prepState == PrepState.OFF)
+    //             .beforeStarting(new InstantCommand(() -> System.out.println("right trigger"))));
 
-    // driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
-    // driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
+    // // driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
+    // // driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
 
-    // cardinals
+    // // cardinals
     driverController.a().onTrue(
       new InstantCommand(()->this.desiredHeadingDeg = 180.0)
     );
@@ -499,26 +597,26 @@ public class RobotContainer implements Sendable {
         new InstantCommand(()->this.desiredHeadingDeg -= 30.0)
     );
 
+    // // driverController
+    // // .povRight()
+    // // .onTrue(new AlgaeKnockoff(elevator));
+
+    // /*
+    //  * povUp = top left back button
+    //  * povRight = bottom left back button
+    //  * povDown = top right back button
+    //  * povLeft = bottom right back button
+    //  */
+
+    // /* Go home */
     // driverController
-    // .povRight()
-    // .onTrue(new AlgaeKnockoff(elevator));
-
-    /*
-     * povUp = top left back button
-     * povRight = bottom left back button
-     * povDown = top right back button
-     * povLeft = bottom right back button
-     */
-
-    /* Go home */
-    driverController
-        .povLeft()
-        .onTrue(
-            new ParallelCommandGroup(
-                new GoHomeSequence(climb, elevator, arm, claw, lights)
-                // new InstantCommand(()->driveController.setRobotCentric(false)) TODO: Verify removal
-            )
-        );
+    //     .povLeft()
+    //     .onTrue(
+    //         new ParallelCommandGroup(
+    //             new GoHomeSequence(climb, elevator, arm, claw, lights)
+    //             // new InstantCommand(()->driveController.setRobotCentric(false)) TODO: Verify removal
+    //         )
+    //     );
   }
 
   private void configureOperatorBindings() {
