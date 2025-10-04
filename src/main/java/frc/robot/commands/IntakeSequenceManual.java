@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
@@ -16,7 +15,7 @@ public class IntakeSequenceManual extends SequentialCommandGroup {
     public enum Location {
         LEFT,
         RIGHT
-      }
+    }
 
     public IntakeSequenceManual(
       Arm arm,

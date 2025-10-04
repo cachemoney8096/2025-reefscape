@@ -40,7 +40,9 @@ import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.GoHomeSequenceFake;
 import frc.robot.commands.IntakeSequenceManual;
 import frc.robot.commands.NewHomeSequence;
+import frc.robot.commands.PrepScoreAndDrive;
 import frc.robot.commands.PrepScoreManual;
+import frc.robot.commands.IntakeSequenceManual.Location;
 import frc.robot.commands.autos.Push;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
 import frc.robot.commands.autos.S1.P2_S1_J_I;
@@ -191,21 +193,12 @@ public class RobotContainer implements Sendable {
   }
 
   /* Prep states */
-  public enum IntakeClimbLocation {
-    LEFT,
-    CENTER,
-    RIGHT
-  }
 
-  public enum ScoringLocation {
-    LEFT,
-    RIGHT
-  }
 
   public PrepState prepState = PrepState.OFF;
-  public IntakeClimbLocation preppedLocation = IntakeClimbLocation.LEFT;
-  // public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
-  public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
+  public IntakeSequenceManual.Location preppedIntakeLocation = IntakeSequenceManual.Location.LEFT;
+  public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L3;
+  public PrepScoreAndDrive.Location preppedScoringLocation = PrepScoreAndDrive.Location.LEFT;
 
   private PrepStateUtil prepStateUtil = new PrepStateUtil();
 
@@ -291,8 +284,8 @@ public class RobotContainer implements Sendable {
     drivetrain.registerTelemetry(logger::telemeterize);
 
     /* Configure controller bindings */
-    //configureDriverBindings();
-    //configureOperatorBindings();
+    configureDriverBindings();
+    configureOperatorBindings();
 
     /* Debug Bindings */
     // configureDebugBindings();
@@ -356,7 +349,7 @@ public class RobotContainer implements Sendable {
         
         //INTAKE
         driverController.leftTrigger().whileTrue(
-            new IntakeSequenceManual(arm, elevator, claw, IntakeSequenceManual.Location.LEFT, headingSetter)
+            new IntakeSequenceManual(arm, elevator, claw, preppedIntakeLocation, headingSetter)
         );
 
         //HOME
@@ -366,7 +359,7 @@ public class RobotContainer implements Sendable {
 
         //PREP SCORE L3
         driverController.rightBumper().onTrue(
-            new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
+            new PrepScoreAndDrive(elevator, arm, preppedHeight, velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain, preppedScoringLocation)
         );
 
         //SCORE
@@ -416,7 +409,7 @@ public class RobotContainer implements Sendable {
         );
 
         driverController.povUp().onTrue(
-            new DriveToTag(velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain, 0.1, 0.0)
+            new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
         );
     // TODO
     /* drivetrain.setDefaultCommand(
@@ -561,14 +554,6 @@ public class RobotContainer implements Sendable {
         new InstantCommand(()->this.desiredHeadingDeg = 0.0)
     );
 
-    driverController.povUp().onTrue(
-        new InstantCommand(()->this.desiredHeadingDeg += 30.0)
-    );
-
-    driverController.povDown().onTrue(
-        new InstantCommand(()->this.desiredHeadingDeg -= 30.0)
-    );
-
     // // driverController
     // // .povRight()
     // // .onTrue(new AlgaeKnockoff(elevator));
@@ -597,60 +582,35 @@ public class RobotContainer implements Sendable {
         .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.2)));
     operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
 
-    operatorController
-        .povUp()
-        .onTrue(
-            new SequentialCommandGroup(
-                new InstantCommand(()->climb.setServoLocked(false)),
-                new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB)),
-                // new InstantCommand(() -> driveController.setThrottle(0.15)), TODO: Verify removal
-                new WaitUntilCommand(elevator::atDesiredPosition),
-                new InstantCommand(() -> {
-                    climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
-                    arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
-                    // driveController.setRobotCentric(true); TODO: Verify removal
-                })
-
-            ));
-                /** 
-                 * () -> {
-                  elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
-                  
-                  climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP);
-                  arm.setDesiredPosition(ArmPosition.DEEP_CLIMB);
-                  driveController.setRobotCentric(true);
-                })
-                 */
-    /*operatorController
-        .povDown()
-        .onTrue(new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING)));*/
-    operatorController
-        .povLeft()
-        .onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
-    //operatorController.povRight().onTrue(new InstantCommand(() -> climb.stopClimbMovement()));
-    operatorController.povRight().onTrue(new InstantCommand(()->{climb.bringClimbInFiveDegrees();System.out.println("bringing climb in");}));
-    operatorController.povDown().onTrue(new InstantCommand(()->climb.bringClimbOutFiveDegrees()));
+    operatorController.povLeft().onTrue(
+        new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.LEFT)
+    );
+    operatorController.povRight().onTrue(
+        new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.RIGHT)
+    );
 
     //operatorController.rightBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(true)));
     //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
 
-    operatorController.leftBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT)));
-    operatorController.rightBumper().onTrue(new InstantCommand(()->prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT)));
+    operatorController.y().onTrue(
+        new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L3)
+    );
 
-
-    operatorController.a().onTrue(new InstantCommand(()->climb.setServoLocked(true)));
-
+    operatorController.x().onTrue(
+        new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2)
+    );
+   
+    operatorController.a().onTrue(
+        new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1)
+    );
     // operatorController.back().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive))); TODO: Verify removal
 
     operatorController
-        .y()
-        .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L1)));
+        .povUp()
+        .onTrue(new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.LEFT));
     operatorController
-        .x()
-        .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L2)));
-    operatorController
-        .b()
-        .onTrue(new InstantCommand(() -> prepStateUtil.setPrepScoreHeight(SCORE_HEIGHT.L3)));
+        .povDown()
+        .onTrue(new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));
 
     // operatorController TODO: Verifiy removal
     //     .start()
