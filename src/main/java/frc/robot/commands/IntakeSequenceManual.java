@@ -47,14 +47,7 @@ public class IntakeSequenceManual extends SequentialCommandGroup {
 
         new WaitUntilCommand(claw::beamBreakSeesObject),
 
-        new InstantCommand(claw::stopMotors, claw),
-
-        new WaitCommand(2.0),
-
-        new InstantCommand(() -> {
-          arm.setDesiredPosition(ArmPosition.HOME);
-          elevator.setDesiredPosition(ElevatorHeight.HOME);
-        }, arm, elevator)
+        new InstantCommand(claw::stopMotors, claw)
     );
 
     addRequirements(arm, elevator, claw);

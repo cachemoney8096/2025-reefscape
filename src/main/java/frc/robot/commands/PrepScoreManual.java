@@ -10,4 +10,35 @@ import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 
 public class PrepScoreManual extends SequentialCommandGroup{
     
+    public PrepScoreManual(Elevator elevator, Arm arm, ElevatorHeight position) {
+        addCommands(
+            new InstantCommand(()->{
+                elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
+            }),
+            new WaitUntilCommand(elevator::atDesiredPosition),
+            new InstantCommand(()->{
+                ArmPosition armPosition;
+                switch (position) {
+                    case SCORE_L1:
+                        armPosition = ArmPosition.L1;
+                        break;
+                    case SCORE_L2:
+                        armPosition = ArmPosition.L2;
+                        break;
+                    case SCORE_L3:
+                        armPosition = ArmPosition.L3;
+                        break;
+                    default:
+                        armPosition = ArmPosition.L1;
+                        break;
+                }
+
+                elevator.setDesiredPosition(position);
+                arm.setDesiredPosition(armPosition);
+            })
+        );
+
+        addRequirements(elevator, arm);
+    }
+
 }

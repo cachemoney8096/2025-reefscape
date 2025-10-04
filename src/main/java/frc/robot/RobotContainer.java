@@ -38,6 +38,9 @@ import frc.robot.commands.DriveToTag;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.GoHomeSequenceFake;
+import frc.robot.commands.IntakeSequenceManual;
+import frc.robot.commands.NewHomeSequence;
+import frc.robot.commands.PrepScoreManual;
 import frc.robot.commands.autos.Push;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
 import frc.robot.commands.autos.S1.P2_S1_J_I;
@@ -202,7 +205,6 @@ public class RobotContainer implements Sendable {
   public PrepState prepState = PrepState.OFF;
   public IntakeClimbLocation preppedLocation = IntakeClimbLocation.LEFT;
   // public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L4;
-  public static ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L3;
   public ScoringLocation preppedScoringLocation = ScoringLocation.LEFT;
 
   private PrepStateUtil prepStateUtil = new PrepStateUtil();
@@ -293,7 +295,7 @@ public class RobotContainer implements Sendable {
     //configureOperatorBindings();
 
     /* Debug Bindings */
-    configureDebugBindings();
+    // configureDebugBindings();
 
     /* Shuffleboard */
     // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
@@ -354,58 +356,17 @@ public class RobotContainer implements Sendable {
         
         //INTAKE
         driverController.leftTrigger().whileTrue(
-            new SequentialCommandGroup(
-                new InstantCommand(()->{
-                    arm.setDesiredPosition(ArmPosition.INTAKE);
-                    elevator.setDesiredPosition(ElevatorHeight.INTAKE);
-                    claw.runMotorsIntaking();
-                }),
-                new WaitUntilCommand(
-                    ()->claw.beamBreakSeesObject()
-                ),
-                new InstantCommand(()->{
-                    claw.stopMotors();
-                }),
-                new WaitCommand(2.0),
-                new InstantCommand(()->{
-                    arm.setDesiredPosition(ArmPosition.HOME);
-                    elevator.setDesiredPosition(ElevatorHeight.HOME);
-                })
-            ).handleInterrupt(()->{
-                claw.stopMotors();
-            })
+            new IntakeSequenceManual(arm, elevator, claw, IntakeSequenceManual.Location.LEFT, headingSetter)
         );
 
         //HOME
         driverController.leftBumper().onTrue(
-            new SequentialCommandGroup(
-                new InstantCommand(()->{
-                    elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
-                    claw.stopMotors();
-                }),
-                new WaitUntilCommand(elevator::atDesiredPosition),
-                new InstantCommand(()->{
-                    arm.setDesiredPosition(ArmPosition.HOME);
-                }),
-                new WaitUntilCommand(arm::atDesiredArmPosition),
-                new InstantCommand(()->{
-                    elevator.setDesiredPosition(ElevatorHeight.HOME);
-                })
-            )
+            new NewHomeSequence(arm, elevator, claw)
         );
 
         //PREP SCORE L3
         driverController.rightBumper().onTrue(
-            new SequentialCommandGroup(
-                new InstantCommand(()->{
-                    elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
-                }),
-                new WaitUntilCommand(elevator::atDesiredPosition),
-                new InstantCommand(()->{
-                    elevator.setDesiredPosition(ElevatorHeight.SCORE_L3);
-                    arm.setDesiredPosition(ArmPosition.L3);
-                })
-            )
+            new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
         );
 
         //SCORE
@@ -714,7 +675,7 @@ public class RobotContainer implements Sendable {
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(driveCommand) // Drive counterclockwise with negative X (left)
         );
-    // Set Elevator to score_L4
+    // Set Elevator to score_L3
     driverController.rightTrigger().onTrue(
         new InstantCommand(()->elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
     // Reset Elevator
