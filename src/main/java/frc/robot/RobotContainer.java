@@ -289,11 +289,11 @@ public class RobotContainer implements Sendable {
     drivetrain.registerTelemetry(logger::telemeterize);
 
     /* Configure controller bindings */
-    configureDriverBindings();
-    configureOperatorBindings();
+    //configureDriverBindings();
+    //configureOperatorBindings();
 
     /* Debug Bindings */
-    //configureDebugBindings();
+    configureDebugBindings();
 
     /* Shuffleboard */
     // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
@@ -366,12 +366,14 @@ public class RobotContainer implements Sendable {
                 new InstantCommand(()->{
                     claw.stopMotors();
                 }),
-                new WaitCommand(1.0),
+                new WaitCommand(2.0),
                 new InstantCommand(()->{
                     arm.setDesiredPosition(ArmPosition.HOME);
                     elevator.setDesiredPosition(ElevatorHeight.HOME);
                 })
-            )
+            ).handleInterrupt(()->{
+                claw.stopMotors();
+            })
         );
 
         //HOME
@@ -416,6 +418,15 @@ public class RobotContainer implements Sendable {
             new InstantCommand(()->{
                 claw.stopMotors();
             })
+        );
+
+        driverController.start().onTrue(
+            new InstantCommand(
+                ()->{
+                    drivetrain.seedFieldCentric();
+                    desiredHeadingDeg = 0.0;
+                }
+            )
         );
 
         // cardinals
