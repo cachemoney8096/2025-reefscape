@@ -349,7 +349,7 @@ public class RobotContainer implements Sendable {
         
         //INTAKE
         driverController.leftTrigger().whileTrue(
-            new IntakeSequenceManual(arm, elevator, claw, preppedIntakeLocation, headingSetter)
+            new IntakeSequenceManual(arm, elevator, claw, preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors())
         );
 
         //HOME

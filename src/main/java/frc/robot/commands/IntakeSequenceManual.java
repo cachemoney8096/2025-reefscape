@@ -32,26 +32,22 @@ public class IntakeSequenceManual extends SequentialCommandGroup {
     addCommands(
         new InstantCommand(() -> {
          
-          if (location == Location.LEFT) {
+          /*if (location == Location.LEFT) {
             headingSetter.accept(headingLeft);
           } else {
             headingSetter.accept(headingRight);
-          }
+          }*/
 
          
           arm.setDesiredPosition(ArmPosition.INTAKE);
           elevator.setDesiredPosition(ElevatorHeight.INTAKE);
           claw.runMotorsIntaking();
-        }, arm, elevator, claw), 
+        }), 
 
         new WaitUntilCommand(claw::beamBreakSeesObject),
 
-        new InstantCommand(claw::stopMotors, claw)
+        new InstantCommand(claw::stopMotors)
     );
-
-    addRequirements(arm, elevator, claw);
-
-    this.handleInterrupt(claw::stopMotors);
     
 }
 

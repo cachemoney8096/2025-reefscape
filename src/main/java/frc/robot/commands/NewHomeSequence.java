@@ -17,22 +17,20 @@ public class NewHomeSequence extends SequentialCommandGroup {
         new InstantCommand(() -> {
           elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
           claw.stopMotors();
-        }, elevator, claw),
+        }),
 
         new WaitUntilCommand(elevator::atDesiredPosition),
 
         new InstantCommand(() -> {
           arm.setDesiredPosition(ArmPosition.HOME);
-        }, arm),
+        }),
 
         new WaitUntilCommand(arm::atDesiredArmPosition),
 
         new InstantCommand(() -> {
           elevator.setDesiredPosition(ElevatorHeight.HOME);
-        }, elevator)
+        })
     );
-
-    addRequirements(arm, elevator, claw);
   }
 }
 

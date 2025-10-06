@@ -146,7 +146,7 @@ public class Elevator extends SubsystemBase {
 
     leftMotor.setControl(m_request);*/
     final TrapezoidProfile trapezoidProfile =
-        new TrapezoidProfile(new TrapezoidProfile.Constraints(6000, 6000));
+        new TrapezoidProfile(new TrapezoidProfile.Constraints(1000, 2000));
     TrapezoidProfile.State tGoal = new TrapezoidProfile.State(rotations, 0.0);
     TrapezoidProfile.State setpoint =
         new TrapezoidProfile.State(
