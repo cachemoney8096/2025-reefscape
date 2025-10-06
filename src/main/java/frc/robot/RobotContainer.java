@@ -285,10 +285,10 @@ public class RobotContainer implements Sendable {
 
     /* Configure controller bindings */
     configureDriverBindings();
-    configureOperatorBindings();
+    //configureOperatorBindings();
 
     /* Debug Bindings */
-    // configureDebugBindings();
+    //configureDebugBindings();
 
     /* Shuffleboard */
     // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
@@ -536,23 +536,6 @@ public class RobotContainer implements Sendable {
 
     // // driverController.leftTrigger().whileTrue(new InstantCommand(()->claw.runMotorsScoring()));
     // // driverController.leftTrigger().onFalse(new InstantCommand(()->claw.stopMotors()));
-
-    // // cardinals
-    driverController.a().onTrue(
-      new InstantCommand(()->this.desiredHeadingDeg = 180.0)
-    );
-
-    driverController.b().onTrue(
-        new InstantCommand(()->this.desiredHeadingDeg = 270.0)
-    );
-
-    driverController.x().onTrue(
-        new InstantCommand(()->this.desiredHeadingDeg = 180.0)
-    );
-
-    driverController.y().onTrue(
-        new InstantCommand(()->this.desiredHeadingDeg = 0.0)
-    );
 
     // // driverController
     // // .povRight()
