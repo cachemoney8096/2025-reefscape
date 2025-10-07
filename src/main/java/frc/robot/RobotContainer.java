@@ -197,7 +197,7 @@ public class RobotContainer implements Sendable {
 
   public PrepState prepState = PrepState.OFF;
   public IntakeSequenceManual.Location preppedIntakeLocation = IntakeSequenceManual.Location.LEFT;
-  public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L3;
+  public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L2;
   public PrepScoreAndDrive.Location preppedScoringLocation = PrepScoreAndDrive.Location.LEFT;
 
   private PrepStateUtil prepStateUtil = new PrepStateUtil();

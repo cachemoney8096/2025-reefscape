@@ -28,8 +28,8 @@ public class PrepScoreAndDrive extends ParallelCommandGroup {
     private double visionBasedX = 1.0; //arbitrary non-zero value
     private double visionBasedY = 1.0;
     public PrepScoreAndDrive(Elevator elevator, Arm arm, ElevatorHeight elevatorHeight, Consumer<Pair<Double, Double>> velocitySetter, Consumer<Double> headingSetter, double heading, Supplier<Boolean> joystickInput, String llName, double MaxSpeed, CommandSwerveDrivetrain drivetrain, Location location) {
-        ProfiledPIDController xPid = new ProfiledPIDController(0.5, 0.0, 0.0, new Constraints(MaxSpeed*0.1, MaxSpeed));
-        ProfiledPIDController yPid = new ProfiledPIDController(0.5, 0.0, 0.0, new Constraints(MaxSpeed*0.1, MaxSpeed));
+        ProfiledPIDController xPid = new ProfiledPIDController(1.0, 0.0, 0.0, new Constraints(MaxSpeed*0.1, MaxSpeed));
+        ProfiledPIDController yPid = new ProfiledPIDController(1.0, 0.0, 0.0, new Constraints(MaxSpeed*0.1, MaxSpeed));
         SequentialCommandGroup driveToTag = new SequentialCommandGroup(
             new InstantCommand(()->{
                 Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME);
@@ -43,14 +43,14 @@ public class PrepScoreAndDrive extends ParallelCommandGroup {
                     if(tagOffset.getX() == 0.0 && tagOffset.getY() == 0.0 && tagOffset.getZ() == 0.0){
                         this.cancel();
                     }
-                    double xError = tagOffset.getX() + 0.0; 
-                    double zError = tagOffset.getZ() + 0.2; // 0.2 from tag
+                    double xError = tagOffset.getX() + 0.23; 
+                    double zError = tagOffset.getZ() + 0.3; // 0.2 from tag
                     double robotCXPid = -xPid.calculate(zError, 0); //calc the robot centric pid
                     double robotCYPID = yPid.calculate(xError, 0);
                     double xCmdField = robotCXPid * drivetrain.getState().Pose.getRotation().getCos() - robotCYPID * drivetrain.getState().Pose.getRotation().getSin();
                     double yCmdField = robotCXPid * drivetrain.getState().Pose.getRotation().getSin() + robotCYPID * drivetrain.getState().Pose.getRotation().getCos();
-                    this.visionBasedX = MathUtil.applyDeadband(xCmdField, 0.1);
-                    this.visionBasedY = MathUtil.applyDeadband(yCmdField, 0.1);
+                    this.visionBasedX = MathUtil.applyDeadband(xCmdField, 0.01);
+                    this.visionBasedY = MathUtil.applyDeadband(yCmdField, 0.01);
                     velocitySetter.accept(new Pair<Double, Double>(visionBasedX, visionBasedY));
                 })
             ).until(()->{

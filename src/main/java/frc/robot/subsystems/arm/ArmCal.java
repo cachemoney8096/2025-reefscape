@@ -17,7 +17,7 @@ public class ArmCal {
   public static final double TEST_ARM_MOVEMENT_VOLTAGE = 6.0;
 
   public static final double ARM_MOTOR_P = 0.5, // 0.5
-      ARM_MOTOR_I = 0.0, // 0.25 // 0.001
+      ARM_MOTOR_I = 0.001, // 0.25 // 0.001
       ARM_MOTOR_D = 0.0, // should be 0.0 when not having coral
       ARM_MOTOR_FF = 0.0;
 
