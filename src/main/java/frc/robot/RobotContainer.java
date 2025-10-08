@@ -42,6 +42,7 @@ import frc.robot.commands.IntakeSequenceManual;
 import frc.robot.commands.NewHomeSequence;
 import frc.robot.commands.PrepScoreAndDrive;
 import frc.robot.commands.PrepScoreManual;
+import frc.robot.commands.TestDrive;
 import frc.robot.commands.IntakeSequenceManual.Location;
 import frc.robot.commands.autos.Push;
 import frc.robot.commands.autos.S1.P2_S1_I_J;
@@ -236,7 +237,6 @@ public class RobotContainer implements Sendable {
     autoChooser = AutoBuilder.buildAutoChooser("Tests");
     SmartDashboard.putData("Auto Mode", autoChooser);
     fieldCentricFacingAngle.HeadingController.setPID(2.5, 0.0, 0.0);
-
     /* zero everything */
     drivetrain.seedFieldCentric();
     this.desiredHeadingDeg = 0.0;
@@ -285,7 +285,7 @@ public class RobotContainer implements Sendable {
 
     /* Configure controller bindings */
     configureDriverBindings();
-    //configureOperatorBindings();
+    configureOperatorBindings();
 
     /* Debug Bindings */
     //configureDebugBindings();
@@ -410,6 +410,10 @@ public class RobotContainer implements Sendable {
 
         driverController.povUp().onTrue(
             new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
+        );
+
+        driverController.povDown().whileTrue(
+            new TestDrive(velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain)
         );
     // TODO
     /* drivetrain.setDefaultCommand(
@@ -650,12 +654,6 @@ public class RobotContainer implements Sendable {
     // driverController.povLeft().onTrue(
     //     new InstantCommand(()->climb.setDesiredClimbPosition(ClimbPosition.STOWED)));
 
-    // Set Lights to Party Mode
-    driverController.povDown().onTrue(
-        new InstantCommand(()->lights.setLEDColor(LightCode.PARTY_MODE)));
-    // Reset Lights
-    driverController.povDown().onFalse(
-        new InstantCommand(()->lights.setLEDColor(LightCode.OFF)));
   }
 
   /**
