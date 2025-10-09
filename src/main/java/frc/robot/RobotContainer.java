@@ -35,6 +35,7 @@ import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.DriveToTag;
+import frc.robot.commands.DumbDrive;
 import frc.robot.commands.FinishScore;
 import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.GoHomeSequenceFake;
@@ -83,6 +84,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.time.Instant;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -133,6 +135,14 @@ public class RobotContainer implements Sendable {
   * otherwise, use our heading controller, which allows for cardinals
   * rotational control input will always override and terminate a cardinal input
   */
+  /* Robot centric inputs for DumbDrive */
+  private double rrvx = 0.0;
+  private double rrvy = 0.0;
+  private BiConsumer<Double, Double> rrVelocitySetter = (Double x, Double y)->{
+    this.rrvx = x;
+    this.rrvy = y;
+  };
+
   private double degInRange(double deg){
     return deg % 360;
   }
@@ -161,12 +171,16 @@ public class RobotContainer implements Sendable {
         .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
         .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
     }
-    else if(vx > 0 || vy > 0 || visionBasedRotation > 0){
-        desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+    else if(vx > 0 || vy > 0){
         return fieldCentricFacingAngle
         .withVelocityX(vx)
         .withVelocityY(vy)
         .withTargetDirection(Rotation2d.fromDegrees(desiredHeadingDeg)); // use the desired heading, in this case controlled by vision
+    }
+    else if(rrvx > 0 || rrvy > 0){
+        return robotCentric
+        .withVelocityX(rrvx)
+        .withVelocityY(rrvy);
     }
     else{
         return fieldCentricFacingAngle
@@ -413,7 +427,7 @@ public class RobotContainer implements Sendable {
         );
 
         driverController.povDown().whileTrue(
-            new TestDrive(velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain)
+            new DumbDrive(rrVelocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain)
         );
     // TODO
     /* drivetrain.setDefaultCommand(
