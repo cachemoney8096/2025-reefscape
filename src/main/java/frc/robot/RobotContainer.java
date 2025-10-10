@@ -110,7 +110,6 @@ public class RobotContainer implements Sendable {
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
   private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric()
-    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
   private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -261,7 +260,7 @@ public class RobotContainer implements Sendable {
     /* Subsystems */
     arm = new Arm();
     claw = new Claw();
-    climb = new Climb();
+    //climb = new Climb();
     elevator = new Elevator();
     lights = new Lights();
     
@@ -308,7 +307,7 @@ public class RobotContainer implements Sendable {
     // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
     Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
     Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
-    Shuffleboard.getTab("Subsystems").add(climb.getName(), climb);
+    //Shuffleboard.getTab("Subsystems").add(climb.getName(), climb);
     Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
     // Shuffleboard.getTab("Subsystems").add("Drive Controller", driveController);  TODO: VERIFY REMOVAL
     Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
@@ -426,8 +425,8 @@ public class RobotContainer implements Sendable {
             new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
         );
 
-        driverController.povDown().whileTrue(
-            new DumbDrive(rrVelocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain)
+        driverController.povDown().onTrue(
+            new DumbDrive(rrVelocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain).until(()->joystickInput.get()).finallyDo(()->rrVelocitySetter.accept(0.0, 0.0))
         );
     // TODO
     /* drivetrain.setDefaultCommand(
@@ -684,8 +683,8 @@ public class RobotContainer implements Sendable {
     // super.initSendable(builder);
     builder.addStringProperty("Prep State", () -> prepState.toString(), null);
     builder.addStringProperty("Path CMD", () -> pathCmd, null);
-    builder.addStringProperty(
-        "Prepped Intake/Climb", () -> prepStateUtil.getPrepIntakeClimbLocation().toString(), null);
+    //builder.addStringProperty(
+        //"Prepped Intake/Climb", () -> prepStateUtil.getPrepIntakeClimbLocation().toString(), null);
     builder.addStringProperty(
         "Prepped Height", () -> prepStateUtil.getPrepScoreHeight().toString(), null);
     builder.addStringProperty(

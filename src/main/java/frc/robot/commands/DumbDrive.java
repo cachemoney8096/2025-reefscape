@@ -13,40 +13,32 @@ import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class DumbDrive extends SequentialCommandGroup{
+    
     public DumbDrive(BiConsumer<Double, Double> rrVelocitySetter, Consumer<Double> headingSetter, double heading, Supplier<Boolean> joystickInput, String llName, double MaxSpeed, CommandSwerveDrivetrain drivetrain){
         Pose3d tagPose3dRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(llName);
         if(tagPose3dRobotSpace.getZ() == 0){
             System.out.println("no tag seen");
-            return;
+            this.cancel();
         }
-        
-        System.out.println("dumbdrive activated");
-        double targetHeadingDeg = heading - Math.toDegrees(tagPose3dRobotSpace.getRotation().getY());
-        double speedMetersPerSecond = 0.2;
-        double distanceOffsetMeters = 0.2;
-        double horizontalOffsetMeters = 0.0;
-        double xDistMeters = tagPose3dRobotSpace.getZ() + distanceOffsetMeters; //to tag
-        double yDistMeters = tagPose3dRobotSpace.getX() + horizontalOffsetMeters; //side to side
-        double timeToTagSeconds = xDistMeters / speedMetersPerSecond;
-        double timeToAlignSeconds = yDistMeters / speedMetersPerSecond;
-        
+
         addCommands(
-            new InstantCommand(()->{headingSetter.accept(targetHeadingDeg);}),
+            new InstantCommand(()->{
+                double targetHeadingDeg = heading - Math.toDegrees(tagPose3dRobotSpace.getRotation().getY());
+                headingSetter.accept(targetHeadingDeg);}),
             new InstantCommand(()->System.out.println("set target heading, waiting 0.5s")),
             new WaitCommand(0.5),
-            new InstantCommand(()->{rrVelocitySetter.accept(0.0, speedMetersPerSecond);}),
+            new InstantCommand(()->{rrVelocitySetter.accept(0.0, 1.0);}), //0.2 is 0.2mps speed
             new InstantCommand(()->System.out.println("set horizontal motion, waiting to align")),
-            new WaitCommand(timeToAlignSeconds),
+            new WaitCommand(Math.abs((tagPose3dRobotSpace.getX() - 0.0) / 1.0)), //0.0 = horizontal offset meters here, 0.2mps
             //new WaitUntilCommand(() -> Math.abs(LimelightHelpers.getTX(llName)) < 2.0),
-            new InstantCommand(()->{rrVelocitySetter.accept(speedMetersPerSecond, 0.0);}),
+            new InstantCommand(()->{rrVelocitySetter.accept(1.0, 0.0);}),
             new InstantCommand(()->System.out.println("set vertical motion, waiting to align")),
-            new WaitCommand(timeToTagSeconds),
-            //new WaitUntilCommand(() -> Math.abs(LimelightHelpers.getTZ(llName) - targetDistanceMeters) < 0.05)
+            new WaitCommand(Math.abs((tagPose3dRobotSpace.getZ() - 0.21) / 1.0)), //0.2mps, 0.21m from tag
+            new InstantCommand(()->{System.out.println((tagPose3dRobotSpace.getZ() - 0.21) / 1.0);}),
+            //new WaitUntilCommand(()->{return Math.abs((tagPose3dRobotSpace.getZ() - 0.21)) < 0.05;}),
             new InstantCommand(()->{rrVelocitySetter.accept(0.0, 0.0);}),
             new InstantCommand(()->System.out.println("finished, set to zero"))
+            
         );
-
-        this.until(()->joystickInput.get());
-        this.finallyDo(()->rrVelocitySetter.accept(0.0, 0.0));
     }
 }
