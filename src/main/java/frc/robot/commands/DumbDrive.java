@@ -15,7 +15,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class DumbDrive extends SequentialCommandGroup{
     public DumbDrive(BiConsumer<Double, Double> rrVelocitySetter, Consumer<Double> headingSetter, double heading, Supplier<Boolean> joystickInput, String llName, double MaxSpeed, CommandSwerveDrivetrain drivetrain){
         Pose3d tagPose3dRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(llName);
-        if(tagPose3dRobotSpace.getX() == 0 && tagPose3dRobotSpace.getY() == 0){
+        if(tagPose3dRobotSpace.getZ() == 0){
             System.out.println("no tag seen");
             return;
         }
