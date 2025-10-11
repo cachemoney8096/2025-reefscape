@@ -374,7 +374,8 @@ public class RobotContainer implements Sendable {
 
         //PREP SCORE L3
         driverController.rightBumper().onTrue(
-            new PrepScoreAndDrive(elevator, arm, preppedHeight, velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain, preppedScoringLocation)
+            new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
+            //new PrepScoreAndDrive(elevator, arm, preppedHeight, velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain, preppedScoringLocation)
         );
 
         //SCORE
