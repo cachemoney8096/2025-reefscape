@@ -18,7 +18,7 @@ public class P1_S2_G extends SequentialCommandGroup {
 
     addRequirements(drive, arm, claw, elevator);
     addCommands(
-        new ConditionalCommand(
-            new PathPlannerAuto("R_1P_S2-G"), new PathPlannerAuto("B_1P_S2-G"), () -> isRed));
+      new PathPlannerAuto("B_1P_S2-G")
+    );
   }
 }

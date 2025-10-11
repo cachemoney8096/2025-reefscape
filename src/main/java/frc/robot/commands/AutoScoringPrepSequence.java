@@ -15,7 +15,7 @@ public class AutoScoringPrepSequence extends SequentialCommandGroup {
     addRequirements(elevator, arm);
     addCommands(
         new InstantCommand(() -> lights.setLEDColor(LightCode.SCORE_PREP)),
-        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L1)),
+        new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L2)),
         new WaitUntilCommand(
             elevator::armMovementAllowed), // do it like this so we don't encounter errors with the
         // encoder missing a tick and never triggering this, also

@@ -33,6 +33,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.commands.AutoIntakeSequence;
 import frc.robot.commands.AutoScoringPrepSequence;
+import frc.robot.commands.AutoScoringSequence;
 import frc.robot.commands.DeepClimbScoringSequence;
 import frc.robot.commands.DriveToTag;
 import frc.robot.commands.DumbDrive;
@@ -219,6 +220,21 @@ public class RobotContainer implements Sendable {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
     /* Named commands here */
+    NamedCommands.registerCommand(
+    "AUTO SCORING SEQUENCE",
+    new SequentialCommandGroup(
+            new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
+                    new AutoScoringSequence(claw)
+    ));
+
+    SequentialCommandGroup prep = new SequentialCommandGroup(
+        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
+        new AutoScoringPrepSequence(elevator, arm, lights));
+
+    NamedCommands.registerCommand(
+        "AUTO SCORING PREP SEQUENCE",
+        prep
+    );
 
     /*SequentialCommandGroup intake = new SequentialCommandGroup(
         new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
@@ -236,16 +252,8 @@ public class RobotContainer implements Sendable {
         new InstantCommand(() -> claw.stopMotors()),
         new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL))
     ));
-
-    SequentialCommandGroup prep = new SequentialCommandGroup(
-        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
-        new AutoScoringPrepSequence(elevator, arm, lights));
-
-    NamedCommands.registerCommand(
-        "AUTO SCORING PREP SEQUENCE",
-        prep
-        );
-    */
+*/
+    
     /* auto chooser has some nice builtin functionality */
     autoChooser = AutoBuilder.buildAutoChooser("Tests");
     SmartDashboard.putData("Auto Mode", autoChooser);
@@ -264,13 +272,6 @@ public class RobotContainer implements Sendable {
     elevator = new Elevator();
     lights = new Lights();
     
-
-    /*NamedCommands.registerCommand(
-    "AUTO SCORING SEQUENCE",
-    new SequentialCommandGroup(
-            new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
-                    new AutoScoringSequence(claw)
-    ));*/
 
     SequentialCommandGroup score =
         new SequentialCommandGroup(
