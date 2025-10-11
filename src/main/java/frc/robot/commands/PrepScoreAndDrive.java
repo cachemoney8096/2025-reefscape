@@ -63,7 +63,7 @@ public class PrepScoreAndDrive extends ParallelCommandGroup {
         addCommands(
             //new DriveToTag(velocitySetter, headingSetter, heading, joystickInput, llName, MaxSpeed, drivetrain, 0.7, 0.0), // TODO: Fix temp constants
             driveToTag,
-            new PrepScoreManual(elevator, arm, elevatorHeight)
+            new PrepScoreManual(elevator, arm, ()->elevatorHeight)
         );
     }
 }

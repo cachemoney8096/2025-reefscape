@@ -12,7 +12,12 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -112,6 +117,7 @@ public class RobotContainer implements Sendable {
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
   private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) 
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
   private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -161,16 +167,25 @@ public class RobotContainer implements Sendable {
         return Math.abs(MathUtil.applyDeadband(driverController.getRightX(), 0.05)) > 0 || Math.abs(MathUtil.applyDeadband(driverController.getLeftX(), 0.05)) > 0 || Math.abs(MathUtil.applyDeadband(driverController.getLeftY(), 0.05)) > 0;
     };
 
+    private boolean robotCentricNew = false;
+
   private Supplier<SwerveRequest> driveCommand = ()->{
     double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), 0.05);
     double vx = MathUtil.applyDeadband(visionBasedX, 0.05);
     double vy = MathUtil.applyDeadband(visionBasedY, 0.05);
     if(Math.abs(rotationJoystickInput) > 0){
-        desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees(); // keep the desired heading updated
-        return drive
-        .withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-        .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-        .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
+        if(robotCentricNew){
+            return robotCentric.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.05) // Drive forward with negative Y (forward)
+                    .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.05) // Drive left with negative X (left)
+                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.5); // Drive counterclockwise with negative X (left)
+        }
+        else{
+            desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees(); // keep the desired heading updated
+            return drive
+            .withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+            .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+            .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
+        }
     }
     else if(vx > 0 || vy > 0){
         return fieldCentricFacingAngle
@@ -184,6 +199,11 @@ public class RobotContainer implements Sendable {
         .withVelocityY(rrvy);
     }
     else{
+        if(robotCentricNew){
+            return robotCentric.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.2) // Drive forward with negative Y (forward)
+            .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.2) // Drive left with negative X (left)
+            .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.5);
+        }
         return fieldCentricFacingAngle
         .withVelocityX(-driverController.getLeftY() * MaxSpeed)
         .withVelocityY(-driverController.getLeftX() * MaxSpeed)
@@ -216,26 +236,19 @@ public class RobotContainer implements Sendable {
   public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L2;
   public PrepScoreAndDrive.Location preppedScoringLocation = PrepScoreAndDrive.Location.LEFT;
 
+
+  PIDController xController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+  PIDController yController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+  final double feedforwardOutput = 0.2; // feed forward output
+  Pose3d tagPoseRobotSpace;
+  Pose2d robotPoseFieldSpace;
+  Pose2d targetPoseFieldSpace;
   private PrepStateUtil prepStateUtil = new PrepStateUtil();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
     /* Named commands here */
-    /*NamedCommands.registerCommand(
-    "AUTO SCORING SEQUENCE",
-    new SequentialCommandGroup(
-            new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
-                    new AutoScoringSequence(claw)
-    ));
-
-    SequentialCommandGroup prep = new SequentialCommandGroup(
-        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
-        new AutoScoringPrepSequence(elevator, arm, lights));
-
-    NamedCommands.registerCommand(
-        "AUTO SCORING PREP SEQUENCE",
-        prep
-    );*/
+    
 
     /*SequentialCommandGroup intake = new SequentialCommandGroup(
         new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
@@ -256,12 +269,6 @@ public class RobotContainer implements Sendable {
 */
     
     /* auto chooser has some nice builtin functionality */
-    autoChooser = AutoBuilder.buildAutoChooser("Tests");
-    SmartDashboard.putData("Auto Mode", autoChooser);
-    fieldCentricFacingAngle.HeadingController.setPID(2.5, 0.0, 0.0);
-    /* zero everything */
-    drivetrain.seedFieldCentric();
-    this.desiredHeadingDeg = 0.0;
 
     // Warmup PathPlanner to avoid Java pauses
     FollowPathCommand.warmupCommand().schedule();
@@ -272,6 +279,29 @@ public class RobotContainer implements Sendable {
     //climb = new Climb();
     elevator = new Elevator();
     lights = new Lights();
+
+    NamedCommands.registerCommand(
+    "AUTO SCORING SEQUENCE",
+    new SequentialCommandGroup(
+            new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
+                    new AutoScoringSequence(claw)
+    ));
+
+    SequentialCommandGroup prep = new SequentialCommandGroup(
+        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
+        new AutoScoringPrepSequence(elevator, arm, lights));
+
+    NamedCommands.registerCommand(
+        "AUTO SCORING PREP SEQUENCE",
+        prep
+    );
+
+    autoChooser = AutoBuilder.buildAutoChooser("Tests");
+    SmartDashboard.putData("Auto Mode", autoChooser);
+    fieldCentricFacingAngle.HeadingController.setPID(2.6, 0.0015, 0.0001);
+    /* zero everything */
+    drivetrain.seedFieldCentric();
+    this.desiredHeadingDeg = 0.0;
     
 
     SequentialCommandGroup score =
@@ -364,7 +394,10 @@ public class RobotContainer implements Sendable {
         
         //INTAKE
         driverController.leftTrigger().whileTrue(
-            new IntakeSequenceManual(arm, elevator, claw, preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors())
+            new SequentialCommandGroup(
+                new InstantCommand(()->this.desiredHeadingDeg = -55),
+                new IntakeSequenceManual(arm, elevator, claw, preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors())
+            )
         );
 
         //HOME
@@ -374,7 +407,10 @@ public class RobotContainer implements Sendable {
 
         //PREP SCORE L3
         driverController.rightBumper().onTrue(
-            new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
+            new SequentialCommandGroup(
+                new InstantCommand(()->System.out.println(preppedHeight)),
+                new PrepScoreManual(elevator, arm, ()->preppedHeight)
+            )
             //new PrepScoreAndDrive(elevator, arm, preppedHeight, velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain, preppedScoringLocation)
         );
 
@@ -425,11 +461,59 @@ public class RobotContainer implements Sendable {
         );
 
         driverController.povUp().onTrue(
-            new PrepScoreManual(elevator, arm, ElevatorHeight.SCORE_L3)
+            new PrepScoreManual(elevator, arm, ()->preppedHeight)
         );
 
+        /*driverController.povDown().onTrue(
+            new PIDToPoint(velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, drivetrain, 0.0, 0.0).until(()->joystickInput.get()).finallyDo(()->velocitySetter.accept(new Pair<Double, Double>(0.0, 0.0)))
+        );*/
+
+       
         driverController.povDown().onTrue(
-            new PIDToPoint(velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, drivetrain, 0.2, 0.0).until(()->joystickInput.get()).finallyDo(()->velocitySetter.accept(new Pair<Double, Double>(0.0, 0.0)))
+            /*new SequentialCommandGroup(
+                new InstantCommand(()->{
+                    headingSetter.accept(desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME));
+                })
+            )*/
+            new SequentialCommandGroup(
+            new InstantCommand(()->{
+                tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME);
+                if(tagPoseRobotSpace.getZ() == 0){
+                    System.out.println("no tag detected");
+                    return; //stop
+                }
+                final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(tagPoseRobotSpace.getZ() - 0.0, -tagPoseRobotSpace.getX() + 0.0, Rotation2d.fromDegrees(tagPoseRobotSpace.getRotation().getY()));
+                // get the ll data in wpi convention, also add offsets
+                final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(new Pose2d(), tagPoseRobotSpaceWpiConvention);
+                robotPoseFieldSpace = drivetrain.getState().Pose;
+                targetPoseFieldSpace = robotPoseFieldSpace.plus(tagTransformRobotSpaceWpiConvention);
+                System.out.println("vector: x=" + targetPoseFieldSpace.getX() + " y="+targetPoseFieldSpace.getY());
+            }),
+            new InstantCommand(()->{
+                final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME);
+                final Rotation3d tagRot = tagOffset.getRotation();
+                System.out.println("heading tag robot space" + Math.toDegrees(tagRot.getY()));
+                headingSetter.accept(desiredHeadingDeg - Math.toDegrees(tagRot.getY()));
+                System.out.println("heading" + (desiredHeadingDeg - Math.toDegrees(tagRot.getY())));
+                //headingSetter.accept(heading + LimelightHelpers.getTX(llName));
+            }),
+            new WaitUntilCommand(()->{
+                if(tagPoseRobotSpace.getZ() == 0){
+                    System.out.println("no tag detected");
+                    return true; //end immediately
+                }
+                final Pose2d currentPose = drivetrain.getState().Pose;
+                double xOutput = xController.calculate(currentPose.getX(), targetPoseFieldSpace.getX() + 0.2);
+                double yOutput = yController.calculate(currentPose.getY(), targetPoseFieldSpace.getY());
+                double xOutputClamped = clamp(xOutput, 1.5);
+                double yOutputClamped = clamp(yOutput, 1.5);
+                velocitySetter.accept(new Pair<Double, Double>(xOutputClamped, yOutputClamped));
+                return (Math.abs(xController.getPositionError()) < 0.01
+                  && Math.abs(yController.getPositionError()) < 0.01) || joystickInput.get();
+            })
+            )
+            .until(()->joystickInput.get())
+            .finallyDo(()->velocitySetter.accept(new Pair<Double, Double>(0.0, 0.0)))
         );
     // TODO
     /* drivetrain.setDefaultCommand(
@@ -579,10 +663,20 @@ public class RobotContainer implements Sendable {
     //     );
   }
 
+  public static double clamp(double value, double threshold) {
+    if (value > threshold) {
+      return threshold;
+    }
+    if (value < -threshold) {
+      return -threshold;
+    }
+    return value;
+}
+
   private void configureOperatorBindings() {
     operatorController
         .rightTrigger()
-        .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.2)));
+        .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.7)));
     operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
 
     operatorController.povLeft().onTrue(
@@ -596,7 +690,10 @@ public class RobotContainer implements Sendable {
     //operatorController.leftBumper().onTrue(new InstantCommand(() -> climb.setServoLocked(false)));
 
     operatorController.y().onTrue(
-        new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L3)
+        new InstantCommand(() ->{
+            preppedHeight = ElevatorHeight.SCORE_L3;
+            System.out.println("set to l3");
+        } )
     );
 
     operatorController.x().onTrue(
@@ -605,6 +702,10 @@ public class RobotContainer implements Sendable {
    
     operatorController.a().onTrue(
         new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1)
+    );
+
+    operatorController.b().onTrue(
+        new InstantCommand(()-> robotCentricNew = !robotCentricNew)
     );
     // operatorController.back().onTrue(new InstantCommand(()->driveController.setRobotCentric(!driveController.robotRelativeActive))); TODO: Verify removal
 

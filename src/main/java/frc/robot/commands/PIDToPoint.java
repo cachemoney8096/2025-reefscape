@@ -8,11 +8,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -49,8 +51,17 @@ public class PIDToPoint extends SequentialCommandGroup{
                 final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(new Pose2d(), tagPoseRobotSpaceWpiConvention);
                 robotPoseFieldSpace = drivetrain.getState().Pose;
                 targetPoseFieldSpace = robotPoseFieldSpace.plus(tagTransformRobotSpaceWpiConvention);
-                headingSetter.accept(targetPoseFieldSpace.getRotation().getDegrees());
+                System.out.println("vector: x=" + targetPoseFieldSpace.getX() + " y="+targetPoseFieldSpace.getY());
             }),
+            new InstantCommand(()->{
+                /*final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME);
+                final Rotation3d tagRot = tagOffset.getRotation();
+                System.out.println("heading tag robot space" + Math.toDegrees(tagRot.getY()));
+                headingSetter.accept(heading - Math.toDegrees(tagRot.getY()));
+                System.out.println("heading" + (heading - Math.toDegrees(tagRot.getY())));*/
+                headingSetter.accept(heading + LimelightHelpers.getTX(llName));
+            }),
+
             new WaitUntilCommand(()->{
                 if(tagPoseRobotSpace.getZ() == 0){
                     System.out.println("no tag detected");
@@ -67,11 +78,11 @@ public class PIDToPoint extends SequentialCommandGroup{
                 final double yFfOutput = errorDirection.getY() * feedforwardOutput;
                 xOutput += xFfOutput;
                 yOutput += yFfOutput;
-                double xOutputClamped = clamp(xOutput, 0.4);
-                double yOutputClamped = clamp(yOutput, 0.4);
+                double xOutputClamped = clamp(xOutput, 1.0);
+                double yOutputClamped = clamp(yOutput, 1.0);
                 velocitySetter.accept(new Pair<Double, Double>(xOutputClamped, yOutputClamped));
-                return (Math.abs(xController.getPositionError()) < 0.01
-                  && Math.abs(yController.getPositionError()) < 0.01) || joystickInput.get();
+                return (Math.abs(xController.getError()) < 0.01
+                  && Math.abs(yController.getError()) < 0.01) || joystickInput.get();
             })
         );
     }
