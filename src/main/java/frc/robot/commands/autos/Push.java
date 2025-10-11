@@ -3,18 +3,13 @@ package frc.robot.commands.autos;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.claw.Claw;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class Push extends SequentialCommandGroup {
-  public Push(
-      CommandSwerveDrivetrain drive,
-      Arm arm,
-      Claw claw,
-      Elevator elevator,
-      boolean isRed) {
+  public Push(CommandSwerveDrivetrain drive, Arm arm, Claw claw, Elevator elevator, boolean isRed) {
 
     addRequirements(drive);
     addCommands(

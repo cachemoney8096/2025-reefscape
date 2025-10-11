@@ -1,27 +1,15 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.arm.Arm.ArmPosition;
-import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.climb.Climb.ClimbPosition;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
-import frc.robot.subsystems.lights.Lights.LightCode;
-import frc.robot.utils.ClimbUtil;
 import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.PrepStateUtil;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 public class DeepClimbPrep extends SequentialCommandGroup {
   public static Transform2d robotToTag;
@@ -37,7 +25,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
       Lights lights) {
     // addRequirements(climb, arm);
 
-    // final PrepStateUtil.INTAKE_CLIMB_LOCATION location = prepStateUtil.getPrepIntakeClimbLocation();
+    // final PrepStateUtil.INTAKE_CLIMB_LOCATION location =
+    // prepStateUtil.getPrepIntakeClimbLocation();
 
     // BooleanSupplier checkForTag =
     //     () -> {
@@ -62,7 +51,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
     //         new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.DEEP_CLIMB)),
     //         new WaitUntilCommand(arm::atDesiredArmPosition),
     //         new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)),
-    //         new InstantCommand(() -> climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
+    //         new InstantCommand(() ->
+    // climb.setDesiredClimbPosition(ClimbPosition.CLIMBING_PREP)));
 
     // addCommands(
     //     new InstantCommand(() -> lights.setLEDColor(LightCode.CLIMB_PREP_DEEP)),
@@ -88,7 +78,8 @@ public class DeepClimbPrep extends SequentialCommandGroup {
     //                                     ClimbUtil.CagePosition.LEFT, msu.isRed()),
     //                                 new Rotation2d()));
     //                   }
-    //                   // rotate to face the correct way (the rotation here could end up being 180),
+    //                   // rotate to face the correct way (the rotation here could end up being
+    // 180),
     //                   // these rotations are not technically needed, but increase precision
     //                   targetPose = drive.getState().Pose.plus(robotToTag);
     //                   targetPose =

@@ -1,27 +1,16 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
-import frc.robot.subsystems.lights.Lights.LightCode;
 import frc.robot.utils.MatchStateUtil;
 import frc.robot.utils.PrepStateUtil;
-import frc.robot.utils.ReefAngleCalcUtil;
-import java.util.Optional;
-import java.util.TreeMap;
 
 public class PrepScoreSequence extends SequentialCommandGroup {
   public static int tagId = 0;
@@ -90,7 +79,8 @@ public class PrepScoreSequence extends SequentialCommandGroup {
     //                         .getEntry("tid")
     //                         .getDouble(0);
     //             /* map of id -> pair<util tag position id, robot heading> */
-    //             /* edit from later james - i think i was tweaking and the angles aren't technically needed. however, it does make it more precise. */
+    //             /* edit from later james - i think i was tweaking and the angles aren't
+    // technically needed. however, it does make it more precise. */
     //             TreeMap<Integer, Pair<ReefAngleCalcUtil.ScoreTagPosition, Double>> map =
     //                 new TreeMap<Integer, Pair<ReefAngleCalcUtil.ScoreTagPosition, Double>>();
     //             map.put(
@@ -144,7 +134,8 @@ public class PrepScoreSequence extends SequentialCommandGroup {
     //             if (map.containsKey(id)) {
     //               Translation2d offset =
     //                   ReefAngleCalcUtil.translateScorePositionOffset(
-    //                       map.get(id).getFirst(), location == PrepStateUtil.SCORE_LOCATION.RIGHT);
+    //                       map.get(id).getFirst(), location ==
+    // PrepStateUtil.SCORE_LOCATION.RIGHT);
     //               robotToTag = robotToTag.plus(new Transform2d(offset, new Rotation2d()));
     //               targetPose = drive.getState().Pose.plus(robotToTag);
     //               targetPose =

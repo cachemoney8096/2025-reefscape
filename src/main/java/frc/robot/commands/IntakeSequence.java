@@ -1,24 +1,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.arm.Arm.ArmPosition;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
-import frc.robot.utils.HPUtil;
 import frc.robot.utils.PrepStateUtil;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 public class IntakeSequence extends SequentialCommandGroup {
   public static Transform2d robotToTag;
@@ -32,7 +22,8 @@ public class IntakeSequence extends SequentialCommandGroup {
       PrepStateUtil prepStateUtil,
       Lights lights) {
     /* mechanical intake sequence */
-    // final PrepStateUtil.INTAKE_CLIMB_LOCATION location = prepStateUtil.getPrepIntakeClimbLocation();
+    // final PrepStateUtil.INTAKE_CLIMB_LOCATION location =
+    // prepStateUtil.getPrepIntakeClimbLocation();
 
     // SequentialCommandGroup moveArmElevatorClaw =
     //     new SequentialCommandGroup(
