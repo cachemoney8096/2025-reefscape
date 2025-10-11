@@ -42,6 +42,7 @@ import frc.robot.commands.GoHomeSequence;
 import frc.robot.commands.GoHomeSequenceFake;
 import frc.robot.commands.IntakeSequenceManual;
 import frc.robot.commands.NewHomeSequence;
+import frc.robot.commands.PIDToPoint;
 import frc.robot.commands.PrepScoreAndDrive;
 import frc.robot.commands.PrepScoreManual;
 import frc.robot.commands.TestDrive;
@@ -220,7 +221,7 @@ public class RobotContainer implements Sendable {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(MatchStateUtil ms) {
     /* Named commands here */
-    NamedCommands.registerCommand(
+    /*NamedCommands.registerCommand(
     "AUTO SCORING SEQUENCE",
     new SequentialCommandGroup(
             new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
@@ -234,7 +235,7 @@ public class RobotContainer implements Sendable {
     NamedCommands.registerCommand(
         "AUTO SCORING PREP SEQUENCE",
         prep
-    );
+    );*/
 
     /*SequentialCommandGroup intake = new SequentialCommandGroup(
         new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
@@ -427,7 +428,7 @@ public class RobotContainer implements Sendable {
         );
 
         driverController.povDown().onTrue(
-            new DumbDrive(rrVelocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, MaxSpeed, drivetrain).until(()->joystickInput.get()).finallyDo(()->rrVelocitySetter.accept(0.0, 0.0))
+            new PIDToPoint(velocitySetter, headingSetter, desiredHeadingDeg, joystickInput, Constants.LIMELIGHT_FRONT_NAME, drivetrain, 0.2, 0.0).until(()->joystickInput.get()).finallyDo(()->velocitySetter.accept(new Pair<Double, Double>(0.0, 0.0)))
         );
     // TODO
     /* drivetrain.setDefaultCommand(
