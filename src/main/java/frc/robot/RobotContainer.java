@@ -339,12 +339,11 @@ public class RobotContainer implements Sendable {
         // HOME
         driverController.leftBumper().onTrue(new NewHomeSequence(arm, elevator, claw));
 
-        // PREP SCORE L3
+        // PREP SCORE
         driverController
                 .rightBumper()
                 .onTrue(
-                        new SequentialCommandGroup(
-                                new PrepScoreManual(elevator, arm, () -> preppedHeight))
+                        new PrepScoreAndDrive(elevator, arm, ()->preppedHeight, ()->preppedScoringLocation, velocitySetter, headingSetter, joystickInput, drivetrain, pathCmd, ()->desiredHeadingDeg)
                 );
 
         // SCORE
@@ -458,11 +457,14 @@ public class RobotContainer implements Sendable {
 
         operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
 
+        operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
+        operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
+
         operatorController
-                .povLeft()
+                .leftBumper()
                 .onTrue(new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.LEFT));
         operatorController
-                .povRight()
+                .rightBumper()
                 .onTrue(
                         new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.RIGHT));
 
@@ -493,8 +495,6 @@ public class RobotContainer implements Sendable {
                 .onTrue(
                         new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));
 
-        operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
-        operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
     }
 
     // Adds Debug Bindings

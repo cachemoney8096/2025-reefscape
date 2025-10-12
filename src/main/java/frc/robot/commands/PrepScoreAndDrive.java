@@ -4,7 +4,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.arm.Arm;
@@ -30,7 +29,7 @@ public class PrepScoreAndDrive extends SequentialCommandGroup{
         }
         addCommands(
             new PrepScoreManual(elevator, arm, positionS),
-            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->horizontalOffset, heading)
+            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->horizontalOffset, heading).finallyDo(()->velocitySetter.accept(0.0, 0.0))
         );
     }
 }
