@@ -9,6 +9,7 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class IntakeSequenceManual extends SequentialCommandGroup {
   public enum Location {
@@ -17,21 +18,20 @@ public class IntakeSequenceManual extends SequentialCommandGroup {
   }
 
   public IntakeSequenceManual(
-      Arm arm, Elevator elevator, Claw claw, Location location, Consumer<Double> headingSetter) {
+      Arm arm, Elevator elevator, Claw claw, Supplier<Location> location, Consumer<Double> headingSetter) {
 
-    // PLACEHOLDERS
-    final double headingLeft = -15.0;
-    final double headingRight = 15.0;
+    final double headingLeft = -60.0;
+    final double headingRight = 60.0;
 
     addCommands(
         new InstantCommand(
             () -> {
 
-              /*if (location == Location.LEFT) {
+              if (location.get() == Location.LEFT) {
                 headingSetter.accept(headingLeft);
               } else {
                 headingSetter.accept(headingRight);
-              }*/
+              }
 
               arm.setDesiredPosition(ArmPosition.INTAKE);
               elevator.setDesiredPosition(ElevatorHeight.INTAKE);

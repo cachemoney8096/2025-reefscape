@@ -16,9 +16,7 @@ public class PrepScoreManual extends SequentialCommandGroup {
     addCommands(
         new InstantCommand(
             () -> {
-              ElevatorHeight position = positionS.get();
               elevator.setDesiredPosition(ElevatorHeight.ARM_CLEAR_OF_CLIMB);
-              System.out.println(position);
             }),
         new WaitUntilCommand(elevator::atDesiredPosition),
         new InstantCommand(

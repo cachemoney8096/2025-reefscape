@@ -1,87 +1,75 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class DriveToTag extends SequentialCommandGroup {
-  public double vx = 5; // arbitrary non-zero starting value bc who knows how wpilib until() works
-  public double vy = 5;
-  Pose3d tagOffset;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-  public DriveToTag(
-      Consumer<Pair<Double, Double>> velocitySetter,
-      Consumer<Double> headingSetter,
-      double heading,
-      Supplier<Boolean> joystickInput,
-      String llName,
-      double MaxSpeed,
-      CommandSwerveDrivetrain drivetrain,
-      double distFromTagOffset,
-      double horizontalOffset) {
-    ProfiledPIDController xPid =
-        new ProfiledPIDController(1.0, 0.0, 0.0, new Constraints(MaxSpeed * 0.05, MaxSpeed));
-    ProfiledPIDController yPid =
-        new ProfiledPIDController(1.0, 0.0, 0.0, new Constraints(MaxSpeed * 0.05, MaxSpeed));
-    if (!LimelightHelpers.getTV(llName)) {
-      this.cancel();
-    }
-    tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(llName);
-    addCommands(
-        new InstantCommand(
-            () -> {
-              Rotation3d tagRot = tagOffset.getRotation();
-              headingSetter.accept(heading - Math.toDegrees(tagRot.getY()));
-            }),
-        new RepeatCommand(
+public class DriveToTag extends SequentialCommandGroup {
+    PIDController xController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    PIDController yController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    public DriveToTag(BiConsumer<Double, Double> velocitySetter, Consumer<Double> headingSetter,
+            Supplier<Boolean> joystickInput, CommandSwerveDrivetrain drivetrain, String llName,
+            Supplier<Double> distanceOffset, Supplier<Double> horizontalOffset, Supplier<Double> heading) {
+        addCommands(
+                new InstantCommand(()->{
+                    xController.reset();
+                    yController.reset();
+                }),
                 new InstantCommand(
-                    () -> {
-                      if (LimelightHelpers.getTV(Constants.LIMELIGHT_FRONT_NAME)) {
-                        tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(llName);
-                      } else {
-                        this.cancel();
-                      }
-                      double xError =
-                          tagOffset.getX()
-                              + horizontalOffset; // TODO figure out if adding is left or right
-                      double zError = tagOffset.getZ() - distFromTagOffset;
-                      System.out.println("x: " + xError + " z: " + zError);
-                      double robotCXPid = -xPid.calculate(zError, 0);
-                      double robotCYPID = yPid.calculate(xError, 0);
-                      double xCmdField =
-                          robotCXPid * drivetrain.getState().Pose.getRotation().getCos()
-                              - robotCYPID * drivetrain.getState().Pose.getRotation().getSin();
-                      double yCmdField =
-                          robotCXPid * drivetrain.getState().Pose.getRotation().getSin()
-                              + robotCYPID * drivetrain.getState().Pose.getRotation().getCos();
-                      vx = MathUtil.applyDeadband(xCmdField, 0.1);
-                      vy = MathUtil.applyDeadband(yCmdField, 0.1);
-                      velocitySetter.accept(
-                          new Pair<Double, Double>(
-                              MathUtil.applyDeadband(vx, 0.1), MathUtil.applyDeadband(vy, 0.1)));
-                    }))
-            .until(
-                () -> {
-                  return (this.vx == 0.0 && this.vy == 0) || joystickInput.get();
-                })
-            .finallyDo(
-                () -> {
-                  this.vx = 0.0;
-                  this.vy = 0.0;
-                  velocitySetter.accept(
-                      new Pair<Double, Double>(
-                          MathUtil.applyDeadband(vx, 0.1), MathUtil.applyDeadband(vy, 0.1)));
-                }));
-  }
+                        () -> {
+                            final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(
+                                    llName);
+                            if (tagOffset.getZ() == 0) {
+                                return;
+                            }
+                            final Rotation3d tagRot = tagOffset.getRotation();
+                            headingSetter.accept(heading.get() - Math.toDegrees(tagRot.getY()));
+                        }),
+                new WaitUntilCommand(
+
+                        () -> {
+                            final Pose3d tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
+                                    llName);
+                            if (tagPoseRobotSpace.getZ() == 0) {
+                                return true;
+                            }
+                            final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(
+                                    tagPoseRobotSpace.getZ() - distanceOffset.get(),
+                                    -tagPoseRobotSpace.getX() + distanceOffset.get(),
+                                    Rotation2d.fromDegrees(tagPoseRobotSpace.getRotation().getY()));
+                            // get the ll data in wpi convention, also add offsets
+                            final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
+                                    new Pose2d(), tagPoseRobotSpaceWpiConvention);
+                            final Pose2d robotPoseFieldSpace = drivetrain.getState().Pose;
+                            final Pose2d targetPoseFieldSpace = robotPoseFieldSpace
+                                    .plus(tagTransformRobotSpaceWpiConvention);
+                            final Pose2d currentPose = drivetrain.getState().Pose;
+                            double xOutput = xController.calculate(
+                                    currentPose.getX(), targetPoseFieldSpace.getX() + 0.2);
+                            double yOutput = yController.calculate(
+                                    currentPose.getY(), targetPoseFieldSpace.getY());
+
+                            double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
+                            double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
+                            velocitySetter.accept(
+                                    xOutputClamped, yOutputClamped);
+                            return (Math.abs(xController.getPositionError()) < 0.01
+                                    && Math.abs(yController.getPositionError()) < 0.01)
+                                    || joystickInput.get();
+
+                        }));
+    }
 }
