@@ -20,16 +20,9 @@ public class PrepScoreAndDrive extends SequentialCommandGroup{
             Supplier<Boolean> joystickInput, CommandSwerveDrivetrain drivetrain, String llName,
             Supplier<Double> heading){
         final double distanceOffset = 0.0; //TODO placeholder
-        final double horizontalOffset;
-        if(location.get() == Location.LEFT){
-            horizontalOffset = 0.0; //TODO placeholder
-        }
-        else{
-            horizontalOffset = 0.0;
-        }
         addCommands(
             new PrepScoreManual(elevator, arm, positionS),
-            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->horizontalOffset, heading).finallyDo(()->velocitySetter.accept(0.0, 0.0))
+            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->location.get()==Location.LEFT?0.0:0.0, heading).finallyDo(()->velocitySetter.accept(0.0, 0.0))
         );
     }
 }
