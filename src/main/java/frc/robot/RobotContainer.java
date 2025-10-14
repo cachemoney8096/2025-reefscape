@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -339,29 +340,31 @@ public class RobotContainer implements Sendable {
         driverController
                 .leftTrigger()
                 .whileTrue(
-                        new SequentialCommandGroup(
+                        new ParallelCommandGroup(
                                 new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter)
                                         .finallyDo(() -> claw.stopMotors()),
-                                new InstantCommand(()->{
-                                        xController.reset();
-                                        yController.reset();
-                                }),
-                                new WaitCommand(1.0),
-                                new WaitUntilCommand(()->{
-                                        final double distanceMeters = ultrasonic.getRangeMM()*1000 - offsetMeters;
-                                        final Pose2d curPose = drivetrain.getState().Pose;
-                                        final Transform2d robotSpaceVector = new Transform2d(distanceMeters, 0.0, curPose.getRotation());
-                                        final Pose2d targetPoseFieldSpace = curPose.plus(robotSpaceVector);
-                                        final double xOutput = xController.calculate(curPose.getX(), targetPoseFieldSpace.getX());
-                                        final double yOutput = yController.calculate(curPose.getY(), targetPoseFieldSpace.getY());
-                                        final double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
-                                        final double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
-                                        velocitySetter.accept(
-                                                xOutputClamped, yOutputClamped);
-                                        return (Math.abs(xController.getPositionError()) < 0.01
-                                                && Math.abs(yController.getPositionError()) < 0.01)
-                                                || joystickInput.get();
-                                }).finallyDo(()->{velocitySetter.accept(0.0, 0.0);}))
+                                new SequentialCommandGroup(
+                                        new InstantCommand(()->{
+                                                xController.reset();
+                                                yController.reset();
+                                        }),
+                                        new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees()-desiredHeadingDeg)<3),
+                                        new WaitUntilCommand(()->{
+                                                final double distanceMeters = ultrasonic.getRangeMM()*1000 - offsetMeters;
+                                                final Pose2d curPose = drivetrain.getState().Pose;
+                                                final Transform2d robotSpaceVector = new Transform2d(distanceMeters, 0.0, curPose.getRotation());
+                                                final Pose2d targetPoseFieldSpace = curPose.plus(robotSpaceVector);
+                                                final double xOutput = xController.calculate(curPose.getX(), targetPoseFieldSpace.getX());
+                                                final double yOutput = yController.calculate(curPose.getY(), targetPoseFieldSpace.getY());
+                                                final double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
+                                                final double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
+                                                velocitySetter.accept(
+                                                        xOutputClamped, yOutputClamped);
+                                                return (Math.abs(xController.getPositionError()) < 0.01
+                                                        && Math.abs(yController.getPositionError()) < 0.01)
+                                                        || joystickInput.get();
+                                        }).finallyDo(()->{velocitySetter.accept(0.0, 0.0);}))
+                                )
                         );
 
         // HOME
