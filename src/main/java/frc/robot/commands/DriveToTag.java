@@ -48,7 +48,7 @@ public class DriveToTag extends SequentialCommandGroup {
                             }
                             final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(
                                     tagPoseRobotSpace.getZ() - distanceOffset.get(),
-                                    -tagPoseRobotSpace.getX() + distanceOffset.get(),
+                                    -tagPoseRobotSpace.getX() + horizontalOffset.get(),
                                     Rotation2d.fromDegrees(tagPoseRobotSpace.getRotation().getY()));
                             // get the ll data in wpi convention, also add offsets
                             final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
@@ -58,7 +58,7 @@ public class DriveToTag extends SequentialCommandGroup {
                                     .plus(tagTransformRobotSpaceWpiConvention);
                             final Pose2d currentPose = drivetrain.getState().Pose;
                             double xOutput = xController.calculate(
-                                    currentPose.getX(), targetPoseFieldSpace.getX() + 0.2);
+                                    currentPose.getX(), targetPoseFieldSpace.getX());
                             double yOutput = yController.calculate(
                                     currentPose.getY(), targetPoseFieldSpace.getY());
 

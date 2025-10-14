@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -110,6 +111,9 @@ public class RobotContainer implements Sendable {
         this.visionBasedX = x.doubleValue();
         this.visionBasedY = y.doubleValue();
     };
+
+    /* Distance sensor */
+    Ultrasonic ultrasonic = new Ultrasonic(5, 6);
 
     private Consumer<Double> headingSetter = (Double d) -> {
         this.desiredHeadingDeg = d;
@@ -202,6 +206,9 @@ public class RobotContainer implements Sendable {
     Pose3d tagPoseRobotSpace;
     Pose2d robotPoseFieldSpace;
     Pose2d targetPoseFieldSpace;
+
+    /* Distance alignment */
+    double offsetMeters = 0.035;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -334,7 +341,28 @@ public class RobotContainer implements Sendable {
                 .whileTrue(
                         new SequentialCommandGroup(
                                 new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter)
-                                        .finallyDo(() -> claw.stopMotors())));
+                                        .finallyDo(() -> claw.stopMotors()),
+                                new InstantCommand(()->{
+                                        xController.reset();
+                                        yController.reset();
+                                }),
+                                new WaitCommand(1.0),
+                                new WaitUntilCommand(()->{
+                                        final double distanceMeters = ultrasonic.getRangeMM()*1000 - offsetMeters;
+                                        final Pose2d curPose = drivetrain.getState().Pose;
+                                        final Transform2d robotSpaceVector = new Transform2d(distanceMeters, 0.0, curPose.getRotation());
+                                        final Pose2d targetPoseFieldSpace = curPose.plus(robotSpaceVector);
+                                        final double xOutput = xController.calculate(curPose.getX(), targetPoseFieldSpace.getX());
+                                        final double yOutput = yController.calculate(curPose.getY(), targetPoseFieldSpace.getY());
+                                        final double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
+                                        final double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
+                                        velocitySetter.accept(
+                                                xOutputClamped, yOutputClamped);
+                                        return (Math.abs(xController.getPositionError()) < 0.01
+                                                && Math.abs(yController.getPositionError()) < 0.01)
+                                                || joystickInput.get();
+                                }).finallyDo(()->{velocitySetter.accept(0.0, 0.0);}))
+                        );
 
         // HOME
         driverController.leftBumper().onTrue(new NewHomeSequence(arm, elevator, claw));
@@ -392,6 +420,8 @@ public class RobotContainer implements Sendable {
                         new SequentialCommandGroup(
                                 new InstantCommand(
                                         () -> {
+                                            xController.reset();
+                                            yController.reset();
                                             tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
                                                     Constants.LIMELIGHT_FRONT_NAME);
                                             if (tagPoseRobotSpace.getZ() == 0) {
@@ -540,9 +570,9 @@ public class RobotContainer implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         // super.initSendable(builder);
-        // TODO tuning stuff and robotcentric signal, clean up sendables in other p
         builder.addDoubleProperty("distance offset vision X", ()->visionOffsetX, (double d)->{this.visionOffsetX = d;});
         builder.addDoubleProperty("distance offset vision Y", ()->visionOffsetY, (double d)->{this.visionOffsetY = d;});
+        builder.addDoubleProperty("distance sensor offset", ()->offsetMeters, (double d)->{this.offsetMeters = d;});
         builder.addBooleanProperty("robot centric enabled", ()->robotCentricNew, null);
         builder.addStringProperty("Path CMD", () -> pathCmd, null);
         builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
