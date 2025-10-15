@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -53,6 +54,7 @@ import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
+import frc.robot.utils.ChineseKnockoffUltrasonic;
 import frc.robot.utils.PrepStateUtil;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -114,7 +116,8 @@ public class RobotContainer implements Sendable {
     };
 
     /* Distance sensor */
-    Ultrasonic ultrasonic = new Ultrasonic(5, 4); //yellow to orange is ping channel
+    //Ultrasonic ultrasonic = new Ultrasonic(5, 4); //yellow to orange is ping channel
+    ChineseKnockoffUltrasonic ultrasonic = new ChineseKnockoffUltrasonic(4, 5);
 
     private Consumer<Double> headingSetter = (Double d) -> {
         this.desiredHeadingDeg = d;
@@ -351,7 +354,7 @@ public class RobotContainer implements Sendable {
                                         new WaitCommand(1.0),
                                         //new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees()-desiredHeadingDeg)<3),
                                         new WaitUntilCommand(()->{
-                                                final double distanceMeters = ultrasonic.getRangeMM()*1000 - offsetMeters;
+                                                final double distanceMeters = ultrasonic.getDistanceCm()*100 - offsetMeters;
                                                 final Pose2d curPose = drivetrain.getState().Pose;
                                                 final Transform2d robotSpaceVector = new Transform2d(distanceMeters, 0.0, curPose.getRotation());
                                                 final Pose2d targetPoseFieldSpace = curPose.plus(robotSpaceVector);
@@ -370,7 +373,6 @@ public class RobotContainer implements Sendable {
 
         // HOME
         driverController.leftBumper().onTrue(new NewHomeSequence(arm, elevator, claw));
-
         // PREP SCORE
         driverController
                 .rightBumper()
@@ -588,6 +590,6 @@ public class RobotContainer implements Sendable {
                 "gyro rotation deg", () -> drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
-        builder.addDoubleProperty("distance range", ()->ultrasonic.getRangeMM()*1000, null);
+        builder.addDoubleProperty("distance range meters", ()->ultrasonic.getDistanceCm()*100, null);
     }
 }
