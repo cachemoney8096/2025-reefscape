@@ -104,7 +104,7 @@ public class RobotContainer implements Sendable {
     private double visionBasedY = 0.0;
 
     /* Vision offsets */
-    private double visionOffsetX = 0.0;
+    private double visionOffsetX = 0.5;
     private double visionOffsetY = 0.0;
 
     /* Vision velocity setters */
@@ -114,7 +114,7 @@ public class RobotContainer implements Sendable {
     };
 
     /* Distance sensor */
-    Ultrasonic ultrasonic = new Ultrasonic(5, 6);
+    Ultrasonic ultrasonic = new Ultrasonic(5, 4); //yellow to orange is ping channel
 
     private Consumer<Double> headingSetter = (Double d) -> {
         this.desiredHeadingDeg = d;
@@ -348,7 +348,8 @@ public class RobotContainer implements Sendable {
                                                 xController.reset();
                                                 yController.reset();
                                         }),
-                                        new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees()-desiredHeadingDeg)<3),
+                                        new WaitCommand(1.0),
+                                        //new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees()-desiredHeadingDeg)<3),
                                         new WaitUntilCommand(()->{
                                                 final double distanceMeters = ultrasonic.getRangeMM()*1000 - offsetMeters;
                                                 final Pose2d curPose = drivetrain.getState().Pose;
@@ -587,5 +588,6 @@ public class RobotContainer implements Sendable {
                 "gyro rotation deg", () -> drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
+        builder.addDoubleProperty("distance range", ()->ultrasonic.getRangeMM()*1000, null);
     }
 }

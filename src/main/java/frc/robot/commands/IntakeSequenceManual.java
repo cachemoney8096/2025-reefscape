@@ -20,17 +20,17 @@ public class IntakeSequenceManual extends SequentialCommandGroup {
   public IntakeSequenceManual(
       Arm arm, Elevator elevator, Claw claw, Supplier<Location> location, Consumer<Double> headingSetter) {
 
-    final double headingLeft = -60.0;
-    final double headingRight = 60.0;
+    final double headingLeft = 0.0; //-60
+    final double headingRight = 0.0; //60
 
     addCommands(
         new InstantCommand(
             () -> {
 
               if (location.get() == Location.LEFT) {
-                headingSetter.accept(headingLeft);
+                //headingSetter.accept(headingLeft);
               } else {
-                headingSetter.accept(headingRight);
+                //headingSetter.accept(headingRight);
               }
 
               arm.setDesiredPosition(ArmPosition.INTAKE);
