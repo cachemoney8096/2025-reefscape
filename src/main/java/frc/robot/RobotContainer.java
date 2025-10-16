@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -97,6 +98,8 @@ public class RobotContainer implements Sendable {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    private CANrange distanceSensor = new CANrange(27);
+
     /* Auto chooser */
     private final SendableChooser<Command> autoChooser;
 
@@ -104,6 +107,9 @@ public class RobotContainer implements Sendable {
     private double desiredHeadingDeg = 0.0;
     private double visionBasedX = 0.0;
     private double visionBasedY = 0.0;
+
+    /* RR Velocity setter */
+    private double driveToIntakeXPower = 0.0;
 
     /* Vision offsets */
     private double visionOffsetX = 0.5;
@@ -117,7 +123,7 @@ public class RobotContainer implements Sendable {
 
     /* Distance sensor */
     //Ultrasonic ultrasonic = new Ultrasonic(5, 4); //yellow to orange is ping channel
-    ChineseKnockoffUltrasonic ultrasonic = new ChineseKnockoffUltrasonic(4, 5);
+    //ChineseKnockoffUltrasonic ultrasonic = new ChineseKnockoffUltrasonic(2, 3);
 
     private Consumer<Double> headingSetter = (Double d) -> {
         this.desiredHeadingDeg = d;
@@ -159,13 +165,16 @@ public class RobotContainer implements Sendable {
                     .withVelocityY(
                             -driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
-        } else if (vx > 0 || vy > 0) {
+        } else if (Math.abs(vx) > 0 || Math.abs(vy) > 0) {
             /* no rotational override exists, and vision velocities exist, this also means that vision has set heading or we should maintain it */
             return fieldCentricFacingAngle
                     .withVelocityX(vx)
                     .withVelocityY(vy)
                     .withTargetDirection(
                             Rotation2d.fromDegrees(desiredHeadingDeg)); 
+        }
+        else if(Math.abs(driveToIntakeXPower) > 0){
+                return robotCentric.withVelocityX(driveToIntakeXPower);
         }
          else {
             if (robotCentricNew) {
@@ -212,7 +221,7 @@ public class RobotContainer implements Sendable {
     Pose2d targetPoseFieldSpace;
 
     /* Distance alignment */
-    double offsetMeters = 0.035;
+    double offsetMeters = 0.565;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -344,21 +353,15 @@ public class RobotContainer implements Sendable {
                 .leftTrigger()
                 .whileTrue(
                         new ParallelCommandGroup(
-                                new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter)
-                                        .finallyDo(() -> claw.stopMotors()),
+                                new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors()),
                                 new SequentialCommandGroup(
-                                        new InstantCommand(()->{
-                                                xController.reset();
-                                                yController.reset();
-                                        }),
-                                        new WaitCommand(1.0),
                                         //new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees()-desiredHeadingDeg)<3),
                                         new WaitUntilCommand(()->{
-                                                final double distanceMeters = ultrasonic.getDistanceCm()*100 - offsetMeters;
+                                                /*final double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
                                                 final Pose2d curPose = drivetrain.getState().Pose;
                                                 final Transform2d robotSpaceVector = new Transform2d(distanceMeters, 0.0, curPose.getRotation());
                                                 final Pose2d targetPoseFieldSpace = curPose.plus(robotSpaceVector);
-                                                final double xOutput = xController.calculate(curPose.getX(), targetPoseFieldSpace.getX());
+                                                final double xOutput = -xController.calculate(curPose.getX(), targetPoseFieldSpace.getX());
                                                 final double yOutput = yController.calculate(curPose.getY(), targetPoseFieldSpace.getY());
                                                 final double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
                                                 final double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
@@ -366,8 +369,11 @@ public class RobotContainer implements Sendable {
                                                         xOutputClamped, yOutputClamped);
                                                 return (Math.abs(xController.getPositionError()) < 0.01
                                                         && Math.abs(yController.getPositionError()) < 0.01)
-                                                        || joystickInput.get();
-                                        }).finallyDo(()->{velocitySetter.accept(0.0, 0.0);}))
+                                                        || joystickInput.get();*/
+                                                double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
+                                                this.driveToIntakeXPower = -0.5;
+                                                return distanceMeters < 0.05;
+                                        }).finallyDo(()->this.driveToIntakeXPower = 0.0))
                                 )
                         );
 
@@ -590,6 +596,6 @@ public class RobotContainer implements Sendable {
                 "gyro rotation deg", () -> drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
-        builder.addDoubleProperty("distance range meters", ()->ultrasonic.getDistanceCm()*100, null);
+        builder.addDoubleProperty("distance range meters", ()->distanceSensor.getDistance().getValueAsDouble(), null);
     }
 }
