@@ -357,23 +357,10 @@ public class RobotContainer implements Sendable {
                                 new SequentialCommandGroup(
                                         //new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees()-desiredHeadingDeg)<3),
                                         new WaitUntilCommand(()->{
-                                                /*final double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
-                                                final Pose2d curPose = drivetrain.getState().Pose;
-                                                final Transform2d robotSpaceVector = new Transform2d(distanceMeters, 0.0, curPose.getRotation());
-                                                final Pose2d targetPoseFieldSpace = curPose.plus(robotSpaceVector);
-                                                final double xOutput = -xController.calculate(curPose.getX(), targetPoseFieldSpace.getX());
-                                                final double yOutput = yController.calculate(curPose.getY(), targetPoseFieldSpace.getY());
-                                                final double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
-                                                final double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
-                                                velocitySetter.accept(
-                                                        xOutputClamped, yOutputClamped);
-                                                return (Math.abs(xController.getPositionError()) < 0.01
-                                                        && Math.abs(yController.getPositionError()) < 0.01)
-                                                        || joystickInput.get();*/
                                                 double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
                                                 this.driveToIntakeXPower = -0.5;
                                                 return distanceMeters < 0.005; // TODO changed to be more precise, test
-                                        }).finallyDo(()->this.driveToIntakeXPower = 0.0))
+                                        }).finallyDo(()->this.driveToIntakeXPower = 0.0)).until(joystickInput::get)
                                 )
                         );
 
