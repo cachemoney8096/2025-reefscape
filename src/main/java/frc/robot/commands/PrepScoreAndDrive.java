@@ -19,10 +19,10 @@ public class PrepScoreAndDrive extends SequentialCommandGroup{
     public PrepScoreAndDrive(Elevator elevator, Arm arm, Supplier<ElevatorHeight> positionS, Supplier<Location> location, BiConsumer<Double, Double> velocitySetter, Consumer<Double> headingSetter,
             Supplier<Boolean> joystickInput, CommandSwerveDrivetrain drivetrain, String llName,
             Supplier<Double> heading){
-        final double distanceOffset = 0.5; //TODO placeholder
+        final double distanceOffset = 0.25; //TODO placeholder
         addCommands(
             new PrepScoreManual(elevator, arm, positionS),
-            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->location.get()==Location.LEFT?-0.05:0.05, heading).finallyDo(()->velocitySetter.accept(0.0, 0.0))
+            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->location.get()==Location.LEFT?-0.0:0.0, heading).finallyDo(()->velocitySetter.accept(0.0, 0.0))
         );
     }
 }

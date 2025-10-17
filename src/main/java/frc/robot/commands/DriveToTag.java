@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -64,8 +65,21 @@ public class DriveToTag extends SequentialCommandGroup {
 
                             double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
                             double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
-                            velocitySetter.accept(
+                            if(DriverStation.getAlliance().isPresent()){
+                                if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                                        velocitySetter.accept(
                                     xOutputClamped, yOutputClamped);
+                                }
+                                else{
+                                        velocitySetter.accept(
+                                    -xOutputClamped, -yOutputClamped);
+                                }
+                            }
+                            else{
+                                velocitySetter.accept(
+                                    xOutputClamped, yOutputClamped); //default blue if we are cooked
+                            }
+                            
                             return (Math.abs(xController.getPositionError()) < 0.01
                                     && Math.abs(yController.getPositionError()) < 0.01)
                                     || joystickInput.get();

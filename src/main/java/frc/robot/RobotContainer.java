@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Counter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -138,6 +139,7 @@ public class RobotContainer implements Sendable {
     /* Robot centric controller */
     private boolean robotCentricNew = false;
 
+    boolean isBlue = true;
     /* Drive controller */
     private Supplier<SwerveRequest> driveCommand = () -> {
         double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), 0.05);
@@ -171,7 +173,7 @@ public class RobotContainer implements Sendable {
                     .withVelocityX(vx)
                     .withVelocityY(vy)
                     .withTargetDirection(
-                            Rotation2d.fromDegrees(desiredHeadingDeg)); 
+                            Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
         }
         else if(Math.abs(driveToIntakeXPower) > 0){
                 return robotCentric.withVelocityX(driveToIntakeXPower);
@@ -193,7 +195,7 @@ public class RobotContainer implements Sendable {
                     .withVelocityX(-driverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withTargetDirection(
-                            Rotation2d.fromDegrees(desiredHeadingDeg)); 
+                            Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
         }
     };
 
@@ -274,7 +276,20 @@ public class RobotContainer implements Sendable {
         fieldCentricFacingAngle.HeadingController.setPID(3.0, 0.001, 0.0001); //TODO heading controller pid
         /* zero everything */
         drivetrain.seedFieldCentric();
-        this.desiredHeadingDeg = 0.0;
+        if(DriverStation.getAlliance().isPresent()){
+                if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                        this.desiredHeadingDeg = 0.0;
+
+                }
+                else{
+                        this.desiredHeadingDeg = 180.0;
+                        isBlue = false;
+                }
+        }
+        else{
+                this.desiredHeadingDeg = 0.0; //default to blue if we are cooked
+        }
+        drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(isBlue?0:180)));
 
         SequentialCommandGroup score = new SequentialCommandGroup(
                 new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
@@ -348,7 +363,7 @@ public class RobotContainer implements Sendable {
                                         new WaitUntilCommand(()->{
                                                 double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
                                                 this.driveToIntakeXPower = -0.5;
-                                                return distanceMeters < 0.005; // TODO changed to be more precise, test
+                                                return distanceMeters < 0.05; // TODO changed to be more precise, test
                                         }).finallyDo(()->this.driveToIntakeXPower = 0.0)).until(joystickInput::get)
                                 )
                         );
@@ -383,8 +398,9 @@ public class RobotContainer implements Sendable {
                 .onTrue(
                         new InstantCommand(
                                 () -> {
-                                    drivetrain.seedFieldCentric();
-                                    desiredHeadingDeg = 0.0;
+                                    //drivetrain.seedFieldCentric();
+                                    drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(180.0)));
+                                    desiredHeadingDeg = 180.0;
                                 }));
 
         // cardinals
@@ -497,6 +513,7 @@ public class RobotContainer implements Sendable {
         builder.addDoubleProperty("distance offset vision Y", ()->visionOffsetY, (double d)->{this.visionOffsetY = d;});
         builder.addDoubleProperty("distance sensor offset", ()->offsetMeters, (double d)->{this.offsetMeters = d;});
         builder.addBooleanProperty("robot centric enabled", ()->robotCentricNew, null);
+        builder.addDoubleProperty("pose heading", ()->drivetrain.getState().Pose.getRotation().getDegrees(), null);
         builder.addStringProperty("Path CMD", () -> pathCmd, null);
         builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
         builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
@@ -508,5 +525,6 @@ public class RobotContainer implements Sendable {
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
         builder.addDoubleProperty("distance range meters", ()->distanceSensor.getDistance().getValueAsDouble(), null);
+        builder.addBooleanProperty("color is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
     }
 }
