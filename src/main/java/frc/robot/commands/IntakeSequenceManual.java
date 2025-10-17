@@ -20,8 +20,8 @@ public class IntakeSequenceManual extends SequentialCommandGroup {
   public IntakeSequenceManual(
       Arm arm, Elevator elevator, Claw claw, Supplier<Location> location, Consumer<Double> headingSetter) {
 
-    final double headingLeft = -60.0; //-60
-    final double headingRight = 60.0; //60
+    final double headingLeft = 0.0; //-60
+    final double headingRight = 0.0; //60
 
     addCommands(
         new InstantCommand(

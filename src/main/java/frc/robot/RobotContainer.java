@@ -207,7 +207,6 @@ public class RobotContainer implements Sendable {
     public String pathCmd = "";
 
     /* Prep states */
-    // TODO reworking prep states
     public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L2;
     public IntakeSequenceManual.Location preppedIntakeLocation = IntakeSequenceManual.Location.LEFT;
     public PrepScoreAndDrive.Location preppedScoringLocation = PrepScoreAndDrive.Location.LEFT;
@@ -249,7 +248,6 @@ public class RobotContainer implements Sendable {
                 new AutoScoringPrepSequence(elevator, arm, lights));
 
         NamedCommands.registerCommand("AUTO SCORING PREP SEQUENCE", prep);
-        // TODO namedcommands if we try for better autos
         /*
          * SequentialCommandGroup intake = new SequentialCommandGroup(
          * new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
@@ -273,7 +271,7 @@ public class RobotContainer implements Sendable {
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
         /* Field centric heading controller */
-        fieldCentricFacingAngle.HeadingController.setPID(2.6, 0.0015, 0.0001);
+        fieldCentricFacingAngle.HeadingController.setPID(3.0, 0.001, 0.0001); //TODO heading controller pid
         /* zero everything */
         drivetrain.seedFieldCentric();
         this.desiredHeadingDeg = 0.0;
@@ -306,15 +304,6 @@ public class RobotContainer implements Sendable {
         operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
         SmartDashboard.putData(autoChooser);
     }
-
-    // public void setDefaultLocation(){ TODO: Verify removal
-    // if(intakeLocationChooser.getSelected() == "LEFT"){
-    // prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.LEFT);
-    // }
-    // else{
-    // prepStateUtil.setPrepIntakeClimbLocation(INTAKE_CLIMB_LOCATION.RIGHT);
-    // }
-    // }
 
     /**
      * Use this method to define your trigger->command mappings. Triggers can be
@@ -407,76 +396,11 @@ public class RobotContainer implements Sendable {
 
         driverController.y().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = 0.0));
 
-        driverController.povUp().onTrue(new PrepScoreManual(elevator, arm, () -> preppedHeight));
-
-        // DO NOT FORGET THE .finallyDo ON THIS
-        driverController.povLeft().onTrue(new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, Constants.LIMELIGHT_FRONT_NAME, ()->this.visionOffsetX, ()->this.visionOffsetY, ()->this.desiredHeadingDeg).finallyDo(()->velocitySetter.accept(0.0, 0.0)));
-
-        // TODO remove this if drivetotag works
-        driverController
-                .povDown()
-                .onTrue(
-                        new SequentialCommandGroup(
-                                new InstantCommand(
-                                        () -> {
-                                            xController.reset();
-                                            yController.reset();
-                                            tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
-                                                    Constants.LIMELIGHT_FRONT_NAME);
-                                            if (tagPoseRobotSpace.getZ() == 0) {
-                                                System.out.println("no tag detected");
-                                                return; // stop
-                                            }
-                                            final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(
-                                                    tagPoseRobotSpace.getZ() - 0.0,
-                                                    -tagPoseRobotSpace.getX() + 0.0,
-                                                    Rotation2d.fromDegrees(tagPoseRobotSpace.getRotation().getY()));
-                                            // get the ll data in wpi convention, also add offsets
-                                            final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
-                                                    new Pose2d(), tagPoseRobotSpaceWpiConvention);
-                                            robotPoseFieldSpace = drivetrain.getState().Pose;
-                                            targetPoseFieldSpace = robotPoseFieldSpace
-                                                    .plus(tagTransformRobotSpaceWpiConvention);
-                                            System.out.println(
-                                                    "vector: x="
-                                                            + targetPoseFieldSpace.getX()
-                                                            + " y="
-                                                            + targetPoseFieldSpace.getY());
-                                        }),
-                                new InstantCommand(
-                                        () -> {
-                                            final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(
-                                                    Constants.LIMELIGHT_FRONT_NAME);
-                                            final Rotation3d tagRot = tagOffset.getRotation();
-                                            System.out.println(
-                                                    "heading tag robot space" + Math.toDegrees(tagRot.getY()));
-                                            headingSetter.accept(desiredHeadingDeg - Math.toDegrees(tagRot.getY()));
-                                            System.out.println(
-                                                    "heading" + (desiredHeadingDeg - Math.toDegrees(tagRot.getY())));
-                                            // headingSetter.accept(heading + LimelightHelpers.getTX(llName));
-                                        }),
-                                new WaitUntilCommand(
-                                        () -> {
-                                            if (tagPoseRobotSpace.getZ() == 0) {
-                                                System.out.println("no tag detected");
-                                                return true; // end immediately
-                                            }
-                                            final Pose2d currentPose = drivetrain.getState().Pose;
-                                            double xOutput = xController.calculate(
-                                                    currentPose.getX(), targetPoseFieldSpace.getX() + 0.2);
-                                            double yOutput = yController.calculate(
-                                                    currentPose.getY(), targetPoseFieldSpace.getY());
-
-                                            double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
-                                            double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
-                                            velocitySetter.accept(
-                                                    xOutputClamped, yOutputClamped);
-                                            return (Math.abs(xController.getPositionError()) < 0.01
-                                                    && Math.abs(yController.getPositionError()) < 0.01)
-                                                    || joystickInput.get();
-                                        }))
-                                .until(() -> joystickInput.get())
-                                .finallyDo(() -> velocitySetter.accept(0.0, 0.0)));
+        // Testing controls
+        driverController.povUp().whileTrue(new ParallelCommandGroup(
+                new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors()),
+                new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, Constants.LIMELIGHT_FRONT_NAME, ()->0.5, ()->0.0, ()->desiredHeadingDeg).finallyDo(()->velocitySetter.accept(0.0, 0.0))
+        ));
     }
 
     private void configureOperatorBindings() {
