@@ -372,7 +372,7 @@ public class RobotContainer implements Sendable {
                                                         || joystickInput.get();*/
                                                 double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
                                                 this.driveToIntakeXPower = -0.5;
-                                                return distanceMeters < 0.05;
+                                                return distanceMeters < 0.005; // TODO changed to be more precise, test
                                         }).finallyDo(()->this.driveToIntakeXPower = 0.0))
                                 )
                         );
