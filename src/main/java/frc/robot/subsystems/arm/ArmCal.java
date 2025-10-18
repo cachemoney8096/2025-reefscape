@@ -1,12 +1,11 @@
 package frc.robot.subsystems.arm;
 
 public class ArmCal {
-  public static final double ARM_POSITION_INTAKE_DEGREES = 359.5, // 311.5 // 141.5 - 57,
-      ARM_POSITION_HOME_DEGREES = 224.2, // 182 // 108
-      ARM_POSITION_L1_DEGREES = 108.0,
-
-      ARM_POSITION_L2_DEGREES = 108.5,
-      ARM_POSITION_L3_DEGREES = 109.0, // 106.0 + 42 + 13 + 17.5
+  public static final double ARM_POSITION_INTAKE_DEGREES = 233.7, // 311.5 // 141.5 - 57,
+      ARM_POSITION_HOME_DEGREES = 122.0, // 182 // 108
+      ARM_POSITION_L1_DEGREES = 20.0,
+      ARM_POSITION_L2_DEGREES = 20.0,
+      ARM_POSITION_L3_DEGREES = 17.0, // 106.0 + 42 + 13 + 17.5
       //   ARM_POSITION_L4_DEGREES = 64.0,
       ARM_POSITION_DEEP_CLIMB_DEGREES = 315.5, // 141.5 + 29;
       ARM_POSITION_ALGAE_PREP = 145.8;
@@ -17,7 +16,7 @@ public class ArmCal {
   public static final double TEST_ARM_MOVEMENT_VOLTAGE = 6.0;
 
   public static final double ARM_MOTOR_P = 0.5, // 0.5
-      ARM_MOTOR_I = 0.0, // 0.25 // 0.001
+      ARM_MOTOR_I = 0.001, // 0.25 // 0.001
       ARM_MOTOR_D = 0.0, // should be 0.0 when not having coral
       ARM_MOTOR_FF = 0.0;
 

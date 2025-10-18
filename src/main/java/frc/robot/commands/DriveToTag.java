@@ -1,50 +1,89 @@
 package frc.robot.commands;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.ScoringLimelight.ScoringLimelight;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class DriveToTag extends SequentialCommandGroup {
-  public static Transform2d robotToTag;
-  public static Transform2d rotatedRobotToTag;
-
-  public DriveToTag(CommandSwerveDrivetrain drive, ScoringLimelight limelight) {
-    BooleanSupplier checkForTag =
-        () -> {
-          Optional<Transform2d> robotToTagOptional = limelight.checkForTag();
-          if (robotToTagOptional.isPresent()) {
-            robotToTag = robotToTagOptional.get();
-            rotatedRobotToTag =
-                new Transform2d(
-                    new Translation2d(
-                        -robotToTag.getTranslation().getX(), -robotToTag.getTranslation().getY()),
-                    robotToTag.getRotation());
-            return true;
-          }
-          return false;
-        };
-    addCommands(
-        new ConditionalCommand( // offset from bumpers should be 0.406 m
-            new InstantCommand(
-                () -> {
-                  System.out.println(
-                      "current pose: "
-                          + drive.getState().Pose
-                          + "\nrobot to tag : "
-                          + robotToTag.toString()
-                          + "\n");
-                  Pose2d targetPose = drive.getState().Pose.plus(rotatedRobotToTag);
-                  System.out.println("target pose: " + targetPose.toString() + "\n");
-                  drive.driveToPose(drive.getState().Pose, targetPose);
+    PIDController xController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    PIDController yController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    public DriveToTag(BiConsumer<Double, Double> velocitySetter, Consumer<Double> headingSetter,
+            Supplier<Boolean> joystickInput, CommandSwerveDrivetrain drivetrain, String llName,
+            Supplier<Double> distanceOffset, Supplier<Double> horizontalOffset, Supplier<Double> heading) {
+        addCommands(
+                new InstantCommand(()->{
+                    xController.reset();
+                    yController.reset();
                 }),
-            new InstantCommand(() -> System.out.println("did not see a tag")),
-            checkForTag));
-  }
+                new InstantCommand(
+                        () -> {
+                            final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(
+                                    llName);
+                            if (tagOffset.getZ() == 0) {
+                                return;
+                            }
+                            final Rotation3d tagRot = tagOffset.getRotation();
+                            headingSetter.accept(heading.get() - Math.toDegrees(tagRot.getY()));
+                        }),
+                new WaitUntilCommand(
+
+                        () -> {
+                            final Pose3d tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
+                                    llName);
+                            if (tagPoseRobotSpace.getZ() == 0) {
+                                return true;
+                            }
+                            final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(
+                                    tagPoseRobotSpace.getZ() - distanceOffset.get(),
+                                    -tagPoseRobotSpace.getX() + horizontalOffset.get(),
+                                    Rotation2d.fromDegrees(tagPoseRobotSpace.getRotation().getY()));
+                            // get the ll data in wpi convention, also add offsets
+                            final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
+                                    new Pose2d(), tagPoseRobotSpaceWpiConvention);
+                            final Pose2d robotPoseFieldSpace = drivetrain.getState().Pose;
+                            final Pose2d targetPoseFieldSpace = robotPoseFieldSpace
+                                    .plus(tagTransformRobotSpaceWpiConvention);
+                            final Pose2d currentPose = drivetrain.getState().Pose;
+                            double xOutput = xController.calculate(
+                                    currentPose.getX(), targetPoseFieldSpace.getX());
+                            double yOutput = yController.calculate(
+                                    currentPose.getY(), targetPoseFieldSpace.getY());
+
+                            double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
+                            double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
+                            if(DriverStation.getAlliance().isPresent()){
+                                if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                                        velocitySetter.accept(
+                                    xOutputClamped, yOutputClamped);
+                                }
+                                else{
+                                        velocitySetter.accept(
+                                    -xOutputClamped, -yOutputClamped);
+                                }
+                            }
+                            else{
+                                velocitySetter.accept(
+                                    xOutputClamped, yOutputClamped); //default blue if we are cooked
+                            }
+                            
+                            return (Math.abs(xController.getPositionError()) < 0.01
+                                    && Math.abs(yController.getPositionError()) < 0.01)
+                                    || joystickInput.get();
+
+                        }));
+    }
 }

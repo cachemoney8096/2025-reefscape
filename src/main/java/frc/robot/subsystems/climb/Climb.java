@@ -140,13 +140,13 @@ public class Climb extends SubsystemBase {
 
   public void setServoLocked(boolean lockServo) { // TODO check which servo should be used
     if (lockServo) {
-       //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
-       //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      // climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
+      // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_LOCKED_POSITION_DEGREES);
       climbServoLeft.set(0.65);
       climbServoRight.set(0.65);
     } else {
-       //climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
-       //climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      // climbServoLeft.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
+      // climbServoRight.setAngle(ClimbCal.CLIMBING_SERVO_UNLOCKED_POSITION_DEGREES);
       climbServoLeft.set(1.0);
       climbServoRight.set(1.0);
     }
@@ -187,21 +187,20 @@ public class Climb extends SubsystemBase {
     }
   }
 
-  public void bringClimbInFiveDegrees(){
+  public void bringClimbInFiveDegrees() {
     bringClimbInByDegrees += 5;
   }
 
-  public void bringClimbOutFiveDegrees(){
+  public void bringClimbOutFiveDegrees() {
     bringClimbInByDegrees -= 5;
   }
 
   @Override
   public void periodic() {
     if (allowClimbMovement) {
-      if(this.desiredPosition != ClimbPosition.STOWED){
-        controlPosition(climbPositionMap.get(this.desiredPosition)-bringClimbInByDegrees);
-      }
-      else{
+      if (this.desiredPosition != ClimbPosition.STOWED) {
+        controlPosition(climbPositionMap.get(this.desiredPosition) - bringClimbInByDegrees);
+      } else {
         controlPosition(climbPositionMap.get(this.desiredPosition));
       }
     }
@@ -216,9 +215,13 @@ public class Climb extends SubsystemBase {
     builder.addDoubleProperty(
         "Climb DESIRED Pos (Deg)", () -> climbPositionMap.get(desiredPosition), null);
     builder.addDoubleProperty(
-        "Climb DESIRED Pos (Deg) LIVE", () -> climbPositionMap.get(desiredPosition) - bringClimbInByDegrees, null);
-      builder.addDoubleProperty(
-          "Climb CURRENT Pos (Deg)", () -> climbTalonLeft.getPosition().getValueAsDouble() * 360.0,  null);
+        "Climb DESIRED Pos (Deg) LIVE",
+        () -> climbPositionMap.get(desiredPosition) - bringClimbInByDegrees,
+        null);
+    builder.addDoubleProperty(
+        "Climb CURRENT Pos (Deg)",
+        () -> climbTalonLeft.getPosition().getValueAsDouble() * 360.0,
+        null);
     builder.addBooleanProperty("Climb at desired", this::atDesiredPosition, null);
 
     builder.addDoubleProperty(
@@ -229,15 +232,15 @@ public class Climb extends SubsystemBase {
         "Climb Right Motor RELATIVE (deg)",
         () -> climbTalonRight.getPosition().getValueAsDouble() * 360.0,
         null);
-    // builder.addDoubleProperty(
-    //     "Climb ABSOLUTE (deg)",
-    //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/
-    //         climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
-    //     null);
-    // builder.addDoubleProperty(
-    //     "Climb ABSOLUTE REAL (deg)",
-    //     () -> /*climbAbsoluteEncoder.getDistance() * 360*/ getPositionClimbRotationsReal() * 360,
-    //     null);
+    builder.addDoubleProperty(
+        "Climb ABSOLUTE (deg)",
+        () -> /*climbAbsoluteEncoder.getDistance() * 360*/
+            climbAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360,
+        null);
+    builder.addDoubleProperty(
+        "Climb ABSOLUTE REAL (deg)",
+        () -> /*climbAbsoluteEncoder.getDistance() * 360*/ getPositionClimbRotationsReal() * 360,
+        null);
 
     // builder.addDoubleProperty(
     //     "Climb ABSOLUTE RAW (deg)",
@@ -256,9 +259,7 @@ public class Climb extends SubsystemBase {
     builder.addStringProperty(
         "Servo DESIRED Pos",
         () -> {
-          return climbServoLeft.getAngle() == 0.65
-              ? "UNLOCKED"
-              : "LOCKED";
+          return climbServoLeft.getAngle() == 0.65 ? "UNLOCKED" : "LOCKED";
         },
         null);
 

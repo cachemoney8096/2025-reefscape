@@ -25,7 +25,7 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
-  private MatchStateUtil matchState = new MatchStateUtil(false, true, false);
+  private MatchStateUtil matchState = new MatchStateUtil(false, false, false);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer(matchState);
+    m_robotContainer = new RobotContainer();
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog()); // log joystick data
     // URL.start();
@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
     if(checkForTag.getAsBoolean()){
       System.out.println("current pose: " + m_robotContainer.drivetrain.getState().Pose + "\nrobot to tag : " + robotToTag.toString() + "\n") ; Pose2d targetPose = m_robotContainer.drivetrain.getState().Pose.plus(robotToTag); System.out.println("target pose: " + targetPose.toString() + "\n");
     }*/
-    m_robotContainer.setDefaultLocation();
+    // m_robotContainer.setDefaultLocation();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drive.Old;
+package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -8,11 +8,9 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.IdealStartingState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,14 +24,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements Subsystem so it can easily
  * be used in command-based projects.
  */
-public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain implements Subsystem {
+public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
   private static final double kSimLoopPeriod = 0.005; // 5 ms
   private Notifier m_simNotifier = null;
   private double m_lastSimTime;
@@ -44,6 +41,10 @@ public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain imple
   private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
   /* Keep track if we've ever applied the operator perspective before or not */
   private boolean m_hasAppliedOperatorPerspective = false;
+
+  /** Swerve request to apply during robot-centric path following */
+  private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds =
+      new SwerveRequest.ApplyRobotSpeeds();
 
   /* Swerve requests to apply during SysId characterization */
   private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization =
@@ -114,12 +115,13 @@ public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain imple
    * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
    * @param modules Constants for each specific module
    */
-  public CommandSwerveDrivetrainImported(
+  public CommandSwerveDrivetrain(
       SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
     super(drivetrainConstants, modules);
     if (Utils.isSimulation()) {
       startSimThread();
     }
+    configureAutoBuilder();
   }
 
   /**
@@ -133,7 +135,7 @@ public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain imple
    *     0 Hz, this is 250 Hz on CAN FD, and 100 Hz on CAN 2.0.
    * @param modules Constants for each specific module
    */
-  public CommandSwerveDrivetrainImported(
+  public CommandSwerveDrivetrain(
       SwerveDrivetrainConstants drivetrainConstants,
       double odometryUpdateFrequency,
       SwerveModuleConstants<?, ?, ?>... modules) {
@@ -141,6 +143,7 @@ public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain imple
     if (Utils.isSimulation()) {
       startSimThread();
     }
+    configureAutoBuilder();
   }
 
   /**
@@ -158,7 +161,7 @@ public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain imple
    *     theta]ᵀ, with units in meters and radians
    * @param modules Constants for each specific module
    */
-  public CommandSwerveDrivetrainImported(
+  public CommandSwerveDrivetrain(
       SwerveDrivetrainConstants drivetrainConstants,
       double odometryUpdateFrequency,
       Matrix<N3, N1> odometryStandardDeviation,
@@ -172,6 +175,37 @@ public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain imple
         modules);
     if (Utils.isSimulation()) {
       startSimThread();
+    }
+    configureAutoBuilder();
+  }
+
+  private void configureAutoBuilder() {
+    try {
+      var config = RobotConfig.fromGUISettings();
+      AutoBuilder.configure(
+          () -> getState().Pose, // Supplier of current robot pose
+          this::resetPose, // Consumer for seeding pose against auto
+          () -> getState().Speeds, // Supplier of current robot speeds
+          // Consumer of ChassisSpeeds and feedforwards to drive the robot
+          (speeds, feedforwards) ->
+              setControl(
+                  m_pathApplyRobotSpeeds
+                      .withSpeeds(speeds)
+                      .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                      .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
+          new PPHolonomicDriveController(
+              // PID constants for translation
+              new PIDConstants(10, 0, 0),
+              // PID constants for rotation
+              new PIDConstants(7, 0, 0)),
+          config,
+          // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+          () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+          this // Subsystem for requirements
+          );
+    } catch (Exception ex) {
+      DriverStation.reportError(
+          "Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
     }
   }
 
@@ -278,30 +312,5 @@ public class CommandSwerveDrivetrainImported extends TunerSwerveDrivetrain imple
       Matrix<N3, N1> visionMeasurementStdDevs) {
     super.addVisionMeasurement(
         visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
-  }
-
-  public Command driveToPoint;
-  /** Drive to a point */
-  public void driveToPose(Pose2d currentPose, Pose2d targetPose) {
-    List<Waypoint> waypoints =
-        PathPlannerPath.waypointsFromPoses(
-            currentPose, targetPose); // TODO i switched these back to test w/ odometry
-    // prev max speed and acceleration was 3.0, 3.0
-    // 0.0 speed made it slow, 0.00001 made it stop, -0.01 made is fast in same direction
-    PathConstraints constraints =
-        new PathConstraints(0.0, 0.0, 2 * Math.PI, 4 * Math.PI); // TODO why don't these work
-    PathPlannerPath path =
-        new PathPlannerPath(
-            waypoints,
-            constraints,
-            new IdealStartingState(0.0, currentPose.getRotation()),
-            new GoalEndState(0.0, targetPose.getRotation()));
-    path.preventFlipping = true;
-    driveToPoint = AutoBuilder.followPath(path);
-    driveToPoint.schedule();
-  }
-
-  public void killDriveToPose() {
-    driveToPoint.end(true);
   }
 }
