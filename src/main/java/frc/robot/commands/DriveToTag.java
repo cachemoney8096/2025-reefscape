@@ -21,6 +21,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class DriveToTag extends SequentialCommandGroup {
     PIDController xController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
     PIDController yController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    Pose3d tagPoseRobotSpaceInstance;
     public DriveToTag(BiConsumer<Double, Double> velocitySetter, Consumer<Double> headingSetter,
             Supplier<Boolean> joystickInput, CommandSwerveDrivetrain drivetrain, String llName,
             Supplier<Double> distanceOffset, Supplier<Double> horizontalOffset, Supplier<Double> heading) {
@@ -34,8 +35,10 @@ public class DriveToTag extends SequentialCommandGroup {
                             final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(
                                     llName);
                             if (tagOffset.getZ() == 0) {
+                                tagPoseRobotSpaceInstance = new Pose3d();
                                 return;
                             }
+                            tagPoseRobotSpaceInstance = tagOffset;
                             final Rotation3d tagRot = tagOffset.getRotation();
                             headingSetter.accept(heading.get() - Math.toDegrees(tagRot.getY()));
                         }),
@@ -44,13 +47,16 @@ public class DriveToTag extends SequentialCommandGroup {
                         () -> {
                             final Pose3d tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
                                     llName);
-                            if (tagPoseRobotSpace.getZ() == 0) {
+                            if (tagPoseRobotSpaceInstance.getZ() == 0) {
                                 return true;
                             }
+                            if(tagPoseRobotSpace.getZ() != 0){
+                                tagPoseRobotSpaceInstance = tagPoseRobotSpace;
+                            }
                             final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(
-                                    tagPoseRobotSpace.getZ() - distanceOffset.get(),
-                                    -tagPoseRobotSpace.getX() + horizontalOffset.get(),
-                                    Rotation2d.fromDegrees(tagPoseRobotSpace.getRotation().getY()));
+                                    tagPoseRobotSpaceInstance.getZ() - distanceOffset.get(),
+                                    -tagPoseRobotSpaceInstance.getX() + horizontalOffset.get(),
+                                    Rotation2d.fromDegrees(tagPoseRobotSpaceInstance.getRotation().getY()));
                             // get the ll data in wpi convention, also add offsets
                             final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
                                     new Pose2d(), tagPoseRobotSpaceWpiConvention);

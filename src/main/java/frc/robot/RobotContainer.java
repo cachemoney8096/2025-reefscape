@@ -222,7 +222,7 @@ public class RobotContainer implements Sendable {
     Pose2d targetPoseFieldSpace;
 
     /* Distance alignment */
-    double offsetMeters = 0.565;
+    double offsetMeters = 0.53;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -399,8 +399,8 @@ public class RobotContainer implements Sendable {
                         new InstantCommand(
                                 () -> {
                                     //drivetrain.seedFieldCentric();
-                                    drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(180.0)));
-                                    desiredHeadingDeg = 180.0;
+                                    drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(isBlue?0.0:180.0)));
+                                    desiredHeadingDeg = isBlue?0.0:180.0;
                                 }));
 
         // cardinals
