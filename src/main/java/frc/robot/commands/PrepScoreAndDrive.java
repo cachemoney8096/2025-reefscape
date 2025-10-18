@@ -22,7 +22,7 @@ public class PrepScoreAndDrive extends SequentialCommandGroup{
         final double distanceOffset = 0.25; //TODO placeholder
         addCommands(
             new PrepScoreManual(elevator, arm, positionS),
-            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->location.get()==Location.LEFT?0.20:-0.20, heading).finallyDo(()->velocitySetter.accept(0.0, 0.0))
+            new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, llName, ()->distanceOffset, ()->location.get()==Location.LEFT?0.18:-0.18, heading).finallyDo(()->velocitySetter.accept(0.0, 0.0))
         );
     }
 }
