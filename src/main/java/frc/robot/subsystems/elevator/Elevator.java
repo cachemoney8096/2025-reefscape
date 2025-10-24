@@ -199,7 +199,7 @@ public class Elevator extends SubsystemBase {
 
   public void periodic() {
     if (allowElevatorMovement) {
-      //controlPosition(elevatorPositions.get(desiredPosition));
+      controlPosition(elevatorPositions.get(desiredPosition));
     }
   }
 

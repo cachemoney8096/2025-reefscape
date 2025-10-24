@@ -462,7 +462,7 @@ public class RobotContainer implements Sendable {
         operatorController
                 .povRight()
                 .onTrue(
-                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));
+                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));        operatorController.povUp().onTrue(new InstantCommand(()->this.isBlue = !this.isBlue));
 
     }
 
