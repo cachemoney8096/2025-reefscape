@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Counter;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -60,6 +62,7 @@ import frc.robot.utils.ChineseKnockoffUltrasonic;
 import frc.robot.utils.PrepStateUtil;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -71,7 +74,7 @@ import java.util.function.Supplier;
  * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-public class RobotContainer implements Sendable {
+public class RobotContainer extends SubsystemBase {
     /* Drivetrain config */
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
@@ -113,8 +116,10 @@ public class RobotContainer implements Sendable {
     private double driveToIntakeXPower = 0.0;
 
     /* Vision offsets */
-    private double visionOffsetX = 0.5;
+    private double visionOffsetX = 0.0;
     private double visionOffsetY = 0.0;
+    private DoubleSupplier visionOffsetXSupplier = ()->visionOffsetX;
+    private DoubleSupplier visionOffsetYSupplier = ()->visionOffsetY;
 
     /* Vision velocity setters */
     private BiConsumer<Double, Double> velocitySetter = (Double x, Double y) -> {
@@ -216,6 +221,7 @@ public class RobotContainer implements Sendable {
     /* Vision alignment controllers and variables */
     PIDController xController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
     PIDController yController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    Pose3d tagPoseRobotSpaceInstance;
     final double feedforwardOutput = 0.2; // feed forward output
     Pose3d tagPoseRobotSpace;
     Pose2d robotPoseFieldSpace;
@@ -273,7 +279,7 @@ public class RobotContainer implements Sendable {
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
         /* Field centric heading controller */
-        fieldCentricFacingAngle.HeadingController.setPID(3.0, 0.001, 0.0001); //TODO heading controller pid
+        fieldCentricFacingAngle.HeadingController.setPID(3.0, 0.0001, 0.0001); //TODO heading controller pid
         /* zero everything */
         drivetrain.seedFieldCentric();
         if(DriverStation.getAlliance().isPresent()){
@@ -412,11 +418,99 @@ public class RobotContainer implements Sendable {
 
         driverController.y().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = 0.0));
 
+        driverController.povDown().onTrue(
+                new InstantCommand(()->this.desiredHeadingDeg = this.desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME))
+        );
+
+        driverController.povLeft().whileTrue(new InstantCommand(()->{
+                if(drivetrain.getState().Pose.getRotation().getDegrees() - desiredHeadingDeg < 3.0){
+                        this.desiredHeadingDeg = this.desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME);
+                }
+        }));
+
         // Testing controls
-        driverController.povUp().whileTrue(new ParallelCommandGroup(
-                new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors()),
-                new DriveToTag(velocitySetter, headingSetter, joystickInput, drivetrain, Constants.LIMELIGHT_FRONT_NAME, ()->0.5, ()->0.0, ()->desiredHeadingDeg).finallyDo(()->velocitySetter.accept(0.0, 0.0))
-        ));
+        driverController.povUp().onTrue(
+                new SequentialCommandGroup(
+                new InstantCommand(()->{
+                    xController.reset();
+                    yController.reset();
+                }),
+                new InstantCommand(
+                        () -> {
+                            final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(
+                                    Constants.LIMELIGHT_FRONT_NAME);
+                            if (tagOffset.getZ() == 0) {
+                                tagPoseRobotSpaceInstance = new Pose3d();
+                                return;
+                            }
+                            tagPoseRobotSpaceInstance = tagOffset;
+                            final Rotation3d tagRot = tagOffset.getRotation();
+                            headingSetter.accept(this.desiredHeadingDeg - Math.toDegrees(tagRot.getY()));
+                        }),
+                new WaitUntilCommand(
+
+                        () -> {
+                            final Pose3d tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
+                                    Constants.LIMELIGHT_FRONT_NAME);
+                            if (tagPoseRobotSpaceInstance.getZ() == 0) {
+                                return true;
+                            }
+                            if(tagPoseRobotSpace.getZ() != 0){
+                                tagPoseRobotSpaceInstance = tagPoseRobotSpace;
+                            }
+                            System.out.println("Offsets: " + visionOffsetXSupplier.getAsDouble() + ", " + visionOffsetYSupplier.getAsDouble());
+                            Supplier<Pose2d> tagPoseRobotSpaceWpiConventionSupplier = () -> new Pose2d(
+                                tagPoseRobotSpaceInstance.getZ() - visionOffsetXSupplier.getAsDouble(),
+                                -tagPoseRobotSpaceInstance.getX() + visionOffsetYSupplier.getAsDouble(),
+                                Rotation2d.fromDegrees(tagPoseRobotSpaceInstance.getRotation().getY())
+                            );
+                            /*final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(
+                                    tagPoseRobotSpaceInstance.getZ() - ()->visionOffsetX,
+                                    -tagPoseRobotSpaceInstance.getX() + ()->visionOffsetY,
+                                    Rotation2d.fromDegrees(tagPoseRobotSpaceInstance.getRotation().getY()));*/
+                            final Pose2d tagPoseRobotSpaceWpiConvention = tagPoseRobotSpaceWpiConventionSupplier.get();
+                            // get the ll data in wpi convention, also add offsets
+                            final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
+                                    new Pose2d(), tagPoseRobotSpaceWpiConvention);
+                            final Pose2d robotPoseFieldSpace = drivetrain.getState().Pose;
+                            final Pose2d targetPoseFieldSpace = robotPoseFieldSpace
+                                    .plus(tagTransformRobotSpaceWpiConvention);
+                            final Pose2d currentPose = drivetrain.getState().Pose;
+                            double xOutput = xController.calculate(
+                                    currentPose.getX(), targetPoseFieldSpace.getX());
+                            double yOutput = yController.calculate(
+                                    currentPose.getY(), targetPoseFieldSpace.getY());
+                            final double xPosErrorMeters = xController.getPositionError();
+                                final double yPosErrorMeters = yController.getPositionError();
+                                final Translation2d errorMeters = new Translation2d(xPosErrorMeters, yPosErrorMeters);
+                                final Translation2d errorDirection = errorMeters.div(errorMeters.getNorm());
+                                final double xFfOutput = errorDirection.getX() * 0.25;
+                                final double yFfOutput = errorDirection.getY() * 0.25;
+                                xOutput += xFfOutput;
+                                yOutput += yFfOutput;
+                            double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
+                            double yOutputClamped = MathUtil.clamp(yOutput, -1.5, 1.5);
+                            if(DriverStation.getAlliance().isPresent()){
+                                if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                                        velocitySetter.accept(
+                                    xOutputClamped, yOutputClamped);
+                                }
+                                else{
+                                        velocitySetter.accept(
+                                    -xOutputClamped, -yOutputClamped);
+                                }
+                            }
+                            else{
+                                velocitySetter.accept(
+                                    xOutputClamped, yOutputClamped); //default blue if we are cooked
+                            }
+                            
+                            return (Math.abs(xController.getPositionError()) < 0.01
+                                    && Math.abs(yController.getPositionError()) < 0.01)
+                                    || joystickInput.get();
+
+                        })).until(()->joystickInput.get()).finallyDo(()->velocitySetter.accept(0.0, 0.0))
+        );
     }
 
     private void configureOperatorBindings() {
@@ -455,14 +549,20 @@ public class RobotContainer implements Sendable {
 
         operatorController.b().onTrue(new InstantCommand(() -> robotCentricNew = !robotCentricNew));
 
-        operatorController
+        operatorController.povUp().onTrue(new InstantCommand(()->visionOffsetX+=0.05));
+        operatorController.povDown().onTrue(new InstantCommand(()->visionOffsetX-=0.05));
+        operatorController.povLeft().onTrue(new InstantCommand(()->visionOffsetY+=0.05));
+        operatorController.povRight().onTrue(new InstantCommand(()->visionOffsetY-=0.05));
+
+
+        /*operatorController
                 .povLeft()
                 .onTrue(
                         new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.LEFT));
         operatorController
                 .povRight()
                 .onTrue(
-                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));        operatorController.povUp().onTrue(new InstantCommand(()->this.isBlue = !this.isBlue));
+                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));        operatorController.povUp().onTrue(new InstantCommand(()->this.isBlue = !this.isBlue));*/
 
     }
 
@@ -508,9 +608,9 @@ public class RobotContainer implements Sendable {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        // super.initSendable(builder);
-        builder.addDoubleProperty("distance offset vision X", ()->visionOffsetX, (double d)->{this.visionOffsetX = d;});
-        builder.addDoubleProperty("distance offset vision Y", ()->visionOffsetY, (double d)->{this.visionOffsetY = d;});
+        super.initSendable(builder);
+        builder.addDoubleProperty("distance offset vision X", ()->visionOffsetX, (double d)->{visionOffsetX = d;System.out.println("afdsgjsdfg");});
+        builder.addDoubleProperty("distance offset vision Y", ()->visionOffsetY, (double d)->{visionOffsetY = d;});
         builder.addDoubleProperty("distance sensor offset", ()->offsetMeters, (double d)->{this.offsetMeters = d;});
         builder.addBooleanProperty("robot centric enabled", ()->robotCentricNew, null);
         builder.addDoubleProperty("pose heading", ()->drivetrain.getState().Pose.getRotation().getDegrees(), null);

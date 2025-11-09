@@ -137,7 +137,7 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    controlPosition(armPositions.get(this.armDesiredPosition));
+    //controlPosition(armPositions.get(this.armDesiredPosition));
   }
 
   @Override
