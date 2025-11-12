@@ -108,7 +108,7 @@ public class RobotContainer extends SubsystemBase {
     private final SendableChooser<Command> autoChooser;
 
     /* Drive control values for heading and vision */
-    private double desiredHeadingDeg = 0.0;
+    public double desiredHeadingDeg = 0.0;
     private double visionBasedX = 0.0;
     private double visionBasedY = 0.0;
 
@@ -627,6 +627,6 @@ public class RobotContainer extends SubsystemBase {
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
         builder.addDoubleProperty("distance range meters", ()->distanceSensor.getDistance().getValueAsDouble(), null);
-        builder.addBooleanProperty("color is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
+        builder.addBooleanProperty("is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
     }
 }
