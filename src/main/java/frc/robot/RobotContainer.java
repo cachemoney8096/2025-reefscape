@@ -439,7 +439,7 @@ public class RobotContainer extends SubsystemBase {
                         () -> {
                             final Pose3d tagOffset = LimelightHelpers.getTargetPose3d_RobotSpace(
                                     Constants.LIMELIGHT_FRONT_NAME);
-                            if (tagOffset.getZ() == 0) {
+                            if (tagOffset.getZ() == 0.0) {
                                 tagPoseRobotSpaceInstance = new Pose3d();
                                 return;
                             }
@@ -455,9 +455,11 @@ public class RobotContainer extends SubsystemBase {
                             if (tagPoseRobotSpaceInstance.getZ() == 0) {
                                 return true;
                             }
-                            if(tagPoseRobotSpace.getZ() != 0){
+
+                            /*if(tagPoseRobotSpace.getZ() != 0){
                                 tagPoseRobotSpaceInstance = tagPoseRobotSpace;
-                            }
+                            }*/
+
                             System.out.println("Offsets: " + visionOffsetXSupplier.getAsDouble() + ", " + visionOffsetYSupplier.getAsDouble());
                             Supplier<Pose2d> tagPoseRobotSpaceWpiConventionSupplier = () -> new Pose2d(
                                 tagPoseRobotSpaceInstance.getZ() - visionOffsetXSupplier.getAsDouble(),
@@ -471,7 +473,7 @@ public class RobotContainer extends SubsystemBase {
                             final Pose2d tagPoseRobotSpaceWpiConvention = tagPoseRobotSpaceWpiConventionSupplier.get();
                             // get the ll data in wpi convention, also add offsets
                             final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
-                                    new Pose2d(), tagPoseRobotSpaceWpiConvention);
+                                    new Pose2d(), tagPoseRobotSpaceWpiConvention); // Robot position is origin (new Pose2d())
                             final Pose2d robotPoseFieldSpace = drivetrain.getState().Pose;
                             final Pose2d targetPoseFieldSpace = robotPoseFieldSpace
                                     .plus(tagTransformRobotSpaceWpiConvention);
