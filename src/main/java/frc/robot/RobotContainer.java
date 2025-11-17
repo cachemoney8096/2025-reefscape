@@ -447,18 +447,20 @@ public class RobotContainer extends SubsystemBase {
                             final Rotation3d tagRot = tagOffset.getRotation();
                             headingSetter.accept(this.desiredHeadingDeg - Math.toDegrees(tagRot.getY()));
                         }),
+                new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - desiredHeadingDeg) < 10),
+                new InstantCommand(()->{tagPoseRobotSpaceInstance = LimelightHelpers.getTargetPose3d_RobotSpace(
+                        Constants.LIMELIGHT_FRONT_NAME);}),
                 new WaitUntilCommand(
 
                         () -> {
-                            final Pose3d tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
-                                    Constants.LIMELIGHT_FRONT_NAME);
                             if (tagPoseRobotSpaceInstance.getZ() == 0) {
                                 return true;
                             }
-
-                            /*if(tagPoseRobotSpace.getZ() != 0){
+                            final Pose3d tagPoseRobotSpace = LimelightHelpers.getTargetPose3d_RobotSpace(
+                                Constants.LIMELIGHT_FRONT_NAME);
+                            if(tagPoseRobotSpace.getZ() != 0){
                                 tagPoseRobotSpaceInstance = tagPoseRobotSpace;
-                            }*/
+                            }
 
                             System.out.println("Offsets: " + visionOffsetXSupplier.getAsDouble() + ", " + visionOffsetYSupplier.getAsDouble());
                             Supplier<Pose2d> tagPoseRobotSpaceWpiConventionSupplier = () -> new Pose2d(
@@ -470,7 +472,8 @@ public class RobotContainer extends SubsystemBase {
                                     tagPoseRobotSpaceInstance.getZ() - ()->visionOffsetX,
                                     -tagPoseRobotSpaceInstance.getX() + ()->visionOffsetY,
                                     Rotation2d.fromDegrees(tagPoseRobotSpaceInstance.getRotation().getY()));*/
-                            final Pose2d tagPoseRobotSpaceWpiConvention = tagPoseRobotSpaceWpiConventionSupplier.get();
+                            Pose2d tagPoseRobotSpaceWpiConvention = tagPoseRobotSpaceWpiConventionSupplier.get();
+                            
                             // get the ll data in wpi convention, also add offsets
                             final Transform2d tagTransformRobotSpaceWpiConvention = new Transform2d(
                                     new Pose2d(), tagPoseRobotSpaceWpiConvention); // Robot position is origin (new Pose2d())
@@ -506,7 +509,7 @@ public class RobotContainer extends SubsystemBase {
                                 velocitySetter.accept(
                                     xOutputClamped, yOutputClamped); //default blue if we are cooked
                             }
-                            
+                            //return true;
                             return (Math.abs(xController.getPositionError()) < 0.01
                                     && Math.abs(yController.getPositionError()) < 0.01)
                                     || joystickInput.get();
@@ -627,6 +630,15 @@ public class RobotContainer extends SubsystemBase {
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
         builder.addDoubleProperty("distance range meters", ()->distanceSensor.getDistance().getValueAsDouble(), null);
-        builder.addBooleanProperty("is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
+        if(DriverStation.getAlliance().isPresent()){
+                builder.addBooleanProperty("is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
+        }
+        builder.addDoubleProperty("tag x", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getX(), null);
+        builder.addDoubleProperty("tag y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getY(), null);
+        builder.addDoubleProperty("tag z", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getZ(), null);
+        builder.addDoubleProperty("tag rot x", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getRotation().getX(), null);
+        builder.addDoubleProperty("tag rot y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getRotation().getY(), null);
+        builder.addDoubleProperty("tag rot z", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getRotation().getZ(), null);
+        builder.addDoubleProperty("tag calc'd y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getZ()*Math.tan(LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME)), null);
     }
 }
