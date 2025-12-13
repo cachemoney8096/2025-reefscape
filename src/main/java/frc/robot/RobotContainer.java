@@ -279,7 +279,8 @@ public class RobotContainer extends SubsystemBase {
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
         /* Field centric heading controller */
-        fieldCentricFacingAngle.HeadingController.setPID(3.0, 0.0001, 0.0001); //TODO heading controller pid
+        fieldCentricFacingAngle.HeadingController.setPID(6.7, 0.0001, 0.02);
+         //TODO heading controller pid
         /* zero everything */
         drivetrain.seedFieldCentric();
         if(DriverStation.getAlliance().isPresent()){
@@ -410,13 +411,14 @@ public class RobotContainer extends SubsystemBase {
                                 }));
 
         // cardinals
-        driverController.a().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = 180.0));
 
-        driverController.b().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = 270.0));
+        driverController.a().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 180.0 : 0.0));
 
-        driverController.x().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = 180.0));
+        driverController.b().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 270.0 : 90.0));
 
-        driverController.y().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = 0.0));
+        driverController.x().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 90.0 : 270.0));
+
+        driverController.y().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 0.0 : 180.0));
 
         driverController.povDown().onTrue(
                 new InstantCommand(()->this.desiredHeadingDeg = this.desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME))
@@ -626,7 +628,7 @@ public class RobotContainer extends SubsystemBase {
                 "odometry rotation deg", () -> drivetrain.getState().Pose.getRotation().getDegrees(), null);
         builder.addDoubleProperty("desired heading deg", () -> this.desiredHeadingDeg, null);
         builder.addDoubleProperty(
-                "gyro rotation deg", () -> drivetrain.getPigeon2().getRotation2d().getDegrees(), null);
+                "gyro rotation deg", () -> drivetrain.getPigeon2().getRotation2d().getDegrees() % 360, null);
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
         builder.addDoubleProperty("distance range meters", ()->distanceSensor.getDistance().getValueAsDouble(), null);
