@@ -591,7 +591,7 @@ public class RobotContainer extends SubsystemBase {
                 .a()
                 .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
 
-        operatorController.b().onTrue(new InstantCommand(() -> robotCentricNew = !robotCentricNew));
+        operatorController.b().onTrue(new InstantCommand(() -> isManualRobotCentric = !isManualRobotCentric));
 
         operatorController.povUp().onTrue(new InstantCommand(()->visionOffsetX+=0.05));
         operatorController.povDown().onTrue(new InstantCommand(()->visionOffsetX-=0.05));
@@ -656,7 +656,7 @@ public class RobotContainer extends SubsystemBase {
         builder.addDoubleProperty("distance offset vision X", ()->visionOffsetX, (double d)->{visionOffsetX = d;System.out.println("afdsgjsdfg");});
         builder.addDoubleProperty("distance offset vision Y", ()->visionOffsetY, (double d)->{visionOffsetY = d;});
         builder.addDoubleProperty("distance sensor offset", ()->offsetMeters, (double d)->{this.offsetMeters = d;});
-        builder.addBooleanProperty("robot centric enabled", ()->robotCentricNew, null);
+        builder.addBooleanProperty("robot centric enabled", ()->isManualRobotCentric, null);
         builder.addDoubleProperty("pose heading", ()->drivetrain.getState().Pose.getRotation().getDegrees(), null);
         builder.addStringProperty("Path CMD", () -> pathCmd, null);
         builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
