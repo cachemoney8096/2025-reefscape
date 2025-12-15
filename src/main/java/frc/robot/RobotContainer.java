@@ -178,6 +178,8 @@ public class RobotContainer extends SubsystemBase {
                 .withRotationalRate(rotationVelocity);
         } else if (Math.abs(rotationJoystickInput) > 0.0) {
             /* If rotation stick is being used */
+            desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+
             return drive
                 .withVelocityX(xVelocity)
                 .withVelocityY(yVelocity)
