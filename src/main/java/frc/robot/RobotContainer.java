@@ -142,66 +142,103 @@ public class RobotContainer extends SubsystemBase {
     };
 
     /* Robot centric controller */
-    private boolean robotCentricNew = false;
+    private boolean isManualRobotCentric = false;
 
     boolean isBlue = true;
+
+    private final double deadband = 0.05;
+
     /* Drive controller */
     private Supplier<SwerveRequest> driveCommand = () -> {
-        double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), 0.05);
-        double vx = MathUtil.applyDeadband(visionBasedX, 0.05);
-        double vy = MathUtil.applyDeadband(visionBasedY, 0.05);
-        if (Math.abs(rotationJoystickInput) > 0) {
-            /* rotational input exists */
-            /* update our desired heading when we rotate */
-            desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
-            if (robotCentricNew) {
-                /*
-                 * Robot centric controls are reversed because it is used for aligning with
-                 * source, which we do backwards
-                 */
-                return robotCentric
-                        .withVelocityX(driverController.getLeftY() * MaxSpeed * 0.2)
-                        .withVelocityY(
-                                driverController.getLeftX() * MaxSpeed * 0.2)
-                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.5);
-            }
-            /* field centric control */
+        double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), deadband);
+        double visionX = MathUtil.applyDeadband(visionBasedX, deadband);
+        double visionY = MathUtil.applyDeadband(visionBasedY, deadband);
+
+        double xVelocity;
+        double yVelocity;
+
+        if (Math.abs(visionX) > 0.0 || Math.abs(visionY) > 0.0) {
+            /* If vision is present, set velocities to vision */
+            xVelocity = visionX;
+            yVelocity = visionY;
+        } else {
+            /* Else set velocity based on left stick */
+            xVelocity = -driverController.getLeftY() * MaxSpeed;
+            yVelocity = -driverController.getLeftX() * MaxSpeed;
+        }
+
+        /* Rotational veloity based on right stick */
+        double rotationVelocity = -driverController.getRightX() * MaxAngularRate;
+
+        if (isManualRobotCentric) {
+            /* Is robot centric */
+            return robotCentric
+                .withVelocityX(xVelocity) 
+                .withVelocityY(yVelocity) 
+                .withRotationalRate(rotationVelocity);
+        } else if (Math.abs(rotationJoystickInput) > 0.0) {
+            /* If rotation stick is being used */
             return drive
-                    .withVelocityX(
-                            -driverController.getLeftY() * MaxSpeed)
-                    .withVelocityY(
-                            -driverController.getLeftX() * MaxSpeed)
-                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
-        } else if (Math.abs(vx) > 0 || Math.abs(vy) > 0) {
-            /* no rotational override exists, and vision velocities exist, this also means that vision has set heading or we should maintain it */
+                .withVelocityX(xVelocity)
+                .withVelocityY(yVelocity)
+                .withRotationalRate(rotationVelocity);
+        } else {
             return fieldCentricFacingAngle
-                    .withVelocityX(vx)
-                    .withVelocityY(vy)
+                    .withVelocityX(xVelocity)
+                    .withVelocityY(yVelocity)
                     .withTargetDirection(
                             Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
         }
-        else if(Math.abs(driveToIntakeXPower) > 0){
-                return robotCentric.withVelocityX(driveToIntakeXPower);
-        }
-         else {
-            if (robotCentricNew) {
-                /*
-                 * Robot centric controls are reversed because it is used for aligning with
-                 * source, which we do backwards
-                 */
-                return robotCentric
-                        .withVelocityX(driverController.getLeftY() * MaxSpeed * 0.2) 
-                        .withVelocityY(
-                                driverController.getLeftX() * MaxSpeed * 0.2) 
-                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.5);
-            }
-            /* if not robot centric and no rotational input, keep heading (this also answers to cardinals) */
-            return fieldCentricFacingAngle
-                    .withVelocityX(-driverController.getLeftY() * MaxSpeed)
-                    .withVelocityY(-driverController.getLeftX() * MaxSpeed)
-                    .withTargetDirection(
-                            Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
-        }
+
+
+        
+        // if (Math.abs(rotationJoystickInput) > 0) {
+        //     /* rotational input exists */
+        //     /* update our desired heading when we rotate */
+        //     desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+        //     if (isManualRobotCentric) {
+        //         /*
+        //          * Robot centric controls are reversed because it is used for aligning with
+        //          * source, which we do backwards
+        //          */
+        //         return robotCentric
+        //                 .withVelocityX(driverController.getLeftY() * MaxSpeed)
+        //                 .withVelocityY(driverController.getLeftX() * MaxSpeed)
+        //                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
+        //     }
+        //     /* field centric control */
+        //     return drive
+        //             .withVelocityX(-driverController.getLeftY() * MaxSpeed)
+        //             .withVelocityY(-driverController.getLeftX() * MaxSpeed)
+        //             .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
+        // } else if (Math.abs(visionX) > 0 || Math.abs(visionY) > 0) {
+        //     /* no rotational override exists, and vision velocities exist, this also means that vision has set heading or we should maintain it */
+        //     return fieldCentricFacingAngle
+        //             .withVelocityX(visionX)
+        //             .withVelocityY(visionY)
+        //             .withTargetDirection(
+        //             Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180)));
+
+        // } else if(Math.abs(driveToIntakeXPower) > 0){
+        //         return robotCentric.withVelocityX(driveToIntakeXPower);
+        // } else {
+        //     if (isManualRobotCentric) {
+        //         /*
+        //          * Robot centric controls are reversed because it is used for aligning with
+        //          * source, which we do backwards
+        //          */
+        //         return robotCentric
+        //                 .withVelocityX(driverController.getLeftY() * MaxSpeed * 0.2) 
+        //                 .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.2) 
+        //                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.5);
+        //         }
+        //     /* if not robot centric and no rotational input, keep heading (this also answers to cardinals) */
+        //     return fieldCentricFacingAngle
+        //             .withVelocityX(-driverController.getLeftY() * MaxSpeed)
+        //             .withVelocityY(-driverController.getLeftX() * MaxSpeed)
+        //             .withTargetDirection(
+        //                     Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
+        // }
     };
 
     /* Subsystems */
