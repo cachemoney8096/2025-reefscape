@@ -143,6 +143,7 @@ public class RobotContainer extends SubsystemBase {
 
     /* Robot centric controller */
     private boolean robotCentricNew = false;
+	private boolean maintainHeading = true;
 
     boolean isBlue = true;
     /* Drive controller */
@@ -151,9 +152,10 @@ public class RobotContainer extends SubsystemBase {
         double vx = MathUtil.applyDeadband(visionBasedX, 0.05);
         double vy = MathUtil.applyDeadband(visionBasedY, 0.05);
         if (Math.abs(rotationJoystickInput) > 0) {
+			maintainHeading = false;
             /* rotational input exists */
             /* update our desired heading when we rotate */
-            desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+            //desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
             if (robotCentricNew) {
                 /*
                  * Robot centric controls are reversed because it is used for aligning with
@@ -173,6 +175,7 @@ public class RobotContainer extends SubsystemBase {
                             -driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
         } else if (Math.abs(vx) > 0 || Math.abs(vy) > 0) {
+			maintainHeading = true;
             /* no rotational override exists, and vision velocities exist, this also means that vision has set heading or we should maintain it */
             return fieldCentricFacingAngle
                     .withVelocityX(vx)
@@ -196,11 +199,23 @@ public class RobotContainer extends SubsystemBase {
                         .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.5);
             }
             /* if not robot centric and no rotational input, keep heading (this also answers to cardinals) */
-            return fieldCentricFacingAngle
+			if(!maintainHeading && drivetrain.getState().Speeds.omegaRadiansPerSecond < Math.toRadians(10)){
+				desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+				maintainHeading = true;
+			}
+            if(maintainHeading){
+				return fieldCentricFacingAngle
                     .withVelocityX(-driverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withTargetDirection(
                             Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
+			}
+			else{
+				// weird case that happens momentarily where we still have rotational momentum from steering but aren't commanding heading any other way
+				return drive
+					.withVelocityX(-driverController.getLeftY() * MaxSpeed)
+					.withVelocityY(-driverController.getLeftX() * MaxSpeed);
+			}
         }
     };
 
@@ -280,6 +295,7 @@ public class RobotContainer extends SubsystemBase {
         SmartDashboard.putData("Auto Mode", autoChooser);
         /* Field centric heading controller */
         fieldCentricFacingAngle.HeadingController.setPID(6.7, 0.0001, 0.02);
+        
          //TODO heading controller pid
         /* zero everything */
         drivetrain.seedFieldCentric();
