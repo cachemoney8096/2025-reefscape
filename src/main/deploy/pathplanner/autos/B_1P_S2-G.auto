@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "AUTO SCORING PREP SEQUENCE"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "B_S2-G"

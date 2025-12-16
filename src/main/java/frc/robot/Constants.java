@@ -18,6 +18,8 @@ public final class Constants {
     public static final int OPERATOR_CONTROLLER_PORT = 1;
   }
 
+  public static final String LIMELIGHT_FRONT_NAME = "limelight";
+
   /* Placeholders */
   public static final int PLACEHOLDER_INT = 0;
   public static final double PLACEHOLDER_DOUBLE = 0.0;

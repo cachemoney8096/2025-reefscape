@@ -5,6 +5,9 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -16,8 +19,10 @@ import frc.robot.utils.MatchStateUtil;
 // import org.littletonrobotics.urcl.URCL;
 
 /**
- * The methods in this class are called automatically corresponding to each mode, as described in
- * the TimedRobot documentation. If you change the name of this class or the package after creating
+ * The methods in this class are called automatically corresponding to each
+ * mode, as described in
+ * the TimedRobot documentation. If you change the name of this class or the
+ * package after creating
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
@@ -25,16 +30,18 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
-  private MatchStateUtil matchState = new MatchStateUtil(false, true, false);
+  private MatchStateUtil matchState = new MatchStateUtil(false, false, false);
 
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   public Robot() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+    // Instantiate our RobotContainer. This will perform all our button bindings,
+    // and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer(matchState);
+    m_robotContainer = new RobotContainer();
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog()); // log joystick data
     // URL.start();
@@ -43,17 +50,23 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * This function is called every 20 ms, no matter the mode. Use this for items
+   * like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and
    * SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
+    // Runs the Scheduler. This is responsible for polling buttons, adding
+    // newly-scheduled
+    // commands, running already-scheduled commands, removing finished or
+    // interrupted commands,
+    // and running subsystem periodic() methods. This must be called from the
+    // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
   }
@@ -69,24 +82,24 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    /*m_robotContainer.scoringLimelight.resetOdometryWithTags(m_robotContainer.drivetrain);
-    /* for testing, TODO remove */
-    /*BooleanSupplier checkForTag =
-        () -> {
-          Optional<Transform2d> robotToTagOptional = m_robotContainer.scoringLimelight.checkForTag();
-          if (robotToTagOptional.isPresent()) {
-            robotToTag = robotToTagOptional.get();
-            return true;
-          }
-          return false;
-        };
-    if(checkForTag.getAsBoolean()){
-      System.out.println("current pose: " + m_robotContainer.drivetrain.getState().Pose + "\nrobot to tag : " + robotToTag.toString() + "\n") ; Pose2d targetPose = m_robotContainer.drivetrain.getState().Pose.plus(robotToTag); System.out.println("target pose: " + targetPose.toString() + "\n");
-    }*/
-    m_robotContainer.setDefaultLocation();
+    // if our current color is wrong, fix it, update our heading and seed the drivetrain
+    if (DriverStation.getAlliance().isPresent()) {
+      if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue && !m_robotContainer.isBlue) {
+        m_robotContainer.drivetrain.resetPose(new Pose2d(m_robotContainer.drivetrain.getState().Pose.getX(), m_robotContainer.drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(0.0)));
+        m_robotContainer.desiredHeadingDeg = 0.0;
+        m_robotContainer.isBlue = true;
+      } else if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red && m_robotContainer.isBlue){
+        m_robotContainer.drivetrain.resetPose(new Pose2d(m_robotContainer.drivetrain.getState().Pose.getX(), m_robotContainer.drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(180.0)));
+        m_robotContainer.desiredHeadingDeg = 180.0;
+        m_robotContainer.isBlue = false;
+      }
+    }
   }
 
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  /**
+   * This autonomous runs the autonomous command selected by your
+   * {@link RobotContainer} class.
+   */
   @Override
   public void autonomousInit() {
     matchState.updateMatchState(false);
@@ -101,7 +114,8 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
   public void teleopInit() {
@@ -118,7 +132,8 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
   public void testInit() {
@@ -128,13 +143,16 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }
