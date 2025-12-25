@@ -15,7 +15,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -23,11 +22,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -44,11 +40,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoScoringPrepSequence;
 import frc.robot.commands.AutoScoringSequence;
-import frc.robot.commands.DriveToTag;
 import frc.robot.commands.IntakeSequenceManual;
 import frc.robot.commands.NewHomeSequence;
 import frc.robot.commands.PrepScoreAndDrive;
-import frc.robot.commands.PrepScoreManual;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.arm.Arm;
@@ -58,8 +52,6 @@ import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorHeight;
 import frc.robot.subsystems.lights.Lights;
-import frc.robot.utils.ChineseKnockoffUltrasonic;
-import frc.robot.utils.PrepStateUtil;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
@@ -127,10 +119,6 @@ public class RobotContainer extends SubsystemBase {
         this.visionBasedY = y.doubleValue();
     };
 
-    /* Distance sensor */
-    //Ultrasonic ultrasonic = new Ultrasonic(5, 4); //yellow to orange is ping channel
-    //ChineseKnockoffUltrasonic ultrasonic = new ChineseKnockoffUltrasonic(2, 3);
-
     private Consumer<Double> headingSetter = (Double d) -> {
         this.desiredHeadingDeg = d;
     };
@@ -149,99 +137,7 @@ public class RobotContainer extends SubsystemBase {
     private final double deadband = 0.05;
 
     /* Drive controller */
-    private Supplier<SwerveRequest> driveCommand = () -> {
-        double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), deadband);
-        double visionX = MathUtil.applyDeadband(visionBasedX, deadband);
-        double visionY = MathUtil.applyDeadband(visionBasedY, deadband);
-
-        double xVelocity;
-        double yVelocity;
-
-        if (Math.abs(visionX) > 0.0 || Math.abs(visionY) > 0.0) {
-            /* If vision is present, set velocities to vision */
-            xVelocity = visionX;
-            yVelocity = visionY;
-        } else {
-            /* Else set velocity based on left stick */
-            xVelocity = -driverController.getLeftY() * MaxSpeed;
-            yVelocity = -driverController.getLeftX() * MaxSpeed;
-        }
-
-        /* Rotational veloity based on right stick */
-        double rotationVelocity = -driverController.getRightX() * MaxAngularRate;
-
-        if (isManualRobotCentric) {
-            /* Is robot centric */
-            return robotCentric
-                .withVelocityX(xVelocity) 
-                .withVelocityY(yVelocity) 
-                .withRotationalRate(rotationVelocity);
-        } else if (Math.abs(rotationJoystickInput) > 0.0) {
-            /* If rotation stick is being used */
-            desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
-
-            return drive
-                .withVelocityX(xVelocity)
-                .withVelocityY(yVelocity)
-                .withRotationalRate(rotationVelocity);
-        } else {
-            return fieldCentricFacingAngle
-                    .withVelocityX(xVelocity)
-                    .withVelocityY(yVelocity)
-                    .withTargetDirection(
-                            Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
-        }
-
-
-        
-        // if (Math.abs(rotationJoystickInput) > 0) {
-        //     /* rotational input exists */
-        //     /* update our desired heading when we rotate */
-        //     desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
-        //     if (isManualRobotCentric) {
-        //         /*
-        //          * Robot centric controls are reversed because it is used for aligning with
-        //          * source, which we do backwards
-        //          */
-        //         return robotCentric
-        //                 .withVelocityX(driverController.getLeftY() * MaxSpeed)
-        //                 .withVelocityY(driverController.getLeftX() * MaxSpeed)
-        //                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
-        //     }
-        //     /* field centric control */
-        //     return drive
-        //             .withVelocityX(-driverController.getLeftY() * MaxSpeed)
-        //             .withVelocityY(-driverController.getLeftX() * MaxSpeed)
-        //             .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
-        // } else if (Math.abs(visionX) > 0 || Math.abs(visionY) > 0) {
-        //     /* no rotational override exists, and vision velocities exist, this also means that vision has set heading or we should maintain it */
-        //     return fieldCentricFacingAngle
-        //             .withVelocityX(visionX)
-        //             .withVelocityY(visionY)
-        //             .withTargetDirection(
-        //             Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180)));
-
-        // } else if(Math.abs(driveToIntakeXPower) > 0){
-        //         return robotCentric.withVelocityX(driveToIntakeXPower);
-        // } else {
-        //     if (isManualRobotCentric) {
-        //         /*
-        //          * Robot centric controls are reversed because it is used for aligning with
-        //          * source, which we do backwards
-        //          */
-        //         return robotCentric
-        //                 .withVelocityX(driverController.getLeftY() * MaxSpeed * 0.2) 
-        //                 .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.2) 
-        //                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.5);
-        //         }
-        //     /* if not robot centric and no rotational input, keep heading (this also answers to cardinals) */
-        //     return fieldCentricFacingAngle
-        //             .withVelocityX(-driverController.getLeftY() * MaxSpeed)
-        //             .withVelocityY(-driverController.getLeftX() * MaxSpeed)
-        //             .withTargetDirection(
-        //                     Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
-        // }
-    };
+    private Supplier<SwerveRequest> driveCommandSupplier = () -> driveCommand();
 
     /* Subsystems */
     public Arm arm;
@@ -250,7 +146,7 @@ public class RobotContainer extends SubsystemBase {
     public Elevator elevator;
     public Lights lights;
 
-    public String pathCmd = "";
+    public String pathCmd;
 
     /* Prep states */
     public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L2;
@@ -258,10 +154,11 @@ public class RobotContainer extends SubsystemBase {
     public PrepScoreAndDrive.Location preppedScoringLocation = PrepScoreAndDrive.Location.LEFT;
 
     /* Vision alignment controllers and variables */
-    PIDController xController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
-    PIDController yController = new PIDController(1, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
-    Pose3d tagPoseRobotSpaceInstance;
     final double feedforwardOutput = 0.2; // feed forward output
+    PIDController xController = new PIDController(1.0, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    PIDController yController = new PIDController(1.0, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    
+    Pose3d tagPoseRobotSpaceInstance;
     Pose3d tagPoseRobotSpace;
     Pose2d robotPoseFieldSpace;
     Pose2d targetPoseFieldSpace;
@@ -270,7 +167,7 @@ public class RobotContainer extends SubsystemBase {
     double offsetMeters = 0.53;
 
     /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
+     * The container for the robot. Contains subsystems, IO devices, and commands.
      */
     public RobotContainer() {
         // Warmup PathPlanner to avoid Java pauses
@@ -279,49 +176,55 @@ public class RobotContainer extends SubsystemBase {
         /* Subsystems */
         arm = new Arm();
         claw = new Claw();
-        // climb = new Climb();
+        climb = new Climb();
         elevator = new Elevator();
         lights = new Lights();
 
-        /* register namedcommands */
+        /* Auto chooser */
+        autoChooser = AutoBuilder.buildAutoChooser("Tests");
+        SmartDashboard.putData("Auto Mode", autoChooser);
+        
+        /* Field centric heading controller */
+        fieldCentricFacingAngle.HeadingController.setPID(6.7, 0.0001, 0.02);
+
+        registerNamedCommands();
+
+        zeroRobot();
+
+        /* Configure controller bindings */
+        configureDriverBindings();
+        configureOperatorBindings();
+
+        // configureDebugBindings();
+
+        /* Shuffleboard */
+        Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
+        Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
+        Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
+        Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
+
+        driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+        operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+        SmartDashboard.putData(autoChooser);
+    }
+
+    private void registerNamedCommands() {
         NamedCommands.registerCommand(
                 "AUTO SCORING SEQUENCE",
                 new SequentialCommandGroup(
                         new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
                         new AutoScoringSequence(claw)));
 
-        SequentialCommandGroup prep = new SequentialCommandGroup(
-                new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
-                new AutoScoringPrepSequence(elevator, arm, lights));
+        NamedCommands.registerCommand(
+                "AUTO SCORING PREP SEQUENCE", 
+                new SequentialCommandGroup(
+                        new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
+                        new AutoScoringPrepSequence(elevator, arm, lights)));
+    }
 
-        NamedCommands.registerCommand("AUTO SCORING PREP SEQUENCE", prep);
-        /*
-         * SequentialCommandGroup intake = new SequentialCommandGroup(
-         * new InstantCommand(() -> pathCmd = "AUTO INTAKE SEQUENCE"),
-         * new AutoIntakeSequence(elevator, arm, claw, lights));
-         *
-         * NamedCommands.registerCommand(
-         * "AUTO INTAKE SEQUENCE",
-         * intake
-         * );
-         *
-         * NamedCommands.registerCommand("FINISH INTAKE",
-         * new SequentialCommandGroup(
-         * new InstantCommand(() -> claw.runMotorsIntaking()),
-         * new WaitUntilCommand(claw::beamBreakSeesObject),
-         * new InstantCommand(() -> claw.stopMotors()),
-         * new InstantCommand(() -> lights.setLEDColor(LightCode.HAS_CORAL))
-         * ));
-         */
-
-        /* Auto chooser */
-        autoChooser = AutoBuilder.buildAutoChooser("Tests");
-        SmartDashboard.putData("Auto Mode", autoChooser);
-        /* Field centric heading controller */
-        fieldCentricFacingAngle.HeadingController.setPID(6.7, 0.0001, 0.02);
-         //TODO heading controller pid
-        /* zero everything */
+    private void zeroRobot() {
         drivetrain.seedFieldCentric();
+
         if(DriverStation.getAlliance().isPresent()){
                 if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
                         this.desiredHeadingDeg = 0.0;
@@ -333,37 +236,58 @@ public class RobotContainer extends SubsystemBase {
                 }
         }
         else{
-                this.desiredHeadingDeg = 0.0; //default to blue if we are cooked
+                this.desiredHeadingDeg = 0.0; // Default to blue if we are cooked 💀
         }
+
         drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(isBlue?0:180)));
 
-        SequentialCommandGroup score = new SequentialCommandGroup(
-                new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
-                new InstantCommand(() -> claw.runMotorsScoring()),
-                new WaitCommand(1.0),
-                new InstantCommand(() -> claw.stopMotors()));
-
-        NamedCommands.registerCommand("AUTO SCORING SEQUENCE", score);
-
         drivetrain.registerTelemetry(logger::telemeterize);
+    }
 
-        /* Configure controller bindings */
-        configureDriverBindings();
-        configureOperatorBindings();
-
-        /* Debug Bindings */
-        // configureDebugBindings();
-
-        /* Shuffleboard */
-        // Shuffleboard.getTab("Subsystems").add(drivetrain.getName(), drive);
-        Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
-        Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
-        Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
-        Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
-
-        driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-        operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-        SmartDashboard.putData(autoChooser);
+    private SwerveRequest driveCommand() {
+        {
+                double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), deadband);
+                double visionX = MathUtil.applyDeadband(visionBasedX, deadband);
+                double visionY = MathUtil.applyDeadband(visionBasedY, deadband);
+        
+                double xVelocity;
+                double yVelocity;
+        
+                if (Math.abs(visionX) > 0.0 || Math.abs(visionY) > 0.0) {
+                    /* If vision is present, set velocities to vision */
+                    xVelocity = visionX;
+                    yVelocity = visionY;
+                } else {
+                    /* Else set velocity based on left stick */
+                    xVelocity = -driverController.getLeftY() * MaxSpeed;
+                    yVelocity = -driverController.getLeftX() * MaxSpeed;
+                }
+        
+                /* Rotational veloity based on right stick */
+                double rotationVelocity = -driverController.getRightX() * MaxAngularRate;
+        
+                if (isManualRobotCentric) {
+                    /* Is robot centric */
+                    return robotCentric
+                        .withVelocityX(xVelocity) 
+                        .withVelocityY(yVelocity) 
+                        .withRotationalRate(rotationVelocity);
+                } else if (Math.abs(rotationJoystickInput) > 0.0) {
+                    /* If rotation stick is being used */
+                    desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+        
+                    return drive
+                        .withVelocityX(xVelocity)
+                        .withVelocityY(yVelocity)
+                        .withRotationalRate(rotationVelocity);
+                } else {
+                    return fieldCentricFacingAngle
+                            .withVelocityX(xVelocity)
+                            .withVelocityY(yVelocity)
+                            .withTargetDirection(
+                                    Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
+                }
+        }
     }
 
     /**
@@ -381,18 +305,16 @@ public class RobotContainer extends SubsystemBase {
      * joysticks}.
      */
     private void configureDriverBindings() {
-        /* set drivetrain control command */
+        /* Set drivetrain control command */
         drivetrain.setDefaultCommand(
-                drivetrain.applyRequest(driveCommand));
+                drivetrain.applyRequest(driveCommandSupplier));
         
         Command rumbleBriefly = new SequentialCommandGroup(
                 new InstantCommand(
                         () -> {
                             driverController.getHID().setRumble(RumbleType.kBothRumble, 1.0);
                         }),
-                new InstantCommand(() -> System.out.println("rumble set")),
                 new WaitCommand(0.25),
-                new InstantCommand(() -> System.out.println("rumble wait ended")),
                 new InstantCommand(
                         () -> {
                             driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
@@ -405,17 +327,19 @@ public class RobotContainer extends SubsystemBase {
                         new ParallelCommandGroup(
                                 new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors()),
                                 new SequentialCommandGroup(
-                                        //new WaitUntilCommand(()->Math.abs(drivetrain.getState().Pose.getRotation().getDegrees()-desiredHeadingDeg)<3),
                                         new WaitUntilCommand(()->{
                                                 double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
                                                 this.driveToIntakeXPower = -0.5;
-                                                return distanceMeters < 0.05; // TODO changed to be more precise, test
+                                                return distanceMeters < 0.05;
                                         }).finallyDo(()->this.driveToIntakeXPower = 0.0)).until(joystickInput::get)
                                 )
                         );
 
         // HOME
-        driverController.leftBumper().onTrue(new NewHomeSequence(arm, elevator, claw));
+        driverController
+                .leftBumper()
+                .onTrue(new NewHomeSequence(arm, elevator, claw));
+        
         // PREP SCORE
         driverController
                 .rightBumper()
@@ -431,6 +355,7 @@ public class RobotContainer extends SubsystemBase {
                                 () -> {
                                     claw.runMotorsScoring();
                                 }));
+
         driverController
                 .rightTrigger()
                 .onFalse(
@@ -449,27 +374,139 @@ public class RobotContainer extends SubsystemBase {
                                     desiredHeadingDeg = isBlue?0.0:180.0;
                                 }));
 
-        // cardinals
+        // Cardinals
 
-        driverController.a().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 180.0 : 0.0));
+        driverController
+                .a()
+                .onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 180.0 : 0.0));
 
-        driverController.b().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 270.0 : 90.0));
+        driverController
+                .b()
+                .onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 270.0 : 90.0));
 
-        driverController.x().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 90.0 : 270.0));
+        driverController
+                .x()
+                .onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 90.0 : 270.0));
 
-        driverController.y().onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 0.0 : 180.0));
+        driverController
+                .y()
+                .onTrue(new InstantCommand(() -> this.desiredHeadingDeg = isBlue ? 0.0 : 180.0));
 
-        driverController.povDown().onTrue(
-                new InstantCommand(()->this.desiredHeadingDeg = this.desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME))
+        driverController
+                .povDown()
+                .onTrue(
+                        new InstantCommand(()->this.desiredHeadingDeg = this.desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME))
+                );
+
+        driverController
+                .povLeft()
+                .whileTrue(
+                        new InstantCommand(()->{
+                        if(drivetrain.getState().Pose.getRotation().getDegrees() - desiredHeadingDeg < 3.0){
+                                this.desiredHeadingDeg = this.desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME);
+                        }
+                        }));
+
+        
+    }
+
+    private void configureOperatorBindings() {
+        operatorController
+                .rightTrigger()
+                .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.7)));
+
+        operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
+
+        operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
+        operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
+
+        operatorController
+                .leftBumper()
+                .onTrue(new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.LEFT));
+        operatorController
+                .rightBumper()
+                .onTrue(
+                        new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.RIGHT));
+
+        operatorController
+                .y()
+                .onTrue(
+                        new InstantCommand(
+                                () -> {
+                                    preppedHeight = ElevatorHeight.SCORE_L3;
+                                }));
+
+        operatorController
+                .x()
+                .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2));
+
+        operatorController
+                .a()
+                .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
+
+        operatorController.b().onTrue(new InstantCommand(() -> isManualRobotCentric = !isManualRobotCentric));
+
+        operatorController.povUp().onTrue(new InstantCommand(()->visionOffsetX+=0.05));
+        operatorController.povDown().onTrue(new InstantCommand(()->visionOffsetX-=0.05));
+        operatorController.povLeft().onTrue(new InstantCommand(()->visionOffsetY+=0.05));
+        operatorController.povRight().onTrue(new InstantCommand(()->visionOffsetY-=0.05));
+
+
+        /*operatorController
+                .povLeft()
+                .onTrue(
+                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.LEFT));
+        operatorController
+                .povRight()
+                .onTrue(
+                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));        operatorController.povUp().onTrue(new InstantCommand(()->this.isBlue = !this.isBlue));*/
+
+    }
+
+    // Adds Debug Bindings
+
+    private void configureDebugBindings() {
+        drivetrain.setDefaultCommand(
+                // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(driveCommandSupplier) // Drive counterclockwise with negative X (left)
         );
+        
+        // Set Elevator to score_L3
+        driverController
+                .rightTrigger()
+                .onTrue(new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
+        
+        // Reset Elevator
+        driverController
+                .rightBumper()
+                .onTrue(new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)));
 
-        driverController.povLeft().whileTrue(new InstantCommand(()->{
-                if(drivetrain.getState().Pose.getRotation().getDegrees() - desiredHeadingDeg < 3.0){
-                        this.desiredHeadingDeg = this.desiredHeadingDeg - LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME);
-                }
-        }));
+        // Set Arm postition to L3
+        driverController
+                .a()
+                .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L3)));
+        
+        // Reset Arm
+        driverController
+                .b()
+                .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)));
+        
+        // Set Arm to intake
+        driverController
+                .x()
+                .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)));
 
-        // Testing controls
+        // Intake Claw
+        driverController
+                .povUp()
+                .onTrue(new InstantCommand(() -> claw.runMotorsIntaking()));
+
+        // Reset Claw
+        driverController
+                .povUp()
+                .onFalse(new InstantCommand(() -> claw.stopMotors()));
+
+        // Vision Testing controls
         driverController.povUp().onTrue(
                 new SequentialCommandGroup(
                 new InstantCommand(()->{
@@ -559,90 +596,6 @@ public class RobotContainer extends SubsystemBase {
         );
     }
 
-    private void configureOperatorBindings() {
-        operatorController
-                .rightTrigger()
-                .whileTrue(new InstantCommand(() -> claw.rollerMotor.set(0.7)));
-
-        operatorController.rightTrigger().onFalse(new InstantCommand(() -> claw.rollerMotor.set(0.0)));
-
-        operatorController.leftTrigger().whileTrue(new InstantCommand(() -> claw.runMotorsOuttake()));
-        operatorController.leftTrigger().onFalse(new InstantCommand(() -> claw.stopMotors()));
-
-        operatorController
-                .leftBumper()
-                .onTrue(new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.LEFT));
-        operatorController
-                .rightBumper()
-                .onTrue(
-                        new InstantCommand(() -> preppedScoringLocation = PrepScoreAndDrive.Location.RIGHT));
-
-        operatorController
-                .y()
-                .onTrue(
-                        new InstantCommand(
-                                () -> {
-                                    preppedHeight = ElevatorHeight.SCORE_L3;
-                                }));
-
-        operatorController
-                .x()
-                .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L2));
-
-        operatorController
-                .a()
-                .onTrue(new InstantCommand(() -> preppedHeight = ElevatorHeight.SCORE_L1));
-
-        operatorController.b().onTrue(new InstantCommand(() -> isManualRobotCentric = !isManualRobotCentric));
-
-        operatorController.povUp().onTrue(new InstantCommand(()->visionOffsetX+=0.05));
-        operatorController.povDown().onTrue(new InstantCommand(()->visionOffsetX-=0.05));
-        operatorController.povLeft().onTrue(new InstantCommand(()->visionOffsetY+=0.05));
-        operatorController.povRight().onTrue(new InstantCommand(()->visionOffsetY-=0.05));
-
-
-        /*operatorController
-                .povLeft()
-                .onTrue(
-                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.LEFT));
-        operatorController
-                .povRight()
-                .onTrue(
-                        new InstantCommand(() -> preppedIntakeLocation = IntakeSequenceManual.Location.RIGHT));        operatorController.povUp().onTrue(new InstantCommand(()->this.isBlue = !this.isBlue));*/
-
-    }
-
-    // Adds Debug Bindings
-
-    private void configureDebugBindings() {
-        drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(driveCommand) // Drive counterclockwise with negative X (left)
-        );
-        // Set Elevator to score_L3
-        driverController
-                .rightTrigger()
-                .onTrue(new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.SCORE_L3)));
-        // Reset Elevator
-        driverController
-                .rightBumper()
-                .onTrue(new InstantCommand(() -> elevator.setDesiredPosition(ElevatorHeight.HOME)));
-
-        // Set Arm postition to L3
-        driverController.a().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.L3)));
-        // Reset Arm
-        driverController.b().onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.HOME)));
-        // set pos to intake
-        driverController
-                .x()
-                .onTrue(new InstantCommand(() -> arm.setDesiredPosition(ArmPosition.INTAKE)));
-
-        // Intake Claw
-        driverController.povUp().onTrue(new InstantCommand(() -> claw.runMotorsIntaking()));
-        // Reset Claw
-        driverController.povUp().onFalse(new InstantCommand(() -> claw.stopMotors()));
-    }
-
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
@@ -671,9 +624,6 @@ public class RobotContainer extends SubsystemBase {
         builder.addStringProperty(
                 "Current selected auto", () -> this.getAutonomousCommand().getName(), null);
         builder.addDoubleProperty("distance range meters", ()->distanceSensor.getDistance().getValueAsDouble(), null);
-        if(DriverStation.getAlliance().isPresent()){
-                builder.addBooleanProperty("is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
-        }
         builder.addDoubleProperty("tag x", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getX(), null);
         builder.addDoubleProperty("tag y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getY(), null);
         builder.addDoubleProperty("tag z", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getZ(), null);
@@ -681,5 +631,9 @@ public class RobotContainer extends SubsystemBase {
         builder.addDoubleProperty("tag rot y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getRotation().getY(), null);
         builder.addDoubleProperty("tag rot z", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getRotation().getZ(), null);
         builder.addDoubleProperty("tag calc'd y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getZ()*Math.tan(LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME)), null);
+        
+        if(DriverStation.getAlliance().isPresent()){
+                builder.addBooleanProperty("is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
+        }
     }
 }
