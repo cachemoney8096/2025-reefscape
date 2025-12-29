@@ -18,6 +18,7 @@ import frc.robot.RobotMap;
 import java.util.TreeMap;
 
 public class Elevator extends SubsystemBase {
+
   public enum ElevatorHeight {
     HOME,
     INTAKE,
@@ -42,7 +43,7 @@ public class Elevator extends SubsystemBase {
   private TalonFX rightMotor = new TalonFX(RobotMap.RIGHT_ELEVATOR_MOTOR_CAN_ID, "rio");
   private CANrange canrange = new CANrange(RobotMap.ELEVATOR_CANRANGE, "rio");
 
-  private boolean isScoring = true;
+  // private boolean isScoring = true;
   private int currentSlotValue = 0; // 0 is for scoring and 1 is for climbing
 
   private boolean allowElevatorMovement = true; // TODO
@@ -70,6 +71,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private void initTalons() {
+
     TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
@@ -80,6 +82,9 @@ public class Elevator extends SubsystemBase {
     toApply.CurrentLimits.StatorCurrentLimit =
         ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
+
+    
+    
     // Slot 0 is for Scoring PID values and Slot 1 is for Shallow Climbing PID values
     toApply.Slot0.kP = ElevatorCal.ELEVATOR_SCORE_P;
     toApply.Slot0.kI = ElevatorCal.ELEVATOR_SCORE_I;
@@ -93,6 +98,8 @@ public class Elevator extends SubsystemBase {
     toApply.Slot1.kD = ElevatorCal.ELEVATOR_CLIMB_D;
     toApply.Slot1.kV = ElevatorCal.ELEVATOR_CLIMB_FF;
     cfgLeft.apply(toApply);
+
+
     Follower master = new Follower(leftMotor.getDeviceID(), true);
     rightMotor.setControl(master);
 
@@ -105,16 +112,6 @@ public class Elevator extends SubsystemBase {
   }
 
   public double linearSpeedThrottle() {
-    if (this.desiredPosition == ElevatorHeight.SCORE_L2
-        || desiredPosition == ElevatorHeight.SCORE_L3
-        || desiredPosition == ElevatorHeight.SCORE_L4
-        || desiredPosition == ElevatorHeight.INTAKE) {
-      return 0.15;
-    }
-    return 1.0;
-  }
-
-  public double angularSpeedThrottle() {
     if (this.desiredPosition == ElevatorHeight.SCORE_L2
         || desiredPosition == ElevatorHeight.SCORE_L3
         || desiredPosition == ElevatorHeight.SCORE_L4
@@ -158,30 +155,34 @@ public class Elevator extends SubsystemBase {
     leftMotor.setControl(request);
   }
 
+  public double getLeftMotorToDrumRatio() {
+
+    return leftMotor
+      .getPosition()
+      .getValueAsDouble()
+      * ElevatorConstants.DRUM_CIRCUMFERENCE
+      / ElevatorConstants.MOTOR_TO_DRUM_RATIO;
+  }
+
   public boolean atDesiredPosition() {
     return Math.abs(
-            leftMotor.getPosition().getValueAsDouble()
-                    * ElevatorConstants.DRUM_CIRCUMFERENCE
-                    / ElevatorConstants.MOTOR_TO_DRUM_RATIO
-                - elevatorPositions.get(desiredPosition))
-        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
+            getLeftMotorToDrumRatio()
+            - elevatorPositions.get(desiredPosition))
+            < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean atElevatorPosition(ElevatorHeight height) {
     return Math.abs(
-            leftMotor.getPosition().getValueAsDouble()
-                    * ElevatorConstants.DRUM_CIRCUMFERENCE
-                    / ElevatorConstants.MOTOR_TO_DRUM_RATIO
-                - elevatorPositions.get(height))
-        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
+            getLeftMotorToDrumRatio()
+            - elevatorPositions.get(height))
+            < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean armMovementAllowed() {
-    return leftMotor.getPosition().getValueAsDouble()
-            * ElevatorConstants.DRUM_CIRCUMFERENCE
-            / ElevatorConstants.MOTOR_TO_DRUM_RATIO
+    return 
+        getLeftMotorToDrumRatio()
         > (elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)
-            - ElevatorCal.AT_CLEAR_POSITION_MARGIN);
+        - ElevatorCal.AT_CLEAR_POSITION_MARGIN);
   }
 
   /* The limit switches we are using are active low, hence the ! operator
@@ -256,9 +257,7 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty(
         "Elevator CURRENT Pos (in)",
         () ->
-            (leftMotor.getPosition().getValueAsDouble()
-                * ElevatorConstants.DRUM_CIRCUMFERENCE
-                / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
+            (getLeftMotorToDrumRatio()),
         null);
 
     builder.addStringProperty(
