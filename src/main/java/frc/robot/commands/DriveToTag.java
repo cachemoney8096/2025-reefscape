@@ -28,8 +28,8 @@ public class DriveToTag extends SequentialCommandGroup {
             Supplier<Double> distanceOffset, Supplier<Double> horizontalOffset, Supplier<Double> heading) {
         addCommands(
                 new InstantCommand(()->{
-                    xController.reset();
-                    yController.reset();
+                    visionXController.reset();
+                    visionYController.reset();
                 }),
                 new InstantCommand(
                         () -> {
@@ -51,8 +51,8 @@ public class DriveToTag extends SequentialCommandGroup {
                             if (tagPoseRobotSpaceInstance.getZ() == 0) {
                                 return true;
                             }
-                            if(tagPoseRobotSpace.getZ() != 0){
-                                tagPoseRobotSpaceInstance = tagPoseRobotSpace;
+                            if(tagPoseRobotSpaceCurrent.getZ() != 0){
+                                tagPoseRobotSpaceInstance = tagPoseRobotSpaceCurrent;
                             }
                             final Pose2d tagPoseRobotSpaceWpiConvention = new Pose2d(
                                     tagPoseRobotSpaceInstance.getZ() - distanceOffset.get(),
@@ -65,9 +65,9 @@ public class DriveToTag extends SequentialCommandGroup {
                             final Pose2d targetPoseFieldSpace = robotPoseFieldSpace
                                     .plus(tagTransformRobotSpaceWpiConvention);
                             final Pose2d currentPose = drivetrain.getState().Pose;
-                            double xOutput = xController.calculate(
+                            double xOutput = visionXController.calculate(
                                     currentPose.getX(), targetPoseFieldSpace.getX());
-                            double yOutput = yController.calculate(
+                            double yOutput = visionYController.calculate(
                                     currentPose.getY(), targetPoseFieldSpace.getY());
                                 
                             double xOutputClamped = MathUtil.clamp(xOutput, -1.5, 1.5);
@@ -87,8 +87,8 @@ public class DriveToTag extends SequentialCommandGroup {
                                     xOutputClamped, yOutputClamped); //default blue if we are cooked
                             }
                             
-                            return (Math.abs(xController.getPositionError()) < 0.01
-                                    && Math.abs(yController.getPositionError()) < 0.01)
+                            return (Math.abs(visionXController.getPositionError()) < 0.01
+                                    && Math.abs(visionYController.getPositionError()) < 0.01)
                                     || joystickInput.get();
 
                         }));
