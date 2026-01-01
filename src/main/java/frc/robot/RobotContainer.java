@@ -65,75 +65,91 @@ import java.util.function.Supplier;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer extends SubsystemBase {
-    /* Drivetrain config */
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+    /* Instance Variables */
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1)
-        .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-        .withDriveRequestType(
-            DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle = new SwerveRequest.FieldCentricFacingAngle()
-        .withDeadband(MaxSpeed * 0.1)
-        .withRotationalDeadband(MaxAngularRate * 0.1)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-    private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric()
-        .withDeadband(MaxSpeed * 0.1)
-        .withRotationalDeadband(MaxAngularRate * 0.1)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-    private final Telemetry logger = new Telemetry(MaxSpeed);
-
+    /* Controllers */
     private final CommandXboxController driverController = new CommandXboxController(
         OperatorConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController operatorController = new CommandXboxController(
         OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final double joystickDeadband = 0.05;
 
-    private CANrange distanceSensor = new CANrange(27);
+    private Supplier<Boolean> rotationalJoystickInput = () -> {
+        return Math.abs(MathUtil.applyDeadband(driverController.getRightX(), joystickDeadband)) > 0.0;
+        };
+
+    private Supplier<Boolean> positionalJoystickInput = () -> {
+        return Math.abs(MathUtil.applyDeadband(driverController.getLeftX(), joystickDeadband)) > 0.0
+            || Math.abs(MathUtil.applyDeadband(driverController.getLeftY(), joystickDeadband)) > 0.0;
+        };
+
+    private Supplier<Boolean> joystickInput = () -> {
+        return rotationalJoystickInput.get() || positionalJoystickInput.get();
+        };
 
     /* Auto chooser */
     private final SendableChooser<Command> autoChooser;
 
-    /* Drive control values for heading and vision */
+    /* Distance Sensor */
+    private CANrange distanceSensor = new CANrange(27);
+    private double distanceOffsetMeters = 0.53;
+
+    /* Drive control */
+    private Supplier<SwerveRequest> driveController = () -> driveCommand();
     public double desiredHeadingDeg = 0.0;
     private double visionBasedX = 0.0;
     private double visionBasedY = 0.0;
 
     private Consumer<Double> headingSetter = (Double d) -> {
-    this.desiredHeadingDeg = d;
+        this.desiredHeadingDeg = d;
     };
 
-    /* RR Velocity setter */
-    private double driveToIntakeXPower = 0.0;
+    private BiConsumer<Double, Double> visionVelocitySetter = (Double x, Double y) -> {
+        this.visionBasedX = x.doubleValue();
+        this.visionBasedY = y.doubleValue();
+    };
 
-    /* Vision offsets */
+    /* Drivetrain config */
+    private final double driveDeadband = 0.1;
+
+    private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+        .withDeadband(MaxSpeed * driveDeadband)
+        .withRotationalDeadband(MaxAngularRate * driveDeadband) 
+        .withDriveRequestType(
+            DriveRequestType.OpenLoopVoltage); /* Use open-loop control for drive motors */
+
+    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle = new SwerveRequest.FieldCentricFacingAngle()
+        .withDeadband(MaxSpeed * driveDeadband)
+        .withRotationalDeadband(MaxAngularRate * driveDeadband)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric()
+        .withDeadband(MaxSpeed * driveDeadband)
+        .withRotationalDeadband(MaxAngularRate * driveDeadband)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final Telemetry logger = new Telemetry(MaxSpeed);
+
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+    /* Vision variables */
     private double visionOffsetX = 0.0;
     private double visionOffsetY = 0.0;
 
-    /* Vision velocity setters */
-    private BiConsumer<Double, Double> visionVelocitySetter = (Double x, Double y) -> {
-    this.visionBasedX = x.doubleValue();
-    this.visionBasedY = y.doubleValue();
-    };
-
-    private Supplier<Boolean> joystickInput = () -> {
-    return Math.abs(MathUtil.applyDeadband(driverController.getRightX(), 0.05)) > 0
-        || Math.abs(MathUtil.applyDeadband(driverController.getLeftX(), 0.05)) > 0
-        || Math.abs(MathUtil.applyDeadband(driverController.getLeftY(), 0.05)) > 0;
-    };
+    private PIDController visionXController = new PIDController(1.0, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
+    private PIDController visionYController = new PIDController(1.0, 0.0, 0.0); // input meters output -1 to 1 (percent direction)    
+    private Pose3d tagPoseRobotSpaceInstance;
+    private Pose3d tagPoseRobotSpaceCurrent;    
 
     /* Robot centric controller */
     private boolean isManualRobotCentric = false;
 
-    boolean isBlue = true;
-
-    private final double deadband = 0.05;
-
-    /* Drive controller */
-    private Supplier<SwerveRequest> driveCommandSupplier = () -> driveCommand();
+    /* Team color */
+    public boolean isBlue = true;
 
     /* Subsystems */
     public Arm arm;
@@ -142,147 +158,134 @@ public class RobotContainer extends SubsystemBase {
     public Elevator elevator;
     public Lights lights;
 
-    public String pathCmd;
+    public String autoPathCmd;
 
     /* Prep states */
     public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L2;
     public IntakeSequenceManual.Location preppedIntakeLocation = IntakeSequenceManual.Location.LEFT;
     public PrepScoreAndDrive.Location preppedScoringLocation = PrepScoreAndDrive.Location.LEFT;
 
-    /* Vision alignment controllers and variables */
-    PIDController visionXController = new PIDController(1.0, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
-    PIDController visionYController = new PIDController(1.0, 0.0, 0.0); // input meters output -1 to 1 (percent direction)
-    
-    Pose3d tagPoseRobotSpaceInstance;
-    Pose3d tagPoseRobotSpaceCurrent;
-    Pose2d robotPoseFieldSpace;
-    Pose2d targetPoseFieldSpace;
-
-    /* Distance alignment */
-    double offsetMeters = 0.53;
-
     /**
      * The container for the robot. Contains subsystems, IO devices, and commands.
      */
     public RobotContainer() {
-    // Warmup PathPlanner to avoid Java pauses
-    FollowPathCommand.warmupCommand().schedule();
+        // Warmup PathPlanner to avoid Java pauses
+        FollowPathCommand.warmupCommand().schedule();
 
-    /* Subsystems */
-    arm = new Arm();
-    claw = new Claw();
-    climb = new Climb();
-    elevator = new Elevator();
-    lights = new Lights();
+        /* Subsystems */
+        arm = new Arm();
+        claw = new Claw();
+        climb = new Climb();
+        elevator = new Elevator();
+        lights = new Lights();
 
-    /* Auto chooser */
-    autoChooser = AutoBuilder.buildAutoChooser("Tests");
-    SmartDashboard.putData("Auto Mode", autoChooser);
-    
-    /* Field centric heading controller */
-    fieldCentricFacingAngle.HeadingController.setPID(6.7, 0.0001, 0.02);
+        /* Auto chooser */
+        autoChooser = AutoBuilder.buildAutoChooser("Tests");
+        SmartDashboard.putData("Auto Mode", autoChooser);
+        
+        /* Field centric heading controller */
+        fieldCentricFacingAngle.HeadingController.setPID(6.7, 0.0001, 0.02);
 
-    registerNamedCommands();
+        registerNamedCommands();
 
-    zeroRobot();
+        zeroRobot();
 
-    /* Configure controller bindings */
-    configureDriverBindings();
-    configureOperatorBindings();
-    // configureDebugBindings();
+        /* Configure controller bindings */
+        configureDriverBindings();
+        configureOperatorBindings();
+        // configureDebugBindings();
 
-    driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-    operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+        driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+        operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
 
-    /* Shuffleboard */
-    Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
-    Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
-    Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
-    Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
+        /* Shuffleboard */
+        Shuffleboard.getTab("Subsystems").add(arm.getName(), arm);
+        Shuffleboard.getTab("Subsystems").add(claw.getName(), claw);
+        Shuffleboard.getTab("Subsystems").add(elevator.getName(), elevator);
+        Shuffleboard.getTab("Subsystems").add("RobotContainer", this);
 
-    SmartDashboard.putData(autoChooser);
-    }
+        SmartDashboard.putData(autoChooser);
+        }
 
-    private void registerNamedCommands() {
-    NamedCommands.registerCommand(
-        "AUTO SCORING SEQUENCE",
-        new SequentialCommandGroup(
-            new InstantCommand(() -> pathCmd = "AUTO SCORING SEQUENCE"),
-            new AutoScoringSequence(claw)));
+        private void registerNamedCommands() {
+        NamedCommands.registerCommand(
+            "AUTO SCORING SEQUENCE",
+            new SequentialCommandGroup(
+                new InstantCommand(() -> autoPathCmd = "AUTO SCORING SEQUENCE"),
+                new AutoScoringSequence(claw)));
 
-    NamedCommands.registerCommand(
-        "AUTO SCORING PREP SEQUENCE", 
-        new SequentialCommandGroup(
-            new InstantCommand(() -> pathCmd = "AUTO SCORING PREP SEQUENCE"),
-            new AutoScoringPrepSequence(elevator, arm, lights)));
-    }
+        NamedCommands.registerCommand(
+            "AUTO SCORING PREP SEQUENCE", 
+            new SequentialCommandGroup(
+                new InstantCommand(() -> autoPathCmd = "AUTO SCORING PREP SEQUENCE"),
+                new AutoScoringPrepSequence(elevator, arm, lights)));
+        }
 
-    private void zeroRobot() {
-    drivetrain.seedFieldCentric();
+        private void zeroRobot() {
+        drivetrain.seedFieldCentric();
 
-    if(DriverStation.getAlliance().isPresent()){
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
-            this.desiredHeadingDeg = 0.0;
+        if(DriverStation.getAlliance().isPresent()){
+            if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                this.desiredHeadingDeg = 0.0;
 
+            }
+            else{
+                this.desiredHeadingDeg = 180.0;
+                isBlue = false;
+            }
         }
         else{
-            this.desiredHeadingDeg = 180.0;
-            isBlue = false;
+            this.desiredHeadingDeg = 0.0; // Default to blue if we are cooked 💀
         }
-    }
-    else{
-        this.desiredHeadingDeg = 0.0; // Default to blue if we are cooked 💀
-    }
 
-    drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(isBlue?0:180)));
+        drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(isBlue?0:180)));
 
-    drivetrain.registerTelemetry(logger::telemeterize);
-    }
-
-    private SwerveRequest driveCommand() {
-    {
-        double rotationJoystickInput = -MathUtil.applyDeadband(driverController.getRightX(), deadband);
-        double visionX = MathUtil.applyDeadband(visionBasedX, deadband);
-        double visionY = MathUtil.applyDeadband(visionBasedY, deadband);
-    
-        double xVelocity;
-        double yVelocity;
-    
-        if (Math.abs(visionX) > 0.0 || Math.abs(visionY) > 0.0) {
-            /* If vision is present, set velocities to vision */
-            xVelocity = visionX;
-            yVelocity = visionY;
-        } else {
-            /* Else set velocity based on left stick */
-            xVelocity = -driverController.getLeftY() * MaxSpeed;
-            yVelocity = -driverController.getLeftX() * MaxSpeed;
+        drivetrain.registerTelemetry(logger::telemeterize);
         }
-    
-        /* Rotational veloity based on right stick */
-        double rotationVelocity = -driverController.getRightX() * MaxAngularRate;
-    
-        if (isManualRobotCentric) {
-            /* Is robot centric */
-            return robotCentric
-            .withVelocityX(xVelocity) 
-            .withVelocityY(yVelocity) 
-            .withRotationalRate(rotationVelocity);
-        } else if (Math.abs(rotationJoystickInput) > 0.0) {
-            /* If rotation stick is being used */
-            desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
-    
-            return drive
-            .withVelocityX(xVelocity)
-            .withVelocityY(yVelocity)
-            .withRotationalRate(rotationVelocity);
-        } else {
-            return fieldCentricFacingAngle
+
+        private SwerveRequest driveCommand() {
+        {
+            double visionX = MathUtil.applyDeadband(visionBasedX, joystickDeadband);
+            double visionY = MathUtil.applyDeadband(visionBasedY, joystickDeadband);
+        
+            double xVelocity;
+            double yVelocity;
+        
+            if (Math.abs(visionX) > 0.0 || Math.abs(visionY) > 0.0) {
+                /* If vision is present, set velocities to vision */
+                xVelocity = visionX;
+                yVelocity = visionY;
+            } else {
+                /* Else set velocity based on left stick */
+                xVelocity = -driverController.getLeftY() * MaxSpeed;
+                yVelocity = -driverController.getLeftX() * MaxSpeed;
+            }
+        
+            /* Rotational veloity based on right stick */
+            double rotationVelocity = -driverController.getRightX() * MaxAngularRate;
+        
+            if (isManualRobotCentric) {
+                /* Is robot centric */
+                return robotCentric
+                .withVelocityX(xVelocity) 
+                .withVelocityY(yVelocity) 
+                .withRotationalRate(rotationVelocity);
+            } else if (rotationalJoystickInput.get()) {
+                /* If rotation stick is being used */
+                desiredHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+        
+                return drive
                 .withVelocityX(xVelocity)
                 .withVelocityY(yVelocity)
-                .withTargetDirection(
-                    Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
+                .withRotationalRate(rotationVelocity);
+            } else {
+                return fieldCentricFacingAngle
+                    .withVelocityX(xVelocity)
+                    .withVelocityY(yVelocity)
+                    .withTargetDirection(
+                        Rotation2d.fromDegrees(isBlue?desiredHeadingDeg:(desiredHeadingDeg + 180))); 
+            }
         }
-    }
     }
 
     /**
@@ -302,7 +305,7 @@ public class RobotContainer extends SubsystemBase {
     private void configureDriverBindings() {
     /* Set drivetrain control command */
     drivetrain.setDefaultCommand(
-        drivetrain.applyRequest(driveCommandSupplier));
+        drivetrain.applyRequest(driveController));
     
     Command rumbleBriefly = new SequentialCommandGroup(
         new InstantCommand(
@@ -323,10 +326,9 @@ public class RobotContainer extends SubsystemBase {
                 new IntakeSequenceManual(arm, elevator, claw, ()->preppedIntakeLocation, headingSetter).finallyDo(()->claw.stopMotors()),
                 new SequentialCommandGroup(
                     new WaitUntilCommand(()->{
-                        double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - offsetMeters;
-                        this.driveToIntakeXPower = -0.5;
+                        double distanceMeters = distanceSensor.getDistance().getValueAsDouble() - distanceOffsetMeters;
                         return distanceMeters < 0.05;
-                    }).finallyDo(()->this.driveToIntakeXPower = 0.0)).until(joystickInput::get)
+                    })).until(joystickInput::get)
                 )
             );
 
@@ -339,7 +341,7 @@ public class RobotContainer extends SubsystemBase {
     driverController
         .rightBumper()
         .onTrue(
-            new PrepScoreAndDrive(elevator, arm, ()->preppedHeight, ()->preppedScoringLocation, visionVelocitySetter, headingSetter, joystickInput, drivetrain, pathCmd, ()->desiredHeadingDeg)
+            new PrepScoreAndDrive(elevator, arm, ()->preppedHeight, ()->preppedScoringLocation, visionVelocitySetter, headingSetter, joystickInput, drivetrain, autoPathCmd, ()->desiredHeadingDeg)
         );
 
     // SCORE
@@ -453,7 +455,7 @@ public class RobotContainer extends SubsystemBase {
     private void configureDebugBindings() {
     drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(driveCommandSupplier) // Drive counterclockwise with negative X (left)
+        drivetrain.applyRequest(driveController) // Drive counterclockwise with negative X (left)
     );
     
     // Set Elevator to score_L3
@@ -569,10 +571,10 @@ public class RobotContainer extends SubsystemBase {
     super.initSendable(builder);
     builder.addDoubleProperty("distance offset vision X", ()->visionOffsetX, (double d)->{visionOffsetX = d;System.out.println("afdsgjsdfg");});
     builder.addDoubleProperty("distance offset vision Y", ()->visionOffsetY, (double d)->{visionOffsetY = d;});
-    builder.addDoubleProperty("distance sensor offset", ()->offsetMeters, (double d)->{this.offsetMeters = d;});
+    builder.addDoubleProperty("distance sensor offset", ()->distanceOffsetMeters, (double d)->{this.distanceOffsetMeters = d;});
     builder.addBooleanProperty("robot centric enabled", ()->isManualRobotCentric, null);
     builder.addDoubleProperty("pose heading", ()->drivetrain.getState().Pose.getRotation().getDegrees(), null);
-    builder.addStringProperty("Path CMD", () -> pathCmd, null);
+    builder.addStringProperty("Path CMD", () -> autoPathCmd, null);
     builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
     builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
     builder.addDoubleProperty(
