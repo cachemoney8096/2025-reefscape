@@ -15,23 +15,28 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
-import java.util.TreeMap;
 
 public class Elevator extends SubsystemBase {
-  public enum ElevatorHeight {
-    HOME,
-    INTAKE,
-    SCORE_L4,
-    SCORE_L3,
-    SCORE_L2,
-    SCORE_L1,
-    SHALLOW_PREP,
-    SHALLOW_CLIMB,
-    ARM_CLEAR_OF_CLIMB,
-    ALGAE;
-  }
 
-  private TreeMap<ElevatorHeight, Double> elevatorPositions = new TreeMap<ElevatorHeight, Double>();
+  public enum ElevatorHeight {
+
+    HOME(ElevatorCal.POSITION_HOME_INCHES),
+    INTAKE(ElevatorCal.POSITION_INTAKE_INCHES),
+    SCORE_L4(ElevatorCal.POSITION_SCORE_L4_INCHES),
+    SCORE_L3(ElevatorCal.POSITION_SCORE_L3_INCHES),
+    SCORE_L2(ElevatorCal.POSITION_SCORE_L2_INCHES),
+    SCORE_L1(ElevatorCal.POSITION_SCORE_L1_INCHES),
+    SHALLOW_PREP(ElevatorCal.POSITION_SHALLOW_PREP_INCHES),
+    SHALLOW_CLIMB(ElevatorCal.POSITION_SHALLOW_CLIMB_INCHES),
+    ARM_CLEAR_OF_CLIMB(ElevatorCal.POSITION_ARM_CLEAR_OF_CLIMB_INCHES),
+    ALGAE(ElevatorCal.POSITION_ALGAE_INCHES);
+
+    public final double inches;
+
+    ElevatorHeight(double inches) {
+      this.inches = inches;
+    }
+  }
 
   private ElevatorHeight desiredPosition = ElevatorHeight.HOME;
   /*DigitalInput limitSwitchHome = new DigitalInput(RobotMap.ELEVATOR_LIMIT_SWITCH_DIO_HOME);
@@ -48,17 +53,7 @@ public class Elevator extends SubsystemBase {
   private boolean allowElevatorMovement = true; // TODO
 
   public Elevator() {
-    elevatorPositions.put(ElevatorHeight.HOME, ElevatorCal.POSITION_HOME_INCHES);
-    elevatorPositions.put(ElevatorHeight.INTAKE, ElevatorCal.POSITION_INTAKE_INCHES);
-    elevatorPositions.put(ElevatorHeight.SCORE_L4, ElevatorCal.POSITION_SCORE_L4_INCHES);
-    elevatorPositions.put(ElevatorHeight.SCORE_L3, ElevatorCal.POSITION_SCORE_L3_INCHES);
-    elevatorPositions.put(ElevatorHeight.SCORE_L2, ElevatorCal.POSITION_SCORE_L2_INCHES);
-    elevatorPositions.put(ElevatorHeight.SCORE_L1, ElevatorCal.POSITION_SCORE_L1_INCHES);
-    elevatorPositions.put(ElevatorHeight.SHALLOW_PREP, ElevatorCal.POSITION_SHALLOW_PREP_INCHES);
-    elevatorPositions.put(ElevatorHeight.SHALLOW_CLIMB, ElevatorCal.POSITION_SHALLOW_CLIMB_INCHES);
-    elevatorPositions.put(
-        ElevatorHeight.ARM_CLEAR_OF_CLIMB, ElevatorCal.POSITION_ARM_CLEAR_OF_CLIMB_INCHES);
-    elevatorPositions.put(ElevatorHeight.ALGAE, ElevatorCal.POSITION_ALGAE_INCHES);
+
     initTalons();
 
     FovParamsConfigs fovCfg = new FovParamsConfigs();
@@ -70,6 +65,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private void initTalons() {
+
     TalonFXConfigurator cfgLeft = leftMotor.getConfigurator();
     TalonFXConfiguration toApply = new TalonFXConfiguration();
 
@@ -80,7 +76,12 @@ public class Elevator extends SubsystemBase {
     toApply.CurrentLimits.StatorCurrentLimit =
         ElevatorCal.ELEVATOR_MOTOR_STATOR_SUPPLY_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
+
+    
+    
     // Slot 0 is for Scoring PID values and Slot 1 is for Shallow Climbing PID values
+
+    // Set the values for Slot0
     toApply.Slot0.kP = ElevatorCal.ELEVATOR_SCORE_P;
     toApply.Slot0.kI = ElevatorCal.ELEVATOR_SCORE_I;
     toApply.Slot0.kD = ElevatorCal.ELEVATOR_SCORE_D;
@@ -88,11 +89,15 @@ public class Elevator extends SubsystemBase {
     // [\]
     toApply.Slot0.kG = 0.25;
 
+
+    // Set the values for Slot1
     toApply.Slot1.kP = ElevatorCal.ELEVATOR_CLIMB_P;
     toApply.Slot1.kI = ElevatorCal.ELEVATOR_CLIMB_I;
     toApply.Slot1.kD = ElevatorCal.ELEVATOR_CLIMB_D;
     toApply.Slot1.kV = ElevatorCal.ELEVATOR_CLIMB_FF;
     cfgLeft.apply(toApply);
+
+
     Follower master = new Follower(leftMotor.getDeviceID(), true);
     rightMotor.setControl(master);
 
@@ -105,16 +110,6 @@ public class Elevator extends SubsystemBase {
   }
 
   public double linearSpeedThrottle() {
-    if (this.desiredPosition == ElevatorHeight.SCORE_L2
-        || desiredPosition == ElevatorHeight.SCORE_L3
-        || desiredPosition == ElevatorHeight.SCORE_L4
-        || desiredPosition == ElevatorHeight.INTAKE) {
-      return 0.15;
-    }
-    return 1.0;
-  }
-
-  public double angularSpeedThrottle() {
     if (this.desiredPosition == ElevatorHeight.SCORE_L2
         || desiredPosition == ElevatorHeight.SCORE_L3
         || desiredPosition == ElevatorHeight.SCORE_L4
@@ -158,30 +153,34 @@ public class Elevator extends SubsystemBase {
     leftMotor.setControl(request);
   }
 
+  public double getElevatorHeight() {
+
+    return leftMotor
+      .getPosition()
+      .getValueAsDouble()
+      * ElevatorConstants.DRUM_CIRCUMFERENCE
+      / ElevatorConstants.MOTOR_TO_DRUM_RATIO;
+  }
+
   public boolean atDesiredPosition() {
     return Math.abs(
-            leftMotor.getPosition().getValueAsDouble()
-                    * ElevatorConstants.DRUM_CIRCUMFERENCE
-                    / ElevatorConstants.MOTOR_TO_DRUM_RATIO
-                - elevatorPositions.get(desiredPosition))
-        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
+          getElevatorHeight()
+            - desiredPosition.inches)
+            < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean atElevatorPosition(ElevatorHeight height) {
     return Math.abs(
-            leftMotor.getPosition().getValueAsDouble()
-                    * ElevatorConstants.DRUM_CIRCUMFERENCE
-                    / ElevatorConstants.MOTOR_TO_DRUM_RATIO
-                - elevatorPositions.get(height))
-        < ElevatorCal.ELEVATOR_MARGIN_INCHES;
+            getElevatorHeight()
+            - height.inches)
+            < ElevatorCal.ELEVATOR_MARGIN_INCHES;
   }
 
   public boolean armMovementAllowed() {
-    return leftMotor.getPosition().getValueAsDouble()
-            * ElevatorConstants.DRUM_CIRCUMFERENCE
-            / ElevatorConstants.MOTOR_TO_DRUM_RATIO
-        > (elevatorPositions.get(ElevatorHeight.ARM_CLEAR_OF_CLIMB)
-            - ElevatorCal.AT_CLEAR_POSITION_MARGIN);
+    return 
+        getElevatorHeight()
+        > (ElevatorHeight.ARM_CLEAR_OF_CLIMB.inches)
+        - ElevatorCal.AT_CLEAR_POSITION_MARGIN;
   }
 
   /* The limit switches we are using are active low, hence the ! operator
@@ -199,7 +198,7 @@ public class Elevator extends SubsystemBase {
 
   public void periodic() {
     if (allowElevatorMovement) {
-      //controlPosition(elevatorPositions.get(desiredPosition));
+      controlPosition(desiredPosition.inches);
     }
   }
 
@@ -241,7 +240,7 @@ public class Elevator extends SubsystemBase {
 
     builder.addStringProperty("Elevator DESIRED Pos", () -> desiredPosition.toString(), null);
     builder.addDoubleProperty(
-        "Elevator DESIRED Pos (in)", () -> elevatorPositions.get(desiredPosition), null);
+        "Elevator DESIRED Pos (in)", () -> desiredPosition.inches, null);
     builder.addBooleanProperty("Elevator at desired", () -> atDesiredPosition(), null);
 
     builder.addDoubleProperty(
@@ -256,9 +255,7 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty(
         "Elevator CURRENT Pos (in)",
         () ->
-            (leftMotor.getPosition().getValueAsDouble()
-                * ElevatorConstants.DRUM_CIRCUMFERENCE
-                / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
+            (getElevatorHeight()),
         null);
 
     builder.addStringProperty(
