@@ -189,6 +189,8 @@ public class RobotContainer extends SubsystemBase {
 
         registerNamedCommands();
 
+        isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue; /* Default to blue if we are cooked 💀 */
+
         zeroRobot();
 
         /* Configure controller bindings */
@@ -226,19 +228,12 @@ public class RobotContainer extends SubsystemBase {
     private void zeroRobot() {
         drivetrain.seedFieldCentric();
 
-        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue); /* Default to blue if we are cooked 💀 */
-
-        if(alliance == Alliance.Blue){
-            this.desiredHeadingDeg = 0.0;
-        } else {
-            this.desiredHeadingDeg = 180.0;
-            isBlue = false;
-        }
+        this.desiredHeadingDeg = isBlue ? 0.0 : 180.0 ;
 
         drivetrain.resetPose(new Pose2d(
             drivetrain.getState().Pose.getX(), 
             drivetrain.getState().Pose.getY(), 
-            Rotation2d.fromDegrees(isBlue?0:180)));
+            Rotation2d.fromDegrees(isBlue ? 0.0: 180)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -364,9 +359,8 @@ public class RobotContainer extends SubsystemBase {
             .onTrue(
                 new InstantCommand(
                     () -> {
-                        //drivetrain.seedFieldCentric();
                         drivetrain.resetPose(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), Rotation2d.fromDegrees(isBlue?0.0:180.0)));
-                        desiredHeadingDeg = isBlue?0.0:180.0;
+                        desiredHeadingDeg = isBlue ? 0.0 : 180.0;
                     }));
 
         /* Cardinals */ 
@@ -556,12 +550,13 @@ public class RobotContainer extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
+
         builder.addDoubleProperty("distance offset vision X", ()->visionOffsetX, (double d)->{visionOffsetX = d;System.out.println("afdsgjsdfg");});
         builder.addDoubleProperty("distance offset vision Y", ()->visionOffsetY, (double d)->{visionOffsetY = d;});
         builder.addDoubleProperty("distance sensor offset", ()->distanceOffsetMeters, (double d)->{this.distanceOffsetMeters = d;});
         builder.addBooleanProperty("robot centric enabled", ()->isManualRobotCentric, null);
         builder.addDoubleProperty("pose heading", ()->drivetrain.getState().Pose.getRotation().getDegrees(), null);
-        builder.addStringProperty("Path CMD", () -> autoPathCmd, null);
+        builder.addStringProperty("path CMD", () -> autoPathCmd, null);
         builder.addDoubleProperty("odometry X", () -> drivetrain.getState().Pose.getX(), null);
         builder.addDoubleProperty("odometry Y", () -> drivetrain.getState().Pose.getY(), null);
         builder.addDoubleProperty(
@@ -579,9 +574,6 @@ public class RobotContainer extends SubsystemBase {
         builder.addDoubleProperty("tag rot y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getRotation().getY(), null);
         builder.addDoubleProperty("tag rot z", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getRotation().getZ(), null);
         builder.addDoubleProperty("tag calc'd y", ()->LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_FRONT_NAME).getZ()*Math.tan(LimelightHelpers.getTX(Constants.LIMELIGHT_FRONT_NAME)), null);
-        
-        if(DriverStation.getAlliance().isPresent()){
-            builder.addBooleanProperty("is blue", ()->DriverStation.getAlliance().get() == DriverStation.Alliance.Blue, null);
-        }
+        builder.addBooleanProperty("is blue", ()->isBlue, null);
     }
 }
