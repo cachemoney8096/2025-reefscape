@@ -11,21 +11,12 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
-import java.util.TreeMap;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class Arm extends SubsystemBase {
-  public final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID, "rio");
-  private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID, "rio");
 
-  private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID, "rio");
-  // private final Encoder armLeftEncoderAbs =
-  // new Encoder(RobotMap.ARM_ABS_ENCODER_DIO_A, RobotMap.ARM_ABS_ENCODER_DIO_B);
-
-  // trapezoidal motion profiling to account for large jumps in velocity which result in large error
-  private final TrapezoidProfile trapezoidProfile =
-      new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(
-              ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
+  /*Enum */
 
   public enum ArmPosition {
     HOME,
@@ -38,12 +29,45 @@ public class Arm extends SubsystemBase {
     ALGAE_PREP
   }
 
+  /* Hardware Code*/
+
+  public final TalonFX armMotorLeft = new TalonFX(RobotMap.LEFT_ARM_MOTOR_CAN_ID, "rio");
+  private final TalonFX armMotorRight = new TalonFX(RobotMap.RIGHT_ARM_MOTOR_CAN_ID, "rio");
+
+  private final CANcoder armLeftEncoderAbs = new CANcoder(RobotMap.ARM_ABS_ENCODER_CAN_ID, "rio");
+  // private final Encoder armLeftEncoderAbs =
+  // new Encoder(RobotMap.ARM_ABS_ENCODER_DIO_A, RobotMap.ARM_ABS_ENCODER_DIO_B);
+
+  /* Control Code */
+
+  // trapezoidal motion profiling to account for large jumps in velocity which result in large error
+  private final TrapezoidProfile trapezoidProfile =
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
+
+  // reused request to avoid re-allocating every control loop call
+  private final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+
+  /* State of Arm Code */
+
   /** Map each of our arm positions to an actual position on our arm (degrees) */
-  public final TreeMap<ArmPosition, Double> armPositions = new TreeMap<ArmPosition, Double>();
+  public final Map<ArmPosition, Double> armPositions = new EnumMap<>(ArmPosition.class);
 
   private ArmPosition armDesiredPosition = ArmPosition.HOME;
 
+  /* Code 4 Constructor */
+
   public Arm() {
+    initArmPositions();
+    initArmTalons();
+    rezeroArm();
+    // armLeftEncoderAbs.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
+  }
+
+  /* Init Helpers */
+
+  private void initArmPositions() {
     armPositions.put(ArmPosition.ALGAE_PREP, ArmCal.ARM_POSITION_ALGAE_PREP);
 
     armPositions.put(ArmPosition.HOME, ArmCal.ARM_POSITION_HOME_DEGREES);
@@ -53,9 +77,6 @@ public class Arm extends SubsystemBase {
     armPositions.put(ArmPosition.L2, ArmCal.ARM_POSITION_L2_DEGREES);
     armPositions.put(ArmPosition.L3, ArmCal.ARM_POSITION_L3_DEGREES);
     // armPositions.put(ArmPosition.L4, ArmCal.ARM_POSITION_L4_DEGREES);
-    initArmTalons();
-    rezeroArm();
-    // armLeftEncoderAbs.setDistancePerPulse(Constants.DEGREES_PER_REV_THROUGH_BORE_ABS_ENCODER_PULSE);
   }
 
   private void initArmTalons() {
@@ -66,22 +87,29 @@ public class Arm extends SubsystemBase {
     toApply.CurrentLimits.StatorCurrentLimit = ArmCal.ARM_STATOR_CURRENT_LIMIT_AMPS;
     toApply.CurrentLimits.StatorCurrentLimitEnable = true;
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
     toApply.Slot0.kP = ArmCal.ARM_MOTOR_P;
     toApply.Slot0.kI = ArmCal.ARM_MOTOR_I;
     toApply.Slot0.kD = ArmCal.ARM_MOTOR_D;
     toApply.Slot0.kV = ArmCal.ARM_MOTOR_FF;
     toApply.Slot0.kG = 0.45; // 0.5;
+
     armMotorLeft.getConfigurator().apply(toApply);
     // armMotorRight.setControl(new Follower(armMotorLeft.getDeviceID(), true));
+
     CANcoderConfiguration cfg = new CANcoderConfiguration();
-    cfg.MagnetSensor.MagnetOffset = -0.414; // TODO this
+    cfg.MagnetSensor.MagnetOffset = ArmCal.ARM_ABS_ENCODER_MAGNET_OFFSET; // TODO this
     cfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
     armLeftEncoderAbs.getConfigurator().apply(cfg);
   }
 
+  /* Setters/Goals */
+
   public void setDesiredPosition(ArmPosition armPosition) {
     this.armDesiredPosition = armPosition;
   }
+
+  /* ==================== SENSORS ==================== */
 
   public double getPositionArmRotationsReal() {
     return armLeftEncoderAbs.getAbsolutePosition().getValueAsDouble();
@@ -91,20 +119,19 @@ public class Arm extends SubsystemBase {
     armMotorLeft.setPosition(getPositionArmRotationsReal() * ArmCal.MOTOR_TO_ARM_ROTATIONS);
   }
 
+  /* ==================== CONTROL LOOP ==================== */
+
   // Account for PID when setting position of our arm
   public void controlPosition(double inputPositionDegrees) {
-    final TrapezoidProfile trapezoidProfile =
-        new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(
-                ArmCal.ARM_MOTOR_MAX_VELOCITY_RPS, ArmCal.ARM_MOTOR_MAX_ACCERLATION_RPS_SQUARED));
     TrapezoidProfile.State tGoal =
         new TrapezoidProfile.State(
             inputPositionDegrees / 360.0 * ArmCal.MOTOR_TO_ARM_ROTATIONS, 0.0);
+
     TrapezoidProfile.State setpoint =
         new TrapezoidProfile.State(
             armMotorLeft.getPosition().getValueAsDouble(),
             armMotorLeft.getVelocity().getValueAsDouble());
-    final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+
     setpoint = trapezoidProfile.calculate(0.020, setpoint, tGoal);
     request.Position = setpoint.position;
     request.Velocity = setpoint.velocity;
@@ -122,6 +149,8 @@ public class Arm extends SubsystemBase {
     return atArmPosition(armDesiredPosition);
   }
 
+  /* Manual and Test for Arm Code */
+
   public void stopArmMovement() {
     // left motor follows right motor, so armMotorRight is not necessary here
     armMotorLeft.setVoltage(0.0);
@@ -135,10 +164,14 @@ public class Arm extends SubsystemBase {
     armMotorLeft.setVoltage(-1 * ArmCal.TEST_ARM_MOVEMENT_VOLTAGE);
   }
 
+  /* Periodic Functions */
+
   @Override
   public void periodic() {
     //controlPosition(armPositions.get(this.armDesiredPosition));
   }
+
+  /* Telemetry */
 
   @Override
   public void initSendable(SendableBuilder builder) {
