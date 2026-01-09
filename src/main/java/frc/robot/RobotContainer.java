@@ -170,7 +170,7 @@ public class RobotContainer extends SubsystemBase {
      * The container for the robot. Contains subsystems, IO devices, and commands.
      */
     public RobotContainer() {
-        /* Named commands must be registed first immediately */
+        /* Named commands must be registered immediately */
         registerNamedCommands();
 
         /* Warmup PathPlanner to avoid Java pauses */
