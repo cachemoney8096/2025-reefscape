@@ -170,9 +170,6 @@ public class RobotContainer extends SubsystemBase {
      * The container for the robot. Contains subsystems, IO devices, and commands.
      */
     public RobotContainer() {
-        /* Named commands must be registered immediately */
-        registerNamedCommands();
-
         /* Warmup PathPlanner to avoid Java pauses */
         FollowPathCommand.warmupCommand().schedule();
 
@@ -182,6 +179,9 @@ public class RobotContainer extends SubsystemBase {
         climb = new Climb();
         elevator = new Elevator();
         lights = new Lights();
+
+        /* Named commands must be registered immediately */
+        registerNamedCommands();
 
         /* Auto chooser */
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
