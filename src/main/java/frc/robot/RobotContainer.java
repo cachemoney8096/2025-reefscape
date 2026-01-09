@@ -170,7 +170,10 @@ public class RobotContainer extends SubsystemBase {
      * The container for the robot. Contains subsystems, IO devices, and commands.
      */
     public RobotContainer() {
-        // Warmup PathPlanner to avoid Java pauses
+        /* Named commands must be registed first immediately */
+        registerNamedCommands();
+
+        /* Warmup PathPlanner to avoid Java pauses */
         FollowPathCommand.warmupCommand().schedule();
 
         /* Init subsystems */
@@ -186,8 +189,6 @@ public class RobotContainer extends SubsystemBase {
         
         /* Field centric heading controller */
         fieldCentricFacingAngle.HeadingController.setPID(6.7, 0.0001, 0.02); /* 6.7 💀 */
-
-        registerNamedCommands();
 
         isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue; /* Default to blue if we are cooked 💀 */
 
