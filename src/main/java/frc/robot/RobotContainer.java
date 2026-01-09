@@ -159,7 +159,7 @@ public class RobotContainer extends SubsystemBase {
     public Elevator elevator;
     public Lights lights;
 
-    public String autoPathCmd;
+    public String autoPathCmd = "";
 
     /* Prep states */
     public ElevatorHeight preppedHeight = ElevatorHeight.SCORE_L2;
